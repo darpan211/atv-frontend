@@ -1,0 +1,51 @@
+{
+  "name": "atv-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint --ext .js,.jsx ./src",
+    "lint:fix": "eslint --fix --ext .js,.jsx ./src",
+    "clear-all": "rm -rf build node_modules",
+    "re-start": "rm -rf build node_modules && yarn install && yarn start",
+    "re-build": "rm -rf build node_modules && yarn install && yarn build",
+    "preview": "vite preview",
+    "prepare": "husky",
+    "dev": "vite --mode development",
+    "build": "vite build --mode production",
+    "build:dev": "vite build --mode development"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,json}": "eslint --fix",
+    "**/*.{js,json,css,scss,html,md}": [
+      "prettier --write",
+      "git add ."
+    ]
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.8.1",
+    "@tailwindcss/vite": "^4.1.6",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.6.0",
+    "redux-persist": "^6.0.0",
+    "redux-persist-transform-encrypt": "^5.1.1",
+    "redux-thunk": "^3.1.0",
+    "tailwindcss": "^4.1.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.0.0",
+    "prettier": "^3.5.3",
+    "vite": "^6.3.5"
+  }
+}

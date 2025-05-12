@@ -1,0 +1,27 @@
+# Build outputs
+dist
+build
+
+# Dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Coverage directory
+coverage
+
+# Public files
+public
+
+# Cache
+.cache
+.env
+.vscode
+.idea
+
+# Package files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
