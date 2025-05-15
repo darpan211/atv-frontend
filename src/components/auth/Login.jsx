@@ -14,7 +14,7 @@ const LoginSchema = Yup.object().shape({
   password: Yup.string()
     .min(8, 'Password must be at least 8 characters')
     .required('Password is required'),
-  rememberMe: Yup.boolean(),
+  rememberMe: Yup.boolean().required('pleasce check the box is required'),
 });
 
 const Login = () => {
@@ -73,13 +73,10 @@ const Login = () => {
                     formik.touched.password && formik.errors.password ? 'border-red-500' : ''
                   }`}
                   style={{
-                    
                     WebkitBoxShadow: ' white ',
                     WebkitTextFillColor: 'black',
-                  
                   }}
                   autoComplete="email"
-                
                 />
                 {formik.touched.email && formik.errors.email && (
                   <div className="text-red-500 text-sm mt-1">{formik.errors.email}</div>
@@ -94,7 +91,7 @@ const Login = () => {
                   <Button
                     type="button"
                     variant="link"
-                    className="p-0 h-auto text-sm font-normal text-[#03c9d7]"
+                    className="p-0 h-auto text-sm font-normal text-[#03c9d7] cursor-pointer"
                     onClick={() => alert('Forgot password functionality would go here')}
                   >
                     Forgot password?
@@ -110,8 +107,6 @@ const Login = () => {
                   className={`h-12 ${
                     formik.touched.password && formik.errors.password ? 'border-red-500' : ''
                   }`}
-                
-                  
                 />
                 {formik.touched.password && formik.errors.password && (
                   <div className="text-red-500 text-sm mt-1">{formik.errors.password}</div>
@@ -138,7 +133,7 @@ const Login = () => {
 
               <Button
                 type="submit"
-                className="w-full h-12 text-base bg-[#03c9d7] hover:bg-[#02a1ac] text-white"
+                className="w-full h-12 text-base bg-[#03c9d7] hover:bg-[#02a1ac] text-white cursor-pointer"
                 disabled={isLoading || !formik.isValid}
               >
                 {isLoading ? 'Signing in...' : 'Sign in'}
@@ -148,7 +143,7 @@ const Login = () => {
             <div className="mt-8 text-center">
               <p className="text-muted-foreground">
                 Don&apos;t have an account?{' '}
-                <Button variant="link" className="p-0 h-auto text-[#03c9d7]">
+                <Button variant="link" className="p-0 h-auto text-[#03c9d7] cursor-pointer">
                   Sign up
                 </Button>
               </p>
