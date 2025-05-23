@@ -19,50 +19,59 @@ import DataTable from '../common/DataTable';
 import { useNavigate } from 'react-router-dom';
 
 // Example usage of the DataTable component
-const Seller = () => {
+const Rooms = () => {
   const navigate = useNavigate();
   // Sample data
-  const sellers = [
+  const roomsData = [
     {
       id: 1,
-      sellerName: 'Global Merchandise',
-      ownerName: 'John Smith',
-      mobile: '+1 (555) 123-4567',
-      subscriptionDate: '2023-05-15',
-      paymentStatus: 'Paid',
+      image: 'https://via.placeholder.com/100x60?text=Room+1',
+      templateName: 'Modern Minimalist',
+      category: 'Living Room',
+      roomType: 'Lounge',
+      description: 'A sleek and modern room with neutral tones.',
       status: 'Active',
     },
     {
       id: 2,
-      sellerName: 'Tech Gadgets Inc',
-      ownerName: 'Sarah Johnson',
-      mobile: '+1 (555) 987-6543',
-      subscriptionDate: '2023-06-22',
-      paymentStatus: 'Overdue',
+      image: 'https://via.placeholder.com/100x60?text=Room+2',
+      templateName: 'Cozy Cottage',
+      category: 'Bedroom',
+      roomType: 'Master Bedroom',
+      description: 'Warm and inviting space with wooden accents.',
       status: 'Inactive',
     },
     {
       id: 3,
-      sellerName: 'Fashionista Store',
-      ownerName: 'Michael Brown',
-      mobile: '+1 (555) 456-7890',
-      subscriptionDate: '2023-04-10',
-      paymentStatus: 'Paid',
+      image: 'https://via.placeholder.com/100x60?text=Room+3',
+      templateName: 'Urban Loft',
+      category: 'Studio',
+      roomType: 'Multi-purpose',
+      description: 'Open-concept design with industrial features.',
       status: 'Active',
     },
   ];
 
+  // Table column definitions
   const columns = [
     {
-      header: 'Seller Name',
+      header: 'Room Image',
       accessor: 'sellerName',
     },
     {
-      header: 'Owner Name',
+      header: 'Template Name',
       accessor: 'ownerName',
     },
     {
-      header: 'Mobile',
+      header: 'Category',
+      accessor: 'mobile',
+    },
+    {
+      header: 'Room Type',
+      accessor: 'mobile',
+    },
+    {
+      header: 'Descrpition',
       accessor: 'mobile',
     },
     {
@@ -101,6 +110,7 @@ const Seller = () => {
     {
       header: 'Status',
       cell: row => {
+        // Render status with appropriate styling
         const getStatusColor = status => {
           switch (status) {
             case 'Active':
@@ -157,11 +167,13 @@ const Seller = () => {
   // Event handlers
   const handleSearch = query => {
     console.log('Searching for:', query);
+    // Implement actual search logic here
   };
 
   const handleAddSeller = () => {
     console.log('Add seller clicked');
-    navigate('/admin/seller/create');
+    navigate('/admin/roomform');
+    // Implement add seller logic here
   };
 
   return (
@@ -169,11 +181,11 @@ const Seller = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">List of Sellers</h1>
         <Button onClick={handleAddSeller} className="bg-[#6F4E37] hover:bg-[#a98f7d] text-white">
-          <Plus className="mr-2 h-4 w-4" /> Add Seller
+          <Plus className="mr-2 h-4 w-4" /> Add Room
         </Button>
       </div>
       <DataTable
-        data={sellers}
+        data={roomsData}
         columns={columns}
         onSearch={handleSearch}
         onAddClick={handleAddSeller}
@@ -185,4 +197,4 @@ const Seller = () => {
   );
 };
 
-export default Seller;
+export default Rooms;

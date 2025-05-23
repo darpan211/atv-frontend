@@ -1,5 +1,8 @@
-import Hero from '@/components/Hero';
-import Room from '@/components/Room';
+import Hero from '@/components/Home/Hero';
+import NatureTilesShowcase from '@/components/Home/NatureTilesShowcase';
+import Room from '@/components/common/Room';
+import GetInTouch from '@/components/Home/GetInTouch';
+import Footer from '@/components/Home/Footer';
 import React from 'react';
 
 const Dashboard = () => {
@@ -7,6 +10,10 @@ const Dashboard = () => {
     <div>
       <Hero />
       <Room />
+      <NatureTilesShowcase />
+      <GetInTouch />
+      <Footer/>
+
     </div>
   );
 };

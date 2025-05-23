@@ -6,7 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { persistor, store } from './redux/store.js';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import ErrorBoundary from './components/ErrorBoundary.jsx';
+import ErrorBoundary from './components/Home/ErrorBoundary.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

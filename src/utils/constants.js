@@ -105,3 +105,56 @@ export const TILES_DATA = {
     'https://images.unsplash.com/photo-1577587230708-187fdbef4d91?q=80&w=1771&auto=format&fit=crop',
   ],
 };
+
+export const TIELS = [
+  {
+    id: 1,
+    name: 'MONALISA ONYX AQUA GLOSSY',
+    size: '800 x 1600 CM',
+    finish: 'Glossy',
+    image:
+      'https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=200&auto=format&fit=crop',
+    thumbnail:
+      'https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=100&auto=format&fit=crop',
+  },
+  {
+    id: 2,
+    name: 'MONALISA ONYX AQUA GLOSSY',
+    size: '800 x 1600 CM',
+    finish: 'Glossy',
+    image:
+      'https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=200&auto=format&fit=crop',
+    thumbnail:
+      'https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=100&auto=format&fit=crop',
+  },
+  {
+    id: 3,
+    name: 'MONALISA ONYX AQUA GLOSSY',
+    size: '800 x 1600 CM',
+    finish: 'Glossy',
+    image:
+      'https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=200&auto=format&fit=crop',
+    thumbnail:
+      'https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=100&auto=format&fit=crop',
+  },
+  {
+    id: 4,
+    name: 'MONALISA ONYX AQUA GLOSSY',
+    size: '800 x 1600 CM',
+    finish: 'Glossy',
+    image:
+      'https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=200&auto=format&fit=crop',
+    thumbnail:
+      'https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=100&auto=format&fit=crop',
+  },
+  {
+    id: 5,
+    name: 'MONALISA ONYX AQUA GLOSSY',
+    size: '800 x 1600 CM',
+    finish: 'Glossy',
+    image:
+      'https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=200&auto=format&fit=crop',
+    thumbnail:
+      'https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=100&auto=format&fit=crop',
+  },
+];
