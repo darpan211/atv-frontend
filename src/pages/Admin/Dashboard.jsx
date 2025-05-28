@@ -4,6 +4,8 @@ import Room from '@/components/common/Room';
 import GetInTouch from '@/components/Home/GetInTouch';
 import Footer from '@/components/Home/Footer';
 import React from 'react';
+import BlockDesign from '@/components/Home/BlockDesign';
+import ChooseColorSection from '@/components/Home/ChooseColorSection';
 
 const Dashboard = () => {
   return (
@@ -11,8 +13,10 @@ const Dashboard = () => {
       <Hero />
       <Room />
       <NatureTilesShowcase />
+      <BlockDesign />
+      <ChooseColorSection />
       <GetInTouch />
-      <Footer/>
+      <Footer />
 
     </div>
   );

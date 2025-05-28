@@ -7,156 +7,141 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-} from '@/components/ui/navigation-menu';
-import { Menu, X } from 'lucide-react';
-import { Icon } from './icons';
-import { useNavigate } from 'react-router-dom';
+} from "@/components/ui/navigation-menu"
+import { Menu, X } from "lucide-react"
+import { Icon } from "./icons"
 
 const Header = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
   const handleLogin = () => {
-    navigate('/');
-  };
+    window.location.href = "/"
+  }
+
+  const handleRegister = () => {
+    window.location.href = "/register"
+  }
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen)
+  }
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false)
+  }
 
   return (
-    <header className="bg-white border-b border-gray-100 flex items-center shadow-xl md:justify-around relative">
-      <div className="flex items-center justify-between md:w-fit w-full  h-[80px] gap-4">
-        <Icon name="Logo" height={'69px'} width={'70px'} />
-
-        <button
-          className="md:hidden text-gray-800 focus:outline-none"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      <NavigationMenu className="hidden md:block justify-center decoration-[#6C4A34]">
-        <NavigationMenuList className="flex gap-5">
-          {['Home', 'About Us', 'Projects', 'Contact Us'].map(item => (
-            <NavigationMenuItem key={item}>
-              <NavigationMenuLink className="font-bold text-gray-800 text-nowrap hover:underline transition-all">
-                {item}
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          ))}
-          <NavigationMenuItem>
-            <NavigationMenuTrigger className="font-bold text-gray-800 bg-transparent hover:bg-transparent focus:bg-transparent">
-              Services
-            </NavigationMenuTrigger>
-            {/* <NavigationMenuContent className="min-w-[200px] bg-white p-2 rounded-md shadow-md">
-              <div className="grid gap-2 p-2">
-                {['Service 1', 'Service 2', 'Service 3'].map(service => (
-                     <NavigationMenuLink
-                     key={service}
-                     className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                   >
-                     {service}
-                   </NavigationMenuLink>
+    <header className="bg-white border-b border-gray-100 shadow-xl relative z-40 flex items-center md:ju">
+      {/* Main Header Container */}
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20 lg:h-[80px]">
+          {/* Logo Section */}
+          <div className="flex items-center">
+            <Icon name="Logo" height="45px" width="46px" className="sm:h-[55px] sm:w-[56px] lg:h-[69px] lg:w-[70px]" />
+          </div>
+          <div className="hidden lg:flex items-center justify-center flex-1">
+            <NavigationMenu className="decoration-[#6C4A34]">
+              <NavigationMenuList className="flex gap-6 xl:gap-8">
+                {["Home", "About Us", "Projects", "Contact Us"].map((item) => (
+                  <NavigationMenuItem key={item}>
+                    <NavigationMenuLink className="font-bold text-gray-800 text-nowrap hover:underline transition-all text-sm xl:text-base cursor-pointer">
+                      {item}
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
                 ))}
-              </div>
-            </NavigationMenuContent> */}
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
-
-      <div className="hidden md:flex gap-2 ">
-        <Button
-          onClick={handleLogin}
-          variant="outline"
-          className="bg-[#6F4E37] hover:bg-[#6F4E37] border-0 text-gray-800"
-        >
-          <span className="flex items-center text-white">
-            <UserIcon className="text-white" />
-            Login
-          </span>
-        </Button>
-        <Button
-          variant="outline"
-          className="bg-[#6F4E37] hover:bg-[#6F4E37] border-0 text-gray-800"
-        >
-          <span className="flex items-center text-white">
-            <UserPlusIcon className="text-white" />
-            Register
-          </span>
-        </Button>
-      </div>
-
-      <div
-        className={`absolute top-16 left-0 w-full bg-white border-t border-gray-100 px-4 pt-4 pb-2 shadow-md md:hidden z-50 overflow-hidden transition-all duration-1000 ease-in-out ${
-          mobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 hidden'
-        }`}
-      >
-        <div className="flex justify-between flex-col gap-3">
-          {['Home', 'About Us', 'Services', 'Projects', 'Contact Us'].map(item => (
-            <span key={item} className="text-gray-800 font-medium hover:underline">
-              {item}
-            </span>
-          ))}
-          <div className="flex gap-2 mt-4 justify-between flex-wrap">
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="font-bold text-gray-800 bg-transparent hover:bg-transparent focus:bg-transparent text-sm xl:text-base">
+                    Services
+                  </NavigationMenuTrigger>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+          <div className="hidden lg:flex gap-2 xl:gap-3">
             <Button
+              onClick={handleLogin}
               variant="outline"
-              className="bg-sky-200 hover:bg-sky-300 border-0 text-gray-800 w-full"
+              className="bg-[#6F4E37] hover:bg-[#5d3e2a] border-0 text-white px-3 xl:px-4 py-2 text-sm xl:text-base"
             >
-              <span className="flex items-center justify-center">
-                <UserIcon />
+              <span className="flex items-center">
+                <div>{<Icon name="UserIcon" height={'50px'} width={'50px'} />}</div>
                 Login
               </span>
             </Button>
             <Button
+              onClick={handleRegister}
               variant="outline"
-              className="bg-sky-200 hover:bg-sky-300 border-0 text-gray-800 w-full"
+              className="bg-[#6F4E37] hover:bg-[#5d3e2a] border-0 text-white px-3 xl:px-4 py-2 text-sm xl:text-base"
+            >
+              <span className="flex items-center">
+                <div>{<Icon name="Userplus" height={'50px'} width={'50px'} />}</div>
+                Register
+              </span>
+            </Button>
+          </div>
+          <button
+            className="lg:hidden text-gray-800 focus:outline-none p-2"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </div>
+      <div
+        className={`lg:hidden absolute top-full left-0 w-full bg-white border-t border-gray-100 shadow-lg z-50 transition-all duration-300 ease-in-out ${mobileMenuOpen
+          ? "opacity-100 visible transform translate-y-0"
+          : "opacity-0 invisible transform -translate-y-2"
+          }`}
+      >
+        <div className="px-4 py-6 sm:px-6">
+          <div className="space-y-4 mb-6 text-center">
+            {["Home", "About Us", "Projects", "Contact Us"].map((item) => (
+              <div key={item}>
+                <span
+                  className="block text-gray-800 font-medium hover:text-[#6F4E37] transition-colors cursor-pointer py-2 text-base sm:text-lg"
+                  onClick={closeMobileMenu}
+                >
+                  {item}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-3 grid">
+            <Button
+              onClick={() => {
+                handleLogin()
+                closeMobileMenu()
+              }}
+              variant="outline"
+              className="bg-[#6F4E37] hover:bg-[#5d3e2a] border-0 text-white w-full sm:flex-1 py-3"
             >
               <span className="flex items-center justify-center">
-                <UserPlusIcon />
+                <div>{<Icon name="UserIcon" height={'50px'} width={'50px'} />}</div>
+                Login
+              </span>
+            </Button>
+            <Button
+              onClick={() => {
+                handleRegister()
+                closeMobileMenu()
+              }}
+              variant="outline"
+              className="bg-[#6F4E37] hover:bg-[#5d3e2a] border-0 text-white w-full sm:flex-1 py-3"
+            >
+              <span className="flex items-center justify-center">
+                <div>{<Icon name="Userplus" height={'50px'} width={'50px'} />}</div>
                 Register
               </span>
             </Button>
           </div>
         </div>
       </div>
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 bg-opacity-25 z-40" onClick={closeMobileMenu} />
+      )}
     </header>
-  );
-};
+  )
+}
 
-// SVG Icons as components
-const UserIcon = () => (
-  <svg
-    className="mr-2"
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
-  </svg>
-);
-
-const UserPlusIcon = () => (
-  <svg
-    className="mr-2"
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-    <circle cx="8.5" cy="7" r="4" />
-    <line x1="20" y1="8" x2="20" y2="14" />
-    <line x1="23" y1="11" x2="17" y2="11" />
-  </svg>
-);
-
-export default Header;
+export default Header
