@@ -21,9 +21,21 @@ import Rooms from './components/admin/Rooms';
 import RoomForm from './components/admin/RoomForm';
 
 // Attribute Management (Category, Series, etc.)
-import AttributePage from './components/Attributes/AttributePage';
-import AddAttributePage from './components/Attributes/AddAttributePage';
+// import AttributePage from './components/Attributes/AttributePage';
+// import AddAttributePage from './components/Attributes/AddAttributePage';
 import AdminHeader from './components/common/AdminHeader';
+import CategoriesPage from './pages/AttributePage/CategoriesPage';
+import Series from './pages/AttributePage/Series';
+import Materials from './pages/AttributePage/Materials';
+import SizesPage from './pages/AttributePage/SizesPage';
+import ColorsPage from './pages/AttributePage/ColorsPage';
+import SuitablePlacePage from './pages/AttributePage/SuitablePlacePage';
+import AddCategoryPage from './components/Attributes/addAttribute/AddCategoryPage';
+import AddMaterialPage from './components/Attributes/addAttribute/AddMaterialPage';
+import AddSizePage from './components/Attributes/addAttribute/AddSizePage';
+import AddColorPage from './components/Attributes/addAttribute/AddColorPage';
+import AddPlacePage from './components/Attributes/addAttribute/AddPlacePage';
+import AddSeriesPage from './components/Attributes/addAttribute/AddSeriesPage';
 
 // ================== Layout Wrapper ==================
 const AppLayout = ({ children }) => {
@@ -32,7 +44,7 @@ const AppLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {!isLoginPage && <Header />}
+      {!isLoginPage && <AdminHeader />}
 
       <main className="flex-grow">{children}</main>
     </div>
@@ -108,7 +120,7 @@ const App = () => {
           path="/admin/categories"
           element={
             <AppLayout>
-              <AttributePage />
+              <CategoriesPage />
             </AppLayout>
           }
         />
@@ -116,7 +128,7 @@ const App = () => {
           path="/admin/series"
           element={
             <AppLayout>
-              <AttributePage />
+              <Series />
             </AppLayout>
           }
         />
@@ -124,7 +136,7 @@ const App = () => {
           path="/admin/materials"
           element={
             <AppLayout>
-              <AttributePage />
+              <Materials />
             </AppLayout>
           }
         />
@@ -132,7 +144,7 @@ const App = () => {
           path="/admin/sizes"
           element={
             <AppLayout>
-              <AttributePage />
+              <SizesPage />
             </AppLayout>
           }
         />
@@ -140,7 +152,7 @@ const App = () => {
           path="/admin/colors"
           element={
             <AppLayout>
-              <AttributePage />
+              <ColorsPage />
             </AppLayout>
           }
         />
@@ -148,59 +160,32 @@ const App = () => {
           path="/admin/places"
           element={
             <AppLayout>
-              <AttributePage />
+              <SuitablePlacePage />
             </AppLayout>
           }
         />
 
         {/* Attribute Pages (Add Form) */}
         <Route
-          path="/admin/categories/add"
-          element={
-            <AppLayout>
-              <AddAttributePage />
-            </AppLayout>
-          }
+          path="/admin/categories/:mode/:id?"
+          element={<AppLayout>{<AddCategoryPage />}</AppLayout>}
         />
         <Route
-          path="/admin/series/add"
-          element={
-            <AppLayout>
-              <AddAttributePage />
-            </AppLayout>
-          }
+          path="/admin/series/:mode/:id?"
+          element={<AppLayout>{<AddSeriesPage />}</AppLayout>}
         />
         <Route
-          path="/admin/materials/add"
-          element={
-            <AppLayout>
-              <AddAttributePage />
-            </AppLayout>
-          }
+          path="/admin/materials/:mode/:id?"
+          element={<AppLayout>{<AddMaterialPage />}</AppLayout>}
+        />
+        <Route path="/admin/sizes/:mode/:id?" element={<AppLayout>{<AddSizePage />}</AppLayout>} />
+        <Route
+          path="/admin/colors/:mode/:id?"
+          element={<AppLayout>{<AddColorPage />}</AppLayout>}
         />
         <Route
-          path="/admin/sizes/add"
-          element={
-            <AppLayout>
-              <AddAttributePage />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/admin/colors/add"
-          element={
-            <AppLayout>
-              <AddAttributePage />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/admin/places/add"
-          element={
-            <AppLayout>
-              <AddAttributePage />
-            </AppLayout>
-          }
+          path="/admin/places/:mode/:id?"
+          element={<AppLayout>{<AddPlacePage />}</AppLayout>}
         />
       </Routes>
     </AuthProvider>
