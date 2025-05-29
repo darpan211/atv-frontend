@@ -1,7 +1,6 @@
 import React from 'react';
 import { ImageSlider } from '../common/ImageSlider';
-// import { ImageSlider } from '../common/ImageSlider';
-// import { SLIDES } from '@/utils/constants';
+
 const Hero = () => {
   const slides = [
     {
@@ -22,8 +21,7 @@ const Hero = () => {
   ];
   return (
     <div className="relative w-full ">
-      {/* Background Image */}
-      {/* <ImageSlider /> */}
+      
 
       <ImageSlider
         slides={slides}
@@ -33,11 +31,11 @@ const Hero = () => {
         height={'70vh'}
       />
 
-      {/* Overlay */}
-      <div className="absolute inset-0 flex items-center justify-end pr-16">
-        <div className="text-right max-w-md">
-          <h2 className="text-white text-3xl font-semibold">MAJESTIC SIZE,</h2>
-          <h2 className="text-[#E05C00] text-3xl font-semibold">MODERN AESTHETICS</h2>
+      
+      <div className="absolute inset-0 flex items-center justify-end pr-32">
+        <div className="text-left max-w-md">
+          <h2 className="text-white text-3xl mr-2.5 font-semibold">MAJESTIC SIZE,</h2>
+          <h2 className="text-[#E05C00] text-3xl mr-2.5 font-semibold">MODERN AESTHETICS</h2>
         </div>
       </div>
     </div>
