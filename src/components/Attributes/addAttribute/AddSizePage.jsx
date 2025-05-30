@@ -2,11 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  addSize,
-  updateSize,
-  // getSizeById, // Uncomment this when API is ready
-} from '@/services/sizeService';
+import { addSize, updateSize, getSizeById } from '@/services/sizeService';
 
 const AddSizePage = () => {
   const navigate = useNavigate();
@@ -20,8 +16,8 @@ const AddSizePage = () => {
     if (isEdit && id) {
       const fetchSize = async () => {
         try {
-          // const result = await getSizeById(id); // Uncomment when available
-          // setSizeData(result);
+          const result = await getSizeById(id);
+          setSizeData(result);
         } catch (error) {
           console.error('Failed to fetch size:', error);
         } finally {
@@ -46,12 +42,17 @@ const AddSizePage = () => {
           console.error('No size data available for update');
           return;
         }
-        await updateSize(sizeData.id, payload);
+        await updateSize(id, payload);
       } else {
         await addSize(payload);
       }
 
-      navigate('/admin/sizes');
+      // navigate('/admin/sizes');
+      navigate('/admin/sizes', {
+        state: {
+          toastMessage: isEdit ? 'Sizes updated successfully!' : 'Sizes added successfully!',
+        },
+      });
     } catch (error) {
       console.error('Failed to submit:', error);
     }

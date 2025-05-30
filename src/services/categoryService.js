@@ -1,20 +1,11 @@
 import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-// Utility to get the token from localStorage
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-};
+import axiosHandler from './axiosHandler';
 
 export const getCategories = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}/api/v1/attributes/getcategory`, getAuthHeaders());
+    const response = await axiosHandler.get(`${BASE_URL}/api/v1/attributes/getcategory`);
     return response.data.data;
   } catch (error) {
     console.error('Failed to fetch categories:', error);
@@ -24,11 +15,7 @@ export const getCategories = async () => {
 
 export const addCategory = async data => {
   try {
-    const response = await axios.post(
-      `${BASE_URL}/api/v1/attributes/addcategory`,
-      data,
-      getAuthHeaders()
-    );
+    const response = await axiosHandler.post(`${BASE_URL}/api/v1/attributes/addcategory`, data);
     return response.data;
   } catch (error) {
     console.error('Failed to add category:', error);
@@ -38,9 +25,9 @@ export const addCategory = async data => {
 
 export const deleteCategory = async id => {
   try {
-    const response = await axios.delete(
-      `${BASE_URL}/api/v1/attributes/deletecategory/${id}`,
-      getAuthHeaders()
+    const response = await axiosHandler.delete(
+      `${BASE_URL}/api/v1/attributes/deletecategory/${id}`
+      // getAuthHeaders()
     );
     return response.data;
   } catch (error) {
@@ -50,9 +37,9 @@ export const deleteCategory = async id => {
 };
 export const getCategoryById = async id => {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/api/v1/attributes/getcategory/${id}`,
-      getAuthHeaders()
+    const response = await axiosHandler.get(
+      `${BASE_URL}/api/v1/attributes/getcategory/${id}`
+      // getAuthHeaders()
     );
     return response.data.data;
   } catch (error) {
@@ -63,10 +50,10 @@ export const getCategoryById = async id => {
 
 export const updateCategory = async (id, data) => {
   try {
-    const response = await axios.put(
+    const response = await axiosHandler.put(
       `${BASE_URL}/api/v1/attributes/updatecategory/${id}`,
-      data,
-      getAuthHeaders()
+      data
+      // getAuthHeaders()
     );
     return response.data;
   } catch (error) {

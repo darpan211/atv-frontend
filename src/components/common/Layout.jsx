@@ -1,5 +1,6 @@
 import React from 'react';
-
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const Layout = ({ title, buttonLabel, onButtonClick, isEdit = false, children }) => {
   let heading = '';
 
@@ -25,6 +26,7 @@ const Layout = ({ title, buttonLabel, onButtonClick, isEdit = false, children })
         )}
       </div>
       <div>{children}</div>
+      <ToastContainer />
     </div>
   );
 };

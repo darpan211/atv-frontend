@@ -1,23 +1,8 @@
-import axios from 'axios';
-
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-// Utility to get the token from localStorage
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-};
-
+import axiosHandler from './axiosHandler';
 export const getSuitablePlaces = async () => {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/api/v1/suitablePlace/getsuitablePlace`,
-      getAuthHeaders()
-    );
+    const response = await axiosHandler.get(`${BASE_URL}/api/v1/suitablePlace/getsuitablePlace`);
     return response.data.data;
   } catch (error) {
     console.error('Failed to fetch suitable places:', error);
@@ -27,10 +12,9 @@ export const getSuitablePlaces = async () => {
 
 export const addSuitablePlace = async data => {
   try {
-    const response = await axios.post(
+    const response = await axiosHandler.post(
       `${BASE_URL}/api/v1/suitablePlace/addsuitablePlace`,
-      data,
-      getAuthHeaders()
+      data
     );
     return response.data;
   } catch (error) {
@@ -41,9 +25,8 @@ export const addSuitablePlace = async data => {
 
 export const deleteSuitablePlace = async id => {
   try {
-    const response = await axios.delete(
-      `${BASE_URL}/api/v1/suitablePlace/deletesuitablePlace/${id}`,
-      getAuthHeaders()
+    const response = await axiosHandler.delete(
+      `${BASE_URL}/api/v1/suitablePlace/deletesuitablePlace/${id}`
     );
     return response.data;
   } catch (error) {
@@ -54,9 +37,8 @@ export const deleteSuitablePlace = async id => {
 
 export const getSuitablePlaceById = async id => {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/api/v1/suitablePlace/getsuitablePlace/${id}`,
-      getAuthHeaders()
+    const response = await axiosHandler.get(
+      `${BASE_URL}/api/v1/suitablePlace/getsuitablePlace/${id}`
     );
     return response.data.data;
   } catch (error) {
@@ -67,10 +49,9 @@ export const getSuitablePlaceById = async id => {
 
 export const updateSuitablePlace = async (id, data) => {
   try {
-    const response = await axios.put(
+    const response = await axiosHandler.put(
       `${BASE_URL}/api/v1/suitablePlace/updatesuitablePlace/${id}`,
-      data,
-      getAuthHeaders()
+      data
     );
     return response.data;
   } catch (error) {

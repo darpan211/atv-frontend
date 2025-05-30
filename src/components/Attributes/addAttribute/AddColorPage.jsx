@@ -2,11 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
-import {
-  addColor,
-  updateColor,
-  // getColorById,
-} from '@/services/colorService';
+import { addColor, updateColor, getColorById } from '@/services/colorService';
 
 const AddColorPage = () => {
   const navigate = useNavigate();
@@ -21,7 +17,14 @@ const AddColorPage = () => {
       const fetchColor = async () => {
         try {
           const result = await getColorById(id);
-          setColorData(result);
+
+          // ✅ Normalize to match Formik field names
+          const transformedData = {
+            _id: result._id,
+            name: result.colors, // map "colors" → "name"
+          };
+
+          setColorData(transformedData);
         } catch (error) {
           console.error('Failed to fetch color:', error);
         } finally {
@@ -38,29 +41,32 @@ const AddColorPage = () => {
       const payload = { colors: values.name };
 
       if (isEdit) {
-        if (!colorData) {
-          console.error('No color data available for update');
-          return;
-        }
         await updateColor(colorData._id, payload);
       } else {
         await addColor(payload);
       }
 
-      navigate('/admin/colors');
+      navigate('/admin/colors', {
+        state: {
+          toastMessage: isEdit ? 'Color updated successfully!' : 'Color added successfully!',
+        },
+      });
     } catch (error) {
       console.error('Failed to submit:', error);
     }
   };
 
   if (loading) return <div className="p-4 text-center">Loading...</div>;
+  if (isEdit && !colorData) return <div className="p-4 text-gray-600">Loading color...</div>;
+
+  const initialValues = colorData || { name: '' };
 
   return (
     <Layout title="Colors" isEdit={isEdit}>
       <CommonAddForm
         label="Color Name"
         buttonText={isEdit ? 'Update Color' : 'Add Color'}
-        initialValues={{ color: colorData?.color || '' }} // key here must match form field name
+        initialValues={initialValues}
         onSubmit={handleSubmit}
       />
     </Layout>

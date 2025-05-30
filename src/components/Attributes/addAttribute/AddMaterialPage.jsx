@@ -43,7 +43,14 @@ const AddMaterialPage = () => {
         await addMaterial(payload);
       }
 
-      navigate('/admin/materials');
+      // navigate('/admin/materials');
+      navigate('/admin/materials', {
+        state: {
+          toastMessage: isEdit
+            ? 'Materials updated successfully!'
+            : 'Materials added successfully!',
+        },
+      });
     } catch (error) {
       console.error('Failed to submit:', error);
     }

@@ -5,7 +5,7 @@ import CommonAddForm from '@/components/common/CommonAddForm';
 import {
   addSuitablePlace,
   updateSuitablePlace,
-  // getSuitablePlaceById,
+  getSuitablePlaceById,
 } from '@/services/suitablePlaceService';
 
 const AddPlacePage = () => {
@@ -45,7 +45,12 @@ const AddPlacePage = () => {
       } else {
         await addSuitablePlace(payload);
       }
-      navigate('/admin/places');
+      // navigate('/admin/places');
+      navigate('/admin/places', {
+        state: {
+          toastMessage: isEdit ? 'Places updated successfully!' : 'Places added successfully!',
+        },
+      });
     } catch (error) {
       console.error('Failed to submit:', error);
     }

@@ -1,19 +1,9 @@
-import axios from 'axios';
-
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-};
+import axiosHandler from './axiosHandler';
 
 export const getMaterials = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}/api/v1/material/getmaterial`, getAuthHeaders());
+    const response = await axiosHandler.get(`${BASE_URL}/api/v1/material/getmaterial`);
     return response.data.data;
   } catch (error) {
     console.error('Failed to fetch materials:', error);
@@ -23,11 +13,7 @@ export const getMaterials = async () => {
 
 export const addMaterial = async data => {
   try {
-    const response = await axios.post(
-      `${BASE_URL}/api/v1/material/addmaterial`,
-      data,
-      getAuthHeaders()
-    );
+    const response = await axiosHandler.post(`${BASE_URL}/api/v1/material/addmaterial`, data);
     return response.data;
   } catch (error) {
     console.error('Failed to add material:', error);
@@ -37,10 +23,7 @@ export const addMaterial = async data => {
 
 export const deleteMaterial = async id => {
   try {
-    const response = await axios.delete(
-      `${BASE_URL}/api/v1/material/deletematerial/${id}`,
-      getAuthHeaders()
-    );
+    const response = await axiosHandler.delete(`${BASE_URL}/api/v1/material/deletematerial/${id}`);
     return response.data;
   } catch (error) {
     console.error('Failed to delete material:', error);
@@ -50,10 +33,7 @@ export const deleteMaterial = async id => {
 
 export const getMaterialById = async id => {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/api/v1/material/getmaterial/${id}`,
-      getAuthHeaders()
-    );
+    const response = await axiosHandler.get(`${BASE_URL}/api/v1/material/getmaterial/${id}`);
     return response.data.data;
   } catch (error) {
     console.error('Failed to fetch material by ID:', error);
@@ -63,10 +43,9 @@ export const getMaterialById = async id => {
 
 export const updateMaterial = async (id, data) => {
   try {
-    const response = await axios.put(
+    const response = await axiosHandler.put(
       `${BASE_URL}/api/v1/material/updatematerial/${id}`,
-      data,
-      getAuthHeaders()
+      data
     );
     return response.data;
   } catch (error) {
