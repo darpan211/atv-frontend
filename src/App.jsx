@@ -37,6 +37,11 @@ import AddColorPage from './components/Attributes/addAttribute/AddColorPage';
 import AddPlacePage from './components/Attributes/addAttribute/AddPlacePage';
 import AddSeriesPage from './components/Attributes/addAttribute/AddSeriesPage';
 
+// Add Tiles 
+import MainAddTiles from "./components/Tiles/MainAddTiles"
+import HeaderTilesCart from "./components/Tiles/HeaderTilesCart"
+
+
 // ================== Layout Wrapper ==================
 const AppLayout = ({ children }) => {
   const location = useLocation();
@@ -187,6 +192,27 @@ const App = () => {
           path="/admin/places/:mode/:id?"
           element={<AppLayout>{<AddPlacePage />}</AppLayout>}
         />
+
+        {/* Add Tiles */}
+        <Route
+          path="/admin/tiles/add"
+          element={
+            <AppLayout>
+              <MainAddTiles />
+            </AppLayout>
+          }
+        />
+
+        <Route
+          path="/admin/tiles/list"
+          element={
+            <AppLayout>
+              <HeaderTilesCart />
+            </AppLayout>
+          }
+        />
+
+        
       </Routes>
     </AuthProvider>
   );
