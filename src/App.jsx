@@ -25,6 +25,11 @@ import AttributePage from './components/Attributes/AttributePage';
 import AddAttributePage from './components/Attributes/AddAttributePage';
 import AdminHeader from './components/common/AdminHeader';
 
+// Add Tiles 
+import MainAddTiles from "./components/Tiles/MainAddTiles"
+import HeaderTilesCart from "./components/Tiles/HeaderTilesCart"
+
+
 // ================== Layout Wrapper ==================
 const AppLayout = ({ children }) => {
   const location = useLocation();
@@ -202,6 +207,27 @@ const App = () => {
             </AppLayout>
           }
         />
+
+        {/* Add Tiles */}
+        <Route
+          path="/admin/tiles/add"
+          element={
+            <AppLayout>
+              <MainAddTiles />
+            </AppLayout>
+          }
+        />
+
+        <Route
+          path="/admin/tiles/list"
+          element={
+            <AppLayout>
+              <HeaderTilesCart />
+            </AppLayout>
+          }
+        />
+
+        
       </Routes>
     </AuthProvider>
   );
