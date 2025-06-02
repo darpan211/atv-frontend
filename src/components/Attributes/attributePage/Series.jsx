@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonTable from '@/components/common/CommonTable';
-import { getSeries, deleteSeries } from '@/services/seriesService';
+import { getSeries, deleteSeries } from '@/services/attributeServices/seriesService';
 import { toast, Bounce, ToastContainer } from 'react-toastify';
 
 const Series = () => {

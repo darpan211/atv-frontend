@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
-import { addCategory, updateCategory, getCategoryById } from '@/services/categoryService';
+import {
+  addCategory,
+  updateCategory,
+  getCategoryById,
+} from '@/services/attributeServices/categoryService';
 
 const AddCategoryPage = () => {
   const navigate = useNavigate();

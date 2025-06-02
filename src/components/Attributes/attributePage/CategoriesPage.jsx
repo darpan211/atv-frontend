@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonTable from '@/components/common/CommonTable';
-import { getCategories, deleteCategory } from '@/services/categoryService';
+import { getCategories, deleteCategory } from '@/services/attributeServices/categoryService';
 import { toast, Bounce } from 'react-toastify';
 
 const CategoriesPage = () => {

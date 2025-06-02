@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
-import { addMaterial, updateMaterial, getMaterialById } from '@/services/materialService';
+import {
+  addMaterial,
+  updateMaterial,
+  getMaterialById,
+} from '@/services/attributeServices/materialService';
 
 const AddMaterialPage = () => {
   const navigate = useNavigate();

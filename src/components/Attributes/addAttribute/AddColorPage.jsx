@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
-import { addColor, updateColor, getColorById } from '@/services/colorService';
+import { addColor, updateColor, getColorById } from '@/services/attributeServices/colorService';
 
 const AddColorPage = () => {
   const navigate = useNavigate();

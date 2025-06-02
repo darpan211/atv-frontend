@@ -6,7 +6,7 @@ import {
   addSuitablePlace,
   updateSuitablePlace,
   getSuitablePlaceById,
-} from '@/services/suitablePlaceService';
+} from '@/services/attributeServices/suitablePlaceService';
 
 const AddPlacePage = () => {
   const navigate = useNavigate();

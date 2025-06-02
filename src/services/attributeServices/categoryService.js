@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-import axiosHandler from './axiosHandler';
+import axiosHandler from '../axiosHandler';
 
 export const getCategories = async () => {
   try {
@@ -27,7 +27,6 @@ export const deleteCategory = async id => {
   try {
     const response = await axiosHandler.delete(
       `${BASE_URL}/api/v1/attributes/deletecategory/${id}`
-      // getAuthHeaders()
     );
     return response.data;
   } catch (error) {
@@ -37,10 +36,7 @@ export const deleteCategory = async id => {
 };
 export const getCategoryById = async id => {
   try {
-    const response = await axiosHandler.get(
-      `${BASE_URL}/api/v1/attributes/getcategory/${id}`
-      // getAuthHeaders()
-    );
+    const response = await axiosHandler.get(`${BASE_URL}/api/v1/attributes/getcategory/${id}`);
     return response.data.data;
   } catch (error) {
     console.error('Failed to fetch category:', error);
@@ -53,7 +49,6 @@ export const updateCategory = async (id, data) => {
     const response = await axiosHandler.put(
       `${BASE_URL}/api/v1/attributes/updatecategory/${id}`,
       data
-      // getAuthHeaders()
     );
     return response.data;
   } catch (error) {

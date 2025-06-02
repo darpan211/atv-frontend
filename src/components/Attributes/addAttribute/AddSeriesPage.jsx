@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
-import { addSeries, updateSeries, getSeriesById } from '@/services/seriesService';
+import { addSeries, updateSeries, getSeriesById } from '@/services/attributeServices/seriesService';
 
 const AddSeriesPage = () => {
   const navigate = useNavigate();

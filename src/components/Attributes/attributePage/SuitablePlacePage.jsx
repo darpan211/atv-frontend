@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonTable from '@/components/common/CommonTable';
-import { getSuitablePlaces, deleteSuitablePlace } from '@/services/suitablePlaceService';
+import {
+  getSuitablePlaces,
+  deleteSuitablePlace,
+} from '@/services/attributeServices/suitablePlaceService';
 import { toast, Bounce, ToastContainer } from 'react-toastify';
 
 const SuitablePlacePage = () => {

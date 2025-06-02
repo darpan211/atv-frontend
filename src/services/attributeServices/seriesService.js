@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-import axiosHandler from './axiosHandler';
+import axiosHandler from '../axiosHandler';
 
 export const getSeries = async () => {
   try {

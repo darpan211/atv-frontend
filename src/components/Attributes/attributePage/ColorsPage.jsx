@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonTable from '@/components/common/CommonTable';
-import { getColors, deleteColor } from '@/services/colorService';
+import { getColors, deleteColor } from '@/services/attributeServices/colorService';
 import { toast, Bounce } from 'react-toastify'; // ❌ No ToastContainer here
 
 const ColorsPage = () => {

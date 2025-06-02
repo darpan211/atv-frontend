@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonTable from '@/components/common/CommonTable';
-import { getMaterials, deleteMaterial } from '@/services/materialService';
+import { getMaterials, deleteMaterial } from '@/services/attributeServices/materialService';
 import { toast, Bounce, ToastContainer } from 'react-toastify';
 
 const Materials = () => {

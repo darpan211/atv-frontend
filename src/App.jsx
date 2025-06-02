@@ -38,10 +38,9 @@ import AddColorPage from './components/Attributes/addAttribute/AddColorPage';
 import AddPlacePage from './components/Attributes/addAttribute/AddPlacePage';
 import AddSeriesPage from './components/Attributes/addAttribute/AddSeriesPage';
 
-// Add Tiles 
-import MainAddTiles from "./components/Tiles/MainAddTiles"
-import HeaderTilesCart from "./components/Tiles/HeaderTilesCart"
-
+// Add Tiles
+import MainAddTiles from './components/Tiles/MainAddTiles';
+import HeaderTilesCart from './components/Tiles/HeaderTilesCart';
 
 // ================== Layout Wrapper ==================
 const AppLayout = ({ children }) => {
@@ -212,8 +211,6 @@ const App = () => {
             </AppLayout>
           }
         />
-
-        
       </Routes>
     </AuthProvider>
   );

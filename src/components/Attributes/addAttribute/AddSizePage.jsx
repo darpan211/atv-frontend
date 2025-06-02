@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
 import { useNavigate, useParams } from 'react-router-dom';
-import { addSize, updateSize, getSizeById } from '@/services/sizeService';
+import { addSize, updateSize, getSizeById } from '@/services/attributeServices/sizeService';
 
 const AddSizePage = () => {
   const navigate = useNavigate();

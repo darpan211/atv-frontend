@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonTable from '@/components/common/CommonTable';
-import { getSizes, deleteSize } from '@/services/sizeService';
+import { getSizes, deleteSize } from '@/services/attributeServices/sizeService';
 import { toast, Bounce, ToastContainer } from 'react-toastify';
 
 const SizesPage = () => {
