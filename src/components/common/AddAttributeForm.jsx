@@ -33,30 +33,30 @@ export default function AddAttributeForm({ title, label, buttonText }) {
               value={formik.values.name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className="w-2xl px-4 py-2 border bg-white rounded-md focus:outline-none"
+              className="w-full px-4 py-2 border bg-white rounded-md focus:outline-none"
             />
           </div>
 
           {/* Buttons */}
-          <div className="flex justify-center gap-4 items-center mt-6">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 items-center mt-6">
             <button
               type="button"
               onClick={() => console.log('Cancel clicked')}
-              className="bg-white text-black border px-6 py-2 rounded-md shadow-sm shadow-black hover:bg-gray-100 transition"
+              className="bg-white text-black border px-6 py-2 rounded-md shadow-sm shadow-black hover:bg-gray-100 transition w-full sm:w-auto"
             >
               Cancel
             </button>
 
             <button
               type="reset"
-              className="bg-gray-700 text-white px-6 py-2 shadow-sm shadow-black rounded-md hover:bg-gray-800 transition"
+              className="bg-gray-700 text-white px-6 py-2 shadow-sm shadow-black rounded-md hover:bg-gray-800 transition w-full sm:w-auto"
             >
               Reset
             </button>
 
             <button
               type="submit"
-              className="bg-[#6F4E37] text-white px-6 py-2 shadow-sm shadow-black rounded-md hover:bg-[#a98f7d] transition"
+              className="bg-[#6F4E37] text-white px-6 py-2 shadow-sm shadow-black rounded-md hover:bg-[#a98f7d] transition w-full sm:w-auto"
             >
               {buttonText}
             </button>
