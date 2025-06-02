@@ -227,7 +227,7 @@ const App = () => {
           }
         />
 
-        
+
       </Routes>
     </AuthProvider>
   );
