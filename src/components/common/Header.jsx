@@ -1,62 +1,104 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu"
-import { Menu, X } from "lucide-react"
-import { Icon } from "./icons"
+import { Menu, X, Minus, ChevronDown } from 'lucide-react';
+import { Icon } from './icons';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+
+const AddTilesDropdown = () => (
+  <DropdownMenu.Root>
+    <DropdownMenu.Trigger className="font-bold text-gray-800 flex items-center gap-1 text-sm xl:text-base cursor-pointer hover:underline">
+      Add Tiles <ChevronDown size={14} /> {/* No rotation here */}
+    </DropdownMenu.Trigger>
+    <DropdownMenu.Content
+      className="bg-white shadow-lg rounded-md p-2 mt-2 min-w-[180px]"
+      sideOffset={5}
+    >
+      {[
+        { label: '- Tiles Add', href: '' },
+        { label: '- Tiles PDF Add', href: '' },
+        { label: '- Bulk Tiles Add', href: '' },
+      ].map(item => (
+        <DropdownMenu.Item
+          key={item.label}
+          asChild
+          className="px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 cursor-pointer flex "
+        >
+          <a href={item.href}>{item.label}</a>
+        </DropdownMenu.Item>
+      ))}
+    </DropdownMenu.Content>
+  </DropdownMenu.Root>
+);
 
 const Header = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileAddTilesOpen, setMobileAddTilesOpen] = useState(false);
 
   const handleLogin = () => {
-    window.location.href = "/"
-  }
+    window.location.href = '/';
+  };
 
   const handleRegister = () => {
-    window.location.href = "/register"
-  }
+    window.location.href = '/register';
+  };
 
   const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen)
-  }
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
 
   const closeMobileMenu = () => {
-    setMobileMenuOpen(false)
-  }
+    setMobileMenuOpen(false);
+    setMobileAddTilesOpen(false);
+  };
+
+  const toggleAddTilesDropdown = () => {
+    setMobileAddTilesOpen(!mobileAddTilesOpen);
+  };
 
   return (
-    <header className="bg-white border-b border-gray-100 shadow-xl relative z-40 flex items-center md:ju">
-      {/* Main Header Container */}
+    <header className="bg-white border-b border-gray-100 shadow-xl relative z-40 flex items-center">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20 lg:h-[80px]">
-          {/* Logo Section */}
+          {/* Logo */}
           <div className="flex items-center">
-            <Icon name="Logo" height="45px" width="46px" className="sm:h-[55px] sm:w-[56px] lg:h-[69px] lg:w-[70px]" />
+            <Icon
+              name="Logo"
+              height="45px"
+              width="46px"
+              className="sm:h-[55px] sm:w-[56px] lg:h-[69px] lg:w-[70px]"
+            />
           </div>
-          <div className="hidden lg:flex items-center justify-center flex-1">
-            <NavigationMenu className="decoration-[#6C4A34]">
-              <NavigationMenuList className="flex gap-6 xl:gap-8">
-                {["Home", "About Us", "Projects", "Contact Us"].map((item) => (
-                  <NavigationMenuItem key={item}>
-                    <NavigationMenuLink className="font-bold text-gray-800 text-nowrap hover:underline transition-all text-sm xl:text-base cursor-pointer">
-                      {item}
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                ))}
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="font-bold text-gray-800 bg-transparent hover:bg-transparent focus:bg-transparent text-sm xl:text-base">
-                    Services
-                  </NavigationMenuTrigger>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center justify-center flex-1 gap-6 xl:gap-8 ">
+            {['Home', 'About Us'].map(item => (
+              <span
+                key={item}
+                className="font-bold text-gray-800 text-sm xl:text-base cursor-pointer hover:text-[#6F4E37] hover:underline"
+              >
+                {item}
+              </span>
+            ))}
+            <AddTilesDropdown /> {/* arrow here is static */}
+            {['Projects', 'Contact Us'].map(item => (
+              <span
+                key={item}
+                className="font-bold text-gray-800 text-sm xl:text-base cursor-pointer hover:underline  hover:text-[#6F4E37]"
+              >
+                {item}
+              </span>
+            ))}
+            {/* Services with rotating arrow ONLY */}
+            <span className="group font-bold text-gray-800 text-sm xl:text-base flex items-center gap-1 cursor-pointer hover:underline">
+              Services
+              <ChevronDown
+                size={14}
+                className="transition-transform duration-300 group-hover:rotate-180"
+              />
+            </span>
           </div>
+
+          {/* Desktop Buttons */}
           <div className="hidden lg:flex gap-2 xl:gap-3">
             <Button
               onClick={handleLogin}
@@ -64,7 +106,7 @@ const Header = () => {
               className="bg-[#6F4E37] hover:bg-[#5d3e2a] border-0 text-white px-3 xl:px-4 py-2 text-sm xl:text-base"
             >
               <span className="flex items-center">
-                <div>{<Icon name="UserIcon" height={'50px'} width={'50px'} />}</div>
+                <Icon name="UserIcon" height="50px" width="50px" />
                 Login
               </span>
             </Button>
@@ -74,11 +116,13 @@ const Header = () => {
               className="bg-[#6F4E37] hover:bg-[#5d3e2a] border-0 text-white px-3 xl:px-4 py-2 text-sm xl:text-base"
             >
               <span className="flex items-center">
-                <div>{<Icon name="Userplus" height={'50px'} width={'50px'} />}</div>
+                <Icon name="Userplus" height="50px" width="50px" />
                 Register
               </span>
             </Button>
           </div>
+
+          {/* Mobile Menu Toggle */}
           <button
             className="lg:hidden text-gray-800 focus:outline-none p-2"
             onClick={toggleMobileMenu}
@@ -88,15 +132,58 @@ const Header = () => {
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
       <div
-        className={`lg:hidden absolute top-full left-0 w-full bg-white border-t border-gray-100 shadow-lg z-50 transition-all duration-300 ease-in-out ${mobileMenuOpen
-          ? "opacity-100 visible transform translate-y-0"
-          : "opacity-0 invisible transform -translate-y-2"
-          }`}
+        className={`lg:hidden absolute top-full left-0 w-full bg-white border-t border-gray-100 shadow-lg z-50 transition-all duration-300 ease-in-out ${
+          mobileMenuOpen
+            ? 'opacity-100 visible translate-y-0'
+            : 'opacity-0 invisible -translate-y-2'
+        }`}
       >
         <div className="px-4 py-6 sm:px-6">
           <div className="space-y-4 mb-6 text-center">
-            {["Home", "About Us", "Projects", "Contact Us"].map((item) => (
+            {['Home', 'About Us'].map(item => (
+              <div key={item}>
+                <span
+                  className="block text-gray-800 font-medium hover:text-[#6F4E37] transition-colors cursor-pointer py-2 text-base sm:text-lg"
+                  onClick={closeMobileMenu}
+                >
+                  {item}
+                </span>
+              </div>
+            ))}
+
+            {/* Mobile Add Tiles Dropdown */}
+            <div>
+              <span
+                className="block text-gray-800 font-medium hover:text-[#6F4E37] transition-colors cursor-pointer py-2 text-base sm:text-lg"
+                onClick={toggleAddTilesDropdown}
+              >
+                Add Tiles
+              </span>
+              {mobileAddTilesOpen && (
+                <div className="relative inline-block mt-2 py-5 w-[200px] text-center space-y-2 shadow-md rounded-2xl bg-gray-100">
+                  {[
+                    { label: ' Tiles Add', href: '' },
+                    { label: ' Tiles PDF Add', href: '' },
+                    { label: ' Bulk Tiles Add', href: '' },
+                  ].map(subItem => (
+                    <a
+                      key={subItem.label}
+                      href={subItem.href}
+                      onClick={closeMobileMenu}
+                      className="flex items-center gap-2 text-sm font-medium hover:text-[#6F4E37] cursor-pointer border-b border-gray-400 px-2 py-1"
+                    >
+                      <Minus size={14} />
+                      {subItem.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {['Projects', 'Contact Us'].map(item => (
               <div key={item}>
                 <span
                   className="block text-gray-800 font-medium hover:text-[#6F4E37] transition-colors cursor-pointer py-2 text-base sm:text-lg"
@@ -107,41 +194,45 @@ const Header = () => {
               </div>
             ))}
           </div>
+
+          {/* Mobile Buttons */}
           <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-3 grid">
             <Button
               onClick={() => {
-                handleLogin()
-                closeMobileMenu()
+                handleLogin();
+                closeMobileMenu();
               }}
               variant="outline"
               className="bg-[#6F4E37] hover:bg-[#5d3e2a] border-0 text-white w-full sm:flex-1 py-3"
             >
               <span className="flex items-center justify-center">
-                <div>{<Icon name="UserIcon" height={'50px'} width={'50px'} />}</div>
+                <Icon name="UserIcon" height="50px" width="50px" />
                 Login
               </span>
             </Button>
             <Button
               onClick={() => {
-                handleRegister()
-                closeMobileMenu()
+                handleRegister();
+                closeMobileMenu();
               }}
               variant="outline"
-              className="bg-[#6F4E37] hover:bg-[#5d3e2a] border-0 text-white w-full sm:flex-1 py-3"
+              className="bg-[#6F4E37]  border-0 text-white w-full sm:flex-1 py-3"
             >
               <span className="flex items-center justify-center">
-                <div>{<Icon name="Userplus" height={'50px'} width={'50px'} />}</div>
+                <Icon name="Userplus" height="50px" width="50px" />
                 Register
               </span>
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Mobile overlay */}
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 bg-opacity-25 z-40" onClick={closeMobileMenu} />
       )}
     </header>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

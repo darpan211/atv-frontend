@@ -5,7 +5,7 @@ import TilesCard from './TilesCard';
 import Footer from '../Home/Footer';
 
 const HeaderTilesCart = () => {
-  const DropdownIndicator = (props) => {
+  const DropdownIndicator = props => {
     const { selectProps } = props;
     const isMenuOpen = selectProps.menuIsOpen;
 
@@ -29,20 +29,16 @@ const HeaderTilesCart = () => {
   };
 
   const customSelectStyles = {
-    control: (provided) => ({
+    control: provided => ({
       ...provided,
       backgroundColor: '#D9D9D9',
       border: 'none',
       borderRadius: '0.5rem',
       boxShadow: 'none',
       minHeight: '40px',
-      // Make font size responsive:
       fontSize: '1rem',
-      '@media (max-width: 640px)': {
-        minHeight: '36px',
-      },
     }),
-    placeholder: (provided) => ({
+    placeholder: provided => ({
       ...provided,
       color: '#111',
       fontWeight: '500',
@@ -52,31 +48,28 @@ const HeaderTilesCart = () => {
     }),
   };
 
-  // Filter states
   const [series, setSeries] = useState(null);
   const [category, setCategory] = useState(null);
   const [place, setPlace] = useState(null);
   const [size, setSize] = useState(null);
   const [appliedFilters, setAppliedFilters] = useState(null);
 
-  // Dropdown options
   const seriesOptions = [];
   const categoryOptions = [];
   const placeOptions = [];
   const sizeOptions = [];
 
-  // Filters config
   const filters = [
     {
       label: 'Series',
-      width: 'w-full sm:w-40', // full width on xs, fixed on sm+
+      width: 'w-full sm:w-32',
       value: series,
       onChange: setSeries,
       options: seriesOptions,
     },
     {
       label: 'Category',
-      width: 'w-full sm:w-40',
+      width: 'w-full sm:w-32',
       value: category,
       onChange: setCategory,
       options: categoryOptions,
@@ -90,7 +83,7 @@ const HeaderTilesCart = () => {
     },
     {
       label: 'Size',
-      width: 'w-full sm:w-40',
+      width: 'w-full sm:w-32',
       value: size,
       onChange: setSize,
       options: sizeOptions,
@@ -117,21 +110,18 @@ const HeaderTilesCart = () => {
   return (
     <div>
       <div className="min-h-screen bg-white flex flex-col items-center px-4 sm:px-6 lg:px-8 py-8">
-        {/* Title and Filter Section */}
-        <div className="w-full max-w-6xl flex flex-col lg:flex-row items-center justify-between mb-8 gap-6">
-          <div className="text-center lg:text-left w-full lg:w-auto">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 lg:mb-2">
+        {/* Title and Filter Row */}
+        <div className="w-full max-w-6xl flex flex-col lg:flex-row justify-between items-center lg:items-start mb-8 gap-4">
+          <div className="w-full lg:w-auto text-center lg:text-left flex justify-center">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-0 text-center w-[208px]">
               Tiles List
             </h1>
-            <div className="relative w-40 sm:w-52 h-0.5 bg-gray-300 mx-auto lg:mx-0">
-              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-5 h-5 bg-[#6F4E37]" />
-            </div>
           </div>
 
-          {/* Filters */}
-          <div className="w-full flex flex-wrap justify-center lg:justify-end gap-4">
+          {/* Filters & Buttons Row */}
+          <div className="w-full flex flex-wrap justify-center lg:justify-end items-center gap-2">
             {filters.map((filter, idx) => (
-              <div key={idx} className={`${filter.width} max-w-full`}>
+              <div key={idx} className={`${filter.width}`}>
                 <CreatableSelect
                   placeholder={filter.label}
                   styles={customSelectStyles}
@@ -146,24 +136,27 @@ const HeaderTilesCart = () => {
             ))}
 
             {/* Buttons */}
-            <div className="w-full sm:w-auto flex gap-4 justify-center sm:justify-end">
-              <button
-                className="bg-gray-700 text-white px-4 py-2 rounded w-full sm:w-auto"
-                onClick={handleReset}
-              >
-                Reset
-              </button>
-              <button
-                className="bg-[#6F4E37] text-white px-4 py-2 rounded w-full sm:w-auto"
-                onClick={handleApply}
-              >
-                Apply
-              </button>
-            </div>
+            <button
+              className="w-full sm:w-auto bg-gray-700 text-white px-4 py-2 rounded text-sm"
+              onClick={handleReset}
+            >
+              Reset
+            </button>
+            <button
+              className="w-full sm:w-auto bg-[#6F4E37] hover:bg-[#5c3f2e] text-white px-4 py-2 rounded text-sm"
+              onClick={handleApply}
+            >
+              Apply
+            </button>
+            <button
+              className="w-full sm:w-auto bg-[#6F4E37] hover:bg-[#5c3f2e] text-white px-4 py-2 rounded text-sm"
+            >
+              + Add New Tiles
+            </button>
           </div>
         </div>
 
-        {/* Tiles List (filtered) */}
+        {/* Tiles List */}
         <TilesCard filters={appliedFilters} />
       </div>
 

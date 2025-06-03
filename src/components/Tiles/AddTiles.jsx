@@ -1,90 +1,95 @@
-import React, { useState } from "react";
-import Select from "react-select";
-import { Icon } from "../common/icons";
+import React, { useState } from 'react';
+import Select from 'react-select';
+import { Icon } from '../common/icons';
+import TilesPreview from './TilesPreview'; // Make sure this is the updated one
 
 const seriesOptions = [
-  { value: "classic", label: "Classic Series" },
-  { value: "modern", label: "Modern Series" },
-  { value: "vintage", label: "Vintage Series" },
-  { value: "premium", label: "Premium Series" },
+  { value: 'classic', label: 'Classic Series' },
+  { value: 'modern', label: 'Modern Series' },
+  { value: 'vintage', label: 'Vintage Series' },
+  { value: 'premium', label: 'Premium Series' },
 ];
 
 const categoryOptions = [
-  { value: "floor", label: "Floor Tiles" },
-  { value: "wall", label: "Wall Tiles" },
-  { value: "decorative", label: "Decorative Tiles" },
-  { value: "mosaic", label: "Mosaic Tiles" },
+  { value: 'floor', label: 'Floor Tiles' },
+  { value: 'wall', label: 'Wall Tiles' },
+  { value: 'decorative', label: 'Decorative Tiles' },
+  { value: 'mosaic', label: 'Mosaic Tiles' },
 ];
 
 const suitablePlaceOptions = [
-  { value: "bathroom", label: "Bathroom" },
-  { value: "kitchen", label: "Kitchen" },
-  { value: "living-room", label: "Living Room" },
-  { value: "bedroom", label: "Bedroom" },
-  { value: "outdoor", label: "Outdoor" },
-  { value: "commercial", label: "Commercial" },
+  { value: 'bathroom', label: 'Bathroom' },
+  { value: 'kitchen', label: 'Kitchen' },
+  { value: 'living-room', label: 'Living Room' },
+  { value: 'bedroom', label: 'Bedroom' },
+  { value: 'outdoor', label: 'Outdoor' },
+  { value: 'commercial', label: 'Commercial' },
 ];
 
 const sizeOptions = [
-  { value: "small", label: "Small (12x12 inches)" },
-  { value: "medium", label: "Medium (18x18 inches)" },
-  { value: "large", label: "Large (24x24 inches)" },
-  { value: "extra-large", label: "Extra Large (36x36 inches)" },
+  { value: 'small', label: 'Small (12x12 inches)' },
+  { value: 'medium', label: 'Medium (18x18 inches)' },
+  { value: 'large', label: 'Large (24x24 inches)' },
+  { value: 'extra-large', label: 'Extra Large (36x36 inches)' },
 ];
 
 const customSelectStyles = {
   control: (base, state) => ({
     ...base,
-    borderColor: state.isFocused ? "#7b4f28" : "#D1D5DB",
-    boxShadow: state.isFocused ? "0 0 0 2px rgba(123, 79, 40, 0.4)" : "none",
-    "&:hover": { borderColor: "#7b4f28" },
-    borderRadius: "0.5rem",
-    padding: "2px",
-    fontSize: "1rem",
+    borderColor: state.isFocused ? '#7b4f28' : '#D1D5DB',
+    boxShadow: state.isFocused ? '0 0 0 2px rgba(123, 79, 40, 0.4)' : 'none',
+    '&:hover': { borderColor: '#7b4f28' },
+    borderRadius: '0.5rem',
+    padding: '2px',
+    fontSize: '1rem',
   }),
   option: (base, state) => ({
     ...base,
-    backgroundColor: state.isFocused ? "#7b4f28" : "white",
-    color: state.isFocused ? "white" : "#374151",
-    padding: "10px 12px",
+    backgroundColor: state.isFocused ? '#7b4f28' : 'white',
+    color: state.isFocused ? 'white' : '#374151',
+    padding: '10px 12px',
   }),
 };
 
 const AddTiles = () => {
   const [tileImage, setTileImage] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
+    name: '',
     series: null,
     category: null,
     suitablePlace: null,
     size: null,
-    description: "",
+    description: '',
   });
+  const [status, setStatus] = useState('active');
+  const [showPreview, setShowPreview] = useState(false);
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = e => {
     const file = e.target.files?.[0];
     if (file) setTileImage(file);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSelectChange = (name, selectedOption) => {
-    setFormData((prev) => ({ ...prev, [name]: selectedOption }));
+    setFormData(prev => ({ ...prev, [name]: selectedOption }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
-    console.log("Form Data:", {
+    console.log('Form Data:', {
       ...formData,
       series: formData.series?.value,
       category: formData.category?.value,
       suitablePlace: formData.suitablePlace?.value,
       size: formData.size?.value,
+      status,
     });
-    console.log("Tile Image:", tileImage);
+    console.log('Tile Image:', tileImage);
+    setShowPreview(true); // Open preview modal
   };
 
   return (
@@ -98,12 +103,18 @@ const AddTiles = () => {
                 <label className="font-semibold bg-[#7b4f28] hover:bg-[#633e1f] text-white text-sm px-6 py-3 rounded-lg cursor-pointer flex items-center gap-3 transition-colors duration-200 w-[186px]">
                   <Icon name="Upload" height="24px" width="24px" />
                   Upload Image
-                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                  />
                 </label>
-                {tileImage && <p className="text-sm text-gray-600 mt-2">Selected: {tileImage.name}</p>}
+                {tileImage && (
+                  <p className="text-sm text-gray-600 mt-2">Selected: {tileImage.name}</p>
+                )}
               </div>
 
-              
               <div className="w-full sm:w-1/2">
                 <label className="text-lg font-semibold mb-2 block text-gray-800">Name</label>
                 <input
@@ -117,7 +128,6 @@ const AddTiles = () => {
               </div>
             </div>
 
-            
             <div>
               <label className="text-lg font-semibold mb-2 block text-gray-800">Description</label>
               <textarea
@@ -131,16 +141,14 @@ const AddTiles = () => {
             </div>
           </div>
 
-         
           <div className="flex flex-col space-y-6">
-            
             <div className="flex flex-col lg:flex-row gap-6">
               <div className="w-full">
                 <label className="text-lg font-semibold mb-2 block text-gray-800">Series</label>
                 <Select
                   options={seriesOptions}
                   value={formData.series}
-                  onChange={(selected) => handleSelectChange("series", selected)}
+                  onChange={selected => handleSelectChange('series', selected)}
                   styles={customSelectStyles}
                   placeholder="Select Series"
                 />
@@ -150,21 +158,22 @@ const AddTiles = () => {
                 <Select
                   options={categoryOptions}
                   value={formData.category}
-                  onChange={(selected) => handleSelectChange("category", selected)}
+                  onChange={selected => handleSelectChange('category', selected)}
                   styles={customSelectStyles}
                   placeholder="Select Category"
                 />
               </div>
             </div>
 
-           
             <div className="flex flex-col lg:flex-row gap-6">
               <div className="w-full">
-                <label className="text-lg font-semibold mb-2 block text-gray-800">Suitable Place</label>
+                <label className="text-lg font-semibold mb-2 block text-gray-800">
+                  Suitable Place
+                </label>
                 <Select
                   options={suitablePlaceOptions}
                   value={formData.suitablePlace}
-                  onChange={(selected) => handleSelectChange("suitablePlace", selected)}
+                  onChange={selected => handleSelectChange('suitablePlace', selected)}
                   styles={customSelectStyles}
                   placeholder="Select Suitable Place"
                 />
@@ -174,26 +183,56 @@ const AddTiles = () => {
                 <Select
                   options={sizeOptions}
                   value={formData.size}
-                  onChange={(selected) => handleSelectChange("size", selected)}
+                  onChange={selected => handleSelectChange('size', selected)}
                   styles={customSelectStyles}
                   placeholder="Select Size"
                 />
               </div>
             </div>
+
+            <div className="bg-[#fdf5f0] text-[18px]">
+              <label className="text-lg font-semibold mb-2 block text-gray-800 ">Status</label>
+              <div className="flex gap-6 items-center">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="status"
+                    value="active"
+                    checked={status === 'active'}
+                    onChange={() => setStatus('active')}
+                    className="accent-[#633e1f] w-4 h-4 border-2 p-1 border-[#6b4a3f] rounded-full"
+                  />
+                  <span>Active</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="status"
+                    value="inactive"
+                    checked={status === 'inactive'}
+                    onChange={() => setStatus('inactive')}
+                    className="w-4 h-4 border-2 accent-[#633e1f] border-[#6b4a3f] rounded-full"
+                  />
+                  <span>Inactive</span>
+                </label>
+              </div>
+            </div>
           </div>
         </form>
 
-       
         <div className="flex justify-center mt-10">
           <button
             type="submit"
             onClick={handleSubmit}
-            className="bg-[#7b4f28] hover:bg-[#633e1f] text-white font-semibold px-6 py-3 rounded-lg transition-colors duration-200 text-lg shadow-md hover:shadow-lg"
+            className="bg-[#633e1f] text-white font-semibold px-6 py-3 rounded-lg transition-colors duration-200 text-lg shadow-md hover:shadow-lg"
           >
-            Add Tiles
+            Tiles Preview
           </button>
         </div>
       </div>
+
+      {/* Preview Modal */}
+      <TilesPreview visible={showPreview} onClose={() => setShowPreview(false)} />
     </div>
   );
 };
