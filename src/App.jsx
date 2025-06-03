@@ -41,6 +41,7 @@ import AddSeriesPage from './components/Attributes/addAttribute/AddSeriesPage';
 // Add Tiles
 import MainAddTiles from './components/Tiles/MainAddTiles';
 import HeaderTilesCart from './components/Tiles/HeaderTilesCart';
+import TilesPreview from './components/Tiles/TilesPreview';
 
 // ================== Layout Wrapper ==================
 const AppLayout = ({ children }) => {
@@ -211,6 +212,7 @@ const App = () => {
             </AppLayout>
           }
         />
+        
       </Routes>
     </AuthProvider>
   );
