@@ -25,10 +25,10 @@ import AttributePage from './components/Attributes/AttributePage';
 import AddAttributePage from './components/Attributes/AddAttributePage';
 import AdminHeader from './components/common/AdminHeader';
 
-// Add Tiles 
-import MainAddTiles from "./components/Tiles/MainAddTiles"
-import HeaderTilesCart from "./components/Tiles/HeaderTilesCart"
-
+// Add Tiles
+import MainAddTiles from './components/Tiles/MainAddTiles';
+import HeaderTilesCart from './components/Tiles/HeaderTilesCart';
+import TilesPreview from './components/Tiles/TilesPreview';
 
 // ================== Layout Wrapper ==================
 const AppLayout = ({ children }) => {
@@ -226,8 +226,7 @@ const App = () => {
             </AppLayout>
           }
         />
-
-
+        
       </Routes>
     </AuthProvider>
   );
