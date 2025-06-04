@@ -81,7 +81,7 @@ const AdminHeader = () => {
               handleLogout();
               setMenuOpen(false);
             }}
-            className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-md font-medium hover:bg-gray-100"
+            className="w-[150px] flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-md font-medium hover:bg-gray-100"
           >
             <LogOut className="w-4 h-4" />
             <span>Logout</span>
