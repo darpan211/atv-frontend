@@ -1,37 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  addSize,
-  updateSize,
-  // getSizeById, // Uncomment this when API is ready
-} from '@/services/sizeService';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { addSize, updateSize, fetchSizeById } from '@/redux/slice/sizes/sizeThunks';
+import { clearSelectedSize } from '@/redux/slice/sizes/sizeSlice';
+import { toast, Bounce } from 'react-toastify';
 
 const AddSizePage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { mode, id } = useParams();
   const isEdit = mode === 'edit';
 
-  const [sizeData, setSizeData] = useState(null);
-  const [loading, setLoading] = useState(isEdit);
+  const { selectedSize, loading, error } = useSelector(state => state.sizes);
 
   useEffect(() => {
     if (isEdit && id) {
-      const fetchSize = async () => {
-        try {
-          // const result = await getSizeById(id); // Uncomment when available
-          // setSizeData(result);
-        } catch (error) {
-          console.error('Failed to fetch size:', error);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchSize();
+      dispatch(fetchSizeById(id));
     }
-  }, [isEdit, id]);
+    return () => {
+      dispatch(clearSelectedSize());
+    };
+  }, [dispatch, isEdit, id]);
 
   const handleSubmit = async values => {
     try {
@@ -42,22 +34,39 @@ const AddSizePage = () => {
       };
 
       if (isEdit) {
-        if (!sizeData) {
-          console.error('No size data available for update');
-          return;
-        }
-        await updateSize(sizeData.id, payload);
+        await dispatch(updateSize({ id, data: payload })).unwrap();
+        toast.success('Size updated successfully!', {
+          position: 'top-right',
+          autoClose: 3000,
+          transition: Bounce,
+          theme: 'light',
+        });
       } else {
-        await addSize(payload);
+        await dispatch(addSize(payload)).unwrap();
+        toast.success('Size added successfully!', {
+          position: 'top-right',
+          autoClose: 3000,
+          transition: Bounce,
+          theme: 'light',
+        });
       }
 
-      navigate('/admin/sizes');
-    } catch (error) {
-      console.error('Failed to submit:', error);
+      // navigate('/admin/sizes');
+      navigate('/admin/sizes', {
+        state: {
+          toastMessage: isEdit ? 'Sizes updated successfully!' : 'Sizes added successfully!',
+        },
+      });
+    } catch (err) {
+      console.error('Failed to submit:', err);
+      toast.error('Failed to save size.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
     }
   };
 
-  if (loading) return <div className="p-4 text-center">Loading...</div>;
+  if (loading && isEdit) return <div className="p-4 text-center">Loading...</div>;
 
   return (
     <Layout title="Sizes" isEdit={isEdit}>
@@ -66,8 +75,8 @@ const AddSizePage = () => {
         label="Size"
         buttonText={isEdit ? 'Update Size' : 'Add Size'}
         initialValues={{
-          height: sizeData?.height || '',
-          width: sizeData?.width || '',
+          height: selectedSize?.height || '',
+          width: selectedSize?.width || '',
         }}
         onSubmit={handleSubmit}
       />

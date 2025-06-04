@@ -240,7 +240,7 @@ const AddNewSeller = () => {
               <label className="text-black font-medium">Upload Image</label>
               <button
                 type="button"
-                className="flex items-center gap-2 bg-[#6F4E37] text-white px-4 py-2 rounded-md hover:bg-[#a98f7d] transition"
+                className="flex cursor-pointer items-center gap-2 bg-[#6F4E37] text-white px-4 py-2 rounded-md hover:bg-[#a98f7d] transition"
               >
                 <Upload className="w-4 h-4" />
                 <span className="font-medium">Upload Image</span>

@@ -1,7 +1,6 @@
 import React from 'react';
 import { ImageSlider } from '../common/ImageSlider';
-// import { ImageSlider } from '../common/ImageSlider';
-// import { SLIDES } from '@/utils/constants';
+
 const Hero = () => {
   const slides = [
     {
@@ -20,11 +19,9 @@ const Hero = () => {
       description: 'We’re with you every step of the way, 24/7.',
     },
   ];
-  return (
-    <div className="relative w-full ">
-      {/* Background Image */}
-      {/* <ImageSlider /> */}
 
+  return (
+    <div className="relative w-full">
       <ImageSlider
         slides={slides}
         autoPlay={true}
@@ -33,11 +30,14 @@ const Hero = () => {
         height={'70vh'}
       />
 
-      {/* Overlay */}
-      <div className="absolute inset-0 flex items-center justify-end pr-16">
-        <div className="text-right max-w-md">
-          <h2 className="text-white text-3xl font-semibold">MAJESTIC SIZE,</h2>
-          <h2 className="text-[#E05C00] text-3xl font-semibold">MODERN AESTHETICS</h2>
+      <div className="absolute inset-0 flex items-center justify-center md:justify-end pr-0 md:pr-32 px-4">
+        <div className="text-center md:text-left max-w-md sm:max-w-full">
+          <h2 className="text-white text-4xl md:text-3xl sm:text-2xl xs:text-xl mr-0 md:mr-2.5 font-semibold leading-tight">
+            MAJESTIC SIZE,
+          </h2>
+          <h2 className="text-[#E05C00] text-4xl md:text-3xl sm:text-2xl xs:text-xl mr-0 md:mr-2.5 font-semibold leading-tight">
+            MODERN AESTHETICS
+          </h2>
         </div>
       </div>
     </div>

@@ -24,18 +24,25 @@ import RoomForm from './components/admin/RoomForm';
 // import AttributePage from './components/Attributes/AttributePage';
 // import AddAttributePage from './components/Attributes/AddAttributePage';
 import AdminHeader from './components/common/AdminHeader';
-import CategoriesPage from './pages/AttributePage/CategoriesPage';
-import Series from './pages/AttributePage/Series';
-import Materials from './pages/AttributePage/Materials';
-import SizesPage from './pages/AttributePage/SizesPage';
-import ColorsPage from './pages/AttributePage/ColorsPage';
-import SuitablePlacePage from './pages/AttributePage/SuitablePlacePage';
+import CategoriesPage from './components/Attributes/attributePage/CategoriesPage';
+import Series from './components/Attributes/attributePage/Series';
+import Materials from './components/Attributes/attributePage/Materials';
+
+import SizesPage from './components/Attributes/attributePage/SizesPage';
+import ColorsPage from './components/Attributes/attributePage/ColorsPage';
+import SuitablePlacePage from './components/Attributes/attributePage/SuitablePlacePage';
 import AddCategoryPage from './components/Attributes/addAttribute/AddCategoryPage';
 import AddMaterialPage from './components/Attributes/addAttribute/AddMaterialPage';
 import AddSizePage from './components/Attributes/addAttribute/AddSizePage';
 import AddColorPage from './components/Attributes/addAttribute/AddColorPage';
 import AddPlacePage from './components/Attributes/addAttribute/AddPlacePage';
 import AddSeriesPage from './components/Attributes/addAttribute/AddSeriesPage';
+
+// Add Tiles
+import MainAddTiles from './components/Tiles/MainAddTiles';
+import HeaderTilesCart from './components/Tiles/HeaderTilesCart';
+import TilesPreview from './components/Tiles/TilesPreview';
+import AddTiles from './components/Tiles/AddTiles';
 
 // ================== Layout Wrapper ==================
 const AppLayout = ({ children }) => {
@@ -45,6 +52,7 @@ const AppLayout = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
       {!isLoginPage && <AdminHeader />}
+      {/* {!isLoginPage && <Header />} */}
 
       <main className="flex-grow">{children}</main>
     </div>
@@ -186,6 +194,25 @@ const App = () => {
         <Route
           path="/admin/places/:mode/:id?"
           element={<AppLayout>{<AddPlacePage />}</AppLayout>}
+        />
+
+        {/* Add Tiles */}
+        <Route
+          path="/admin/tiles/add"
+          element={
+            <AppLayout>
+              <AddTiles />
+            </AppLayout>
+          }
+        />
+
+        <Route
+          path="/admin/tiles/list"
+          element={
+            <AppLayout>
+              <HeaderTilesCart />
+            </AppLayout>
+          }
         />
       </Routes>
     </AuthProvider>

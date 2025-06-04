@@ -1,75 +1,74 @@
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
-import { addCategory, updateCategory, getCategoryById } from '@/services/categoryService';
+import {
+  fetchCategoryById,
+  addCategory,
+  updateCategory,
+} from '@/redux/slice/categories/categoryThunks'; // adjust import path if needed
 
 const AddCategoryPage = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { mode, id } = useParams();
   const isEdit = mode === 'edit';
 
-  const [categoryData, setCategoryData] = useState(null);
-  const [loading, setLoading] = useState(isEdit);
+  // Get category slice state from redux
+  const { selectedCategory, loading, error } = useSelector(state => state.categories);
 
   useEffect(() => {
     if (isEdit && id) {
-      const fetchCategory = async () => {
-        try {
-          const result = await getCategoryById(id);
-          setCategoryData(result);
-        } catch (error) {
-          console.error('Failed to fetch category:', error);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchCategory();
+      dispatch(fetchCategoryById(id));
     }
-  }, [isEdit, id]);
-  const handleSubmit = async values => {
-    try {
-      const payload = { category: values.name };
+  }, [dispatch, isEdit, id]);
 
+  // Prepare initial form values (normalize "category" → "name")
+  // const initialValues =
+  //   isEdit && selectedCategory ? { name: selectedCategory.category || '' } : { name: '' };
+  const initialValues = useMemo(() => {
+    if (isEdit && selectedCategory) {
+      return { name: selectedCategory.category || '' };
+    }
+    return { name: '' };
+  }, [isEdit, selectedCategory]);
+
+  const handleSubmit = async values => {
+    const payload = { category: values.name };
+
+    try {
       if (isEdit) {
-        if (!categoryData) {
-          console.error('No category data available for update');
-          return;
-        }
-        await updateCategory(categoryData.id, payload);
+        await dispatch(updateCategory({ id, data: payload })).unwrap();
       } else {
-        await addCategory(payload);
+        await dispatch(addCategory(payload)).unwrap();
       }
 
-      navigate('/admin/categories');
-    } catch (error) {
-      console.error('Failed to submit:', error);
+      navigate('/admin/categories', {
+        state: {
+          toastMessage: isEdit ? 'Category updated successfully!' : 'Category added successfully!',
+        },
+      });
+    } catch (err) {
+      console.error('Failed to submit:', err);
+      // Optionally handle errors or toast
     }
   };
 
-  if (loading) return <div className="p-4 text-center">Loading...</div>;
+  if (isEdit && loading) {
+    return <div className="p-4 text-center">Loading...</div>;
+  }
 
   return (
     <Layout title="Category" isEdit={isEdit}>
       <CommonAddForm
         label="Category Name"
         buttonText={isEdit ? 'Update Category' : 'Add Category'}
-        initialValues={{ name: categoryData?.name || '' }}
+        initialValues={initialValues}
         onSubmit={handleSubmit}
       />
     </Layout>
   );
-  // return (
-  //   <Layout title="Category">
-  //     <CommonAddForm
-  //       label="Category Name"
-  //       buttonText={isEdit ? 'Update Category' : 'Add Category'}
-  //       initialValues={{ name: categoryData?.name || '' }}
-  //       onSubmit={handleSubmit}
-  //     />
-  //   </Layout>
-  // );
 };
 
 export default AddCategoryPage;

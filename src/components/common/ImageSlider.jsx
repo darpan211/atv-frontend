@@ -8,7 +8,7 @@ export function ImageSlider({
   autoPlay = true,
   autoPlayInterval = 5000,
   buttonShow = false,
-  height = 'full',
+  height = '500px',
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -40,29 +40,24 @@ export function ImageSlider({
   }
 
   return (
-    <div className={`relative w-full h-${height === 'full' ? 'full' : `[${height}]`}`}>
+    <div className={`relative w-full h-[730px]`}>
       <div
         className="h-full w-full bg-cover bg-center duration-500   bg-no-repeat  flex flex-col items-center justify-center text-white"
         style={{ backgroundImage: `url(${slides[currentIndex].url})` }}
       >
         <div className="absolute inset-0" />
 
-        <div className="z-10 text-center space-y-4 px-8">
-          {/* <h2 className="text-4xl md:text-5xl font-bold ">{slides[currentIndex].title}</h2>
-          <p className="text-xl md:text-2xl max-w-md mx-auto font-light pacifico-regular">
-            {slides[currentIndex].description}
-          </p> */}
-        </div>
+        <div className="z-10 text-center space-y-4 px-8"></div>
 
         {buttonShow && (
           <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-l-full rounded-sm h-16 bg-white text-[#5c4033] hover:bg-gray-100 shadow-md"
+              className="rounded-l-full rounded-sm h-20 w-12 bg-white text-[#5c4033] hover:bg-gray-100 shadow-md text-4xl"
               onClick={goToPrevious}
             >
-              <ChevronLeft className="h-10 w-10" />
+              {"<"}
             </Button>
           </div>
         )}
@@ -72,26 +67,13 @@ export function ImageSlider({
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-l-full rounded-sm h-16 bg-white text-[#5c4033] hover:bg-gray-100 shadow-md"
-              onClick={goToPrevious}
+              className="rounded-r-full rounded-sm h-20 w-12  bg-white text-[#5c4033] hover:bg-gray-100 shadow-md text-4xl"
+              onClick={goToNext} 
             >
-              <ChevronRight className="h-16 w-10 " />
+              {">"}
             </Button>
           </div>
         )}
-
-        {/* <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col space-y-2 z-10">
-          {slides.map((_, slideIndex) => (
-            <div
-              key={slideIndex}
-              onClick={() => goToSlide(slideIndex)}
-              className={cn(
-                'h-4 w-4  cursor-pointer transition-all',
-                currentIndex === slideIndex ? 'bg-[#6F4E37] w-4' : 'bg-white/50'
-              )}
-            />
-          ))}
-        </div> */}
       </div>
     </div>
   );

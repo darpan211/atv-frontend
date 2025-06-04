@@ -1,0 +1,41 @@
+// DeleteConfirmationModal.jsx
+import React from 'react';
+import CloseIcon from '../../assets/Close.png';
+import { Icon } from '../common/icons';
+
+const DeleteConfirmationModal = ({ onCancel, onConfirm, tile }) => {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
+      <div className="bg-[#FFF5EE] rounded-xl w-full max-w-sm p-6 relative shadow-lg border border-gray-300 text-center">
+        <button
+          onClick={onCancel}
+          className="absolute top-0 right-0 mt-2 mr-2 bg-[#6F4E37] text-white rounded-bl-lg rounded-tr-lg w-8 h-8 flex items-center justify-center hover:bg-[#4a3224]"
+        >
+          <Icon name="Close" width="12px" height="12px" />
+        </button>
+        <div className="flex justify-center mb-4">
+          <img src={CloseIcon} alt="close" />
+        </div>
+        <h3 className="text-xl font-bold text-gray-800 mb-2">Are you sure?</h3>
+        <p className="text-gray-600 text-sm mt-2">{tile?.description}</p>
+
+        <div className="flex justify-center gap-4">
+          <button
+            className="bg-white border border-gray-300 text-gray-800 px-6 py-2 rounded shadow hover:bg-gray-100 transition"
+            onClick={onCancel}
+          >
+            Cancel
+          </button>
+          <button
+            className="bg-[#6F4E37] text-white px-6 py-2 rounded shadow hover:bg-[#4a3224] transition"
+            onClick={onConfirm}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DeleteConfirmationModal;

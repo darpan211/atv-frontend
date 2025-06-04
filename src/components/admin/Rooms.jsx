@@ -180,7 +180,7 @@ const Rooms = () => {
     <div className="p-6 max-w-full sm:mx-10">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">List of Sellers</h1>
-        <Button onClick={handleAddSeller} className="bg-[#6F4E37] hover:bg-[#a98f7d] text-white">
+        <Button onClick={handleAddSeller} className="bg-[#6F4E37] hover:bg-[#a98f7d] text-white cursor-pointer">
           <Plus className="mr-2 h-4 w-4" /> Add Room
         </Button>
       </div>
