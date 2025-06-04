@@ -1,69 +1,86 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
+import { useDispatch, useSelector } from 'react-redux';
+
 import {
   addSuitablePlace,
   updateSuitablePlace,
-  getSuitablePlaceById,
-} from '@/services/attributeServices/suitablePlaceService';
+  fetchSuitablePlaceById,
+} from '@/redux/slice/suitablePlace/suitablePlaceThunks';
+import { clearSuitablePlacesState } from '@/redux/slice/suitablePlace/suitablePlaceSlice';
+
+import { toast, Bounce } from 'react-toastify';
 
 const AddPlacePage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { mode, id } = useParams();
   const isEdit = mode === 'edit';
 
-  const [placeData, setPlaceData] = useState(null);
-  const [loading, setLoading] = useState(isEdit);
+  const { selectedPlace, loading } = useSelector(state => state.suitablePlace);
+
+  const initialValues = useMemo(() => {
+    return {
+      name: selectedPlace?.suitablePlace || '',
+    };
+  }, [selectedPlace]);
 
   useEffect(() => {
     if (isEdit && id) {
-      const fetchPlace = async () => {
-        try {
-          const result = await getSuitablePlaceById(id);
-          setPlaceData(result);
-        } catch (error) {
-          console.error('Failed to fetch suitable place:', error);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchPlace();
+      dispatch(fetchSuitablePlaceById(id));
     }
-  }, [isEdit, id]);
+    return () => {
+      dispatch(clearSuitablePlacesState());
+    };
+  }, [dispatch, isEdit, id]);
 
   const handleSubmit = async values => {
     try {
       const payload = { suitablePlace: values.name };
 
       if (isEdit) {
-        if (!placeData) {
-          console.error('No suitable place data available for update');
-          return;
-        }
-        await updateSuitablePlace(placeData._id, payload);
+        await dispatch(updateSuitablePlace({ id, data: payload })).unwrap();
+        toast.success('Place updated successfully!', {
+          position: 'top-right',
+          autoClose: 3000,
+          transition: Bounce,
+          theme: 'light',
+        });
       } else {
-        await addSuitablePlace(payload);
+        await dispatch(addSuitablePlace(payload)).unwrap();
+        toast.success('Place added successfully!', {
+          position: 'top-right',
+          autoClose: 3000,
+          transition: Bounce,
+          theme: 'light',
+        });
       }
-      // navigate('/admin/places');
+
       navigate('/admin/places', {
+        replace: true,
         state: {
-          toastMessage: isEdit ? 'Places updated successfully!' : 'Places added successfully!',
+          toastMessage: isEdit ? 'Place updated successfully!' : 'Place added successfully!',
         },
       });
     } catch (error) {
       console.error('Failed to submit:', error);
+      toast.error('Failed to save place.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
     }
   };
 
-  if (loading) return <div className="p-4 text-center">Loading...</div>;
+  if (loading && isEdit) return <div className="p-4 text-center">Loading...</div>;
 
   return (
     <Layout title="Suitable Place" isEdit={isEdit}>
       <CommonAddForm
         label="Suitable Place Name"
         buttonText={isEdit ? 'Update Suitable Place' : 'Add Suitable Place'}
-        initialValues={{ name: placeData?.suitablePlace || '' }}
+        initialValues={initialValues}
         onSubmit={handleSubmit}
       />
     </Layout>

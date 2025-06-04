@@ -1,57 +1,108 @@
-import React, { useState } from 'react';
-import Select from 'react-select';
+import React, { useState, useRef, useEffect } from 'react';
 import { Icon } from '../common/icons';
-import TilesPreview from './TilesPreview'; // Make sure this is the updated one
+import { useDispatch, useSelector } from 'react-redux';
+import { addTile } from '@/redux/slice/tiles/tileThunks';
+import { clearTilesState, clearSelectedTile } from '@/redux/slice/tiles/tileSlice';
+import { toast } from 'react-toastify';
+import TilePreview from './TilesPreview';
 
-const seriesOptions = [
-  { value: 'classic', label: 'Classic Series' },
-  { value: 'modern', label: 'Modern Series' },
-  { value: 'vintage', label: 'Vintage Series' },
-  { value: 'premium', label: 'Premium Series' },
-];
+const optionsData = {
+  series: [
+    { value: 'classic', label: 'Classic Series' },
+    { value: 'modern', label: 'Modern Series' },
+    { value: 'vintage', label: 'Vintage Series' },
+    { value: 'premium', label: 'Premium Series' },
+  ],
+  category: [
+    { value: 'floor', label: 'Floor Tiles' },
+    { value: 'wall', label: 'Wall Tiles' },
+    { value: 'decorative', label: 'Decorative Tiles' },
+    { value: 'mosaic', label: 'Mosaic Tiles' },
+  ],
+  suitablePlace: [
+    { value: 'bathroom', label: 'Bathroom' },
+    { value: 'kitchen', label: 'Kitchen' },
+    { value: 'living-room', label: 'Living Room' },
+    { value: 'bedroom', label: 'Bedroom' },
+    { value: 'outdoor', label: 'Outdoor' },
+    { value: 'commercial', label: 'Commercial' },
+  ],
+  size: [
+    { value: 'small', label: 'Small (12x12 inches)' },
+    { value: 'medium', label: 'Medium (18x18 inches)' },
+    { value: 'large', label: 'Large (24x24 inches)' },
+    { value: 'extra-large', label: 'Extra Large (36x36 inches)' },
+  ],
+};
 
-const categoryOptions = [
-  { value: 'floor', label: 'Floor Tiles' },
-  { value: 'wall', label: 'Wall Tiles' },
-  { value: 'decorative', label: 'Decorative Tiles' },
-  { value: 'mosaic', label: 'Mosaic Tiles' },
-];
+const MultiSelectDropdown = ({ label, options, selectedValues, onChange }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const ref = useRef();
 
-const suitablePlaceOptions = [
-  { value: 'bathroom', label: 'Bathroom' },
-  { value: 'kitchen', label: 'Kitchen' },
-  { value: 'living-room', label: 'Living Room' },
-  { value: 'bedroom', label: 'Bedroom' },
-  { value: 'outdoor', label: 'Outdoor' },
-  { value: 'commercial', label: 'Commercial' },
-];
+  useEffect(() => {
+    const handleClickOutside = e => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-const sizeOptions = [
-  { value: 'small', label: 'Small (12x12 inches)' },
-  { value: 'medium', label: 'Medium (18x18 inches)' },
-  { value: 'large', label: 'Large (24x24 inches)' },
-  { value: 'extra-large', label: 'Extra Large (36x36 inches)' },
-];
+  const toggleDropdown = () => setShowDropdown(prev => !prev);
 
-const customSelectStyles = {
-  control: (base, state) => ({
-    ...base,
-    borderColor: state.isFocused ? '#7b4f28' : '#D1D5DB',
-    boxShadow: state.isFocused ? '0 0 0 2px rgba(123, 79, 40, 0.4)' : 'none',
-    '&:hover': { borderColor: '#7b4f28' },
-    borderRadius: '0.5rem',
-    padding: '2px',
-    fontSize: '1rem',
-  }),
-  option: (base, state) => ({
-    ...base,
-    backgroundColor: state.isFocused ? '#7b4f28' : 'white',
-    color: state.isFocused ? 'white' : '#374151',
-    padding: '10px 12px',
-  }),
+  const handleCheckboxChange = option => {
+    const isSelected = selectedValues.some(item => item.value === option.value);
+    const updatedValues = isSelected
+      ? selectedValues.filter(item => item.value !== option.value)
+      : [...selectedValues, option];
+    onChange(updatedValues);
+  };
+
+  const getDisplayValue = () => {
+    if (selectedValues.length === 0) return `Select ${label}`;
+    if (selectedValues.length === 1) return selectedValues[0].label;
+    return `${selectedValues.length} ${label} selected`;
+  };
+
+  return (
+    <div className="relative" ref={ref}>
+      <label className="text-lg font-semibold mb-2 block text-gray-800">{label}</label>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={toggleDropdown}
+        onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && toggleDropdown()}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white cursor-pointer"
+      >
+        {getDisplayValue()}
+      </div>
+      {showDropdown && (
+        <div className="absolute z-10 w-full mt-2 bg-white border rounded-lg shadow-lg max-h-60 overflow-auto">
+          {options.map(option => (
+            <label
+              key={option.value}
+              className="flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-gray-100"
+            >
+              <input
+                type="checkbox"
+                className="custom-checkbox"
+                checked={selectedValues.some(item => item.value === option.value)}
+                onChange={() => handleCheckboxChange(option)}
+              />
+              <span className="text-gray-800">{option.label}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const AddTiles = () => {
+  const dispatch = useDispatch();
+  const { loading, error, success } = useSelector(state => state.tiles);
+
   const [tileImage, setTileImage] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -78,34 +129,29 @@ const AddTiles = () => {
     setFormData(prev => ({ ...prev, [field]: values }));
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = e => {
     e.preventDefault();
+    // if (!formData.name.trim() || !formData.description.trim() || !tileImage) {
+    //   toast.error('Please fill all required fields and upload an image.');
+    //   return;
+    // }
 
-    if (!formData.name.trim()) {
-      alert('Name is required.');
-      return;
-    }
-    if (!tileImage) {
-      alert('Please upload an image.');
-      return;
-    }
-    if (!formData.description.trim()) {
-      alert('Description is required.');
-      return;
-    }
+    // const form = new FormData();
+    // form.append('tiles_name', formData.name);
+    // form.append('description', formData.description);
+    // form.append('tiles_image', tileImage);
+    // formData.series.forEach(item => form.append('series', item.value));
+    // formData.category.forEach(item => form.append('category', item.value));
+    // formData.suitablePlace.forEach(item => form.append('suitable_place', item.value));
+    // formData.size.forEach(item => form.append('size', item.value));
 
-    const form = new FormData();
-    form.append('tiles_name', formData.name);
-    form.append('description', formData.description);
-    form.append('tiles_image', tileImage);
-    formData.series.forEach(item => form.append('series', item.value));
-    formData.category.forEach(item => form.append('category', item.value));
-    formData.suitablePlace.forEach(item => form.append('suitable_place', item.value));
-    formData.size.forEach(item => form.append('size', item.value));
+    // dispatch(addTile(form));
+    setShowPreview(true);
+  };
 
-    try {
-      const response = await addTile(form);
-      alert('Tile added successfully!');
+  useEffect(() => {
+    if (success) {
+      toast.success('New tiles added successfully!');
       setFormData({
         name: '',
         series: [],
@@ -115,17 +161,19 @@ const AddTiles = () => {
         description: '',
       });
       setTileImage(null);
-    } catch (error) {
-      console.error('Error adding tile:', error.response || error.message);
-      alert(error.response?.data?.message || 'Something went wrong on the server.');
+      dispatch(clearSelectedTile());
+      dispatch(clearTilesState());
+    } else if (error) {
+      toast.error(error);
+      dispatch(clearTilesState());
     }
-  };
+  }, [success, error, dispatch]);
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-10">
       <div className="bg-[#FFF5EE] max-w-7xl mx-auto p-6 sm:p-8 lg:p-10 rounded-2xl shadow-lg border border-gray-200">
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Left side */}
+          {/* Left */}
           <div className="flex flex-col space-y-6">
             <div className="flex flex-col sm:flex-row sm:gap-6">
               <div className="w-full sm:w-1/2 mb-6 sm:mb-0">
@@ -163,43 +211,32 @@ const AddTiles = () => {
                 )}
               </div>
               <div className="w-full sm:w-1/2">
-                <label htmlFor="name" className="text-lg font-semibold mb-2 block text-gray-800">
-                  Name
-                </label>
+                <label className="text-lg font-semibold mb-2 block text-gray-800">Name</label>
                 <input
-                  id="name"
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Enter name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7b4f28] outline-none text-gray-700 bg-white"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white"
                   required
                 />
               </div>
             </div>
-
             <div>
-              <label
-                htmlFor="description"
-                className="text-lg font-semibold mb-2 block text-gray-800"
-              >
-                Description
-              </label>
+              <label className="text-lg font-semibold mb-2 block text-gray-800">Description</label>
               <textarea
-                id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={5}
-                placeholder="Enter short description (optional)"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7b4f28] outline-none resize-none text-gray-700 bg-white"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white resize-none"
                 required
               />
             </div>
           </div>
 
-          {/* Right side */}
+          {/* Right */}
           <div className="flex flex-col space-y-6">
             <div className="flex flex-col lg:flex-row gap-6">
               <div className="w-full lg:w-1/2">
@@ -207,7 +244,7 @@ const AddTiles = () => {
                   label="Series"
                   options={optionsData.series}
                   selectedValues={formData.series}
-                  onChange={values => handleMultiSelectChange('series', values)}
+                  onChange={vals => handleMultiSelectChange('series', vals)}
                 />
               </div>
               <div className="w-full lg:w-1/2">
@@ -215,7 +252,7 @@ const AddTiles = () => {
                   label="Category"
                   options={optionsData.category}
                   selectedValues={formData.category}
-                  onChange={values => handleMultiSelectChange('category', values)}
+                  onChange={vals => handleMultiSelectChange('category', vals)}
                 />
               </div>
             </div>
@@ -226,7 +263,7 @@ const AddTiles = () => {
                   label="Suitable Place"
                   options={optionsData.suitablePlace}
                   selectedValues={formData.suitablePlace}
-                  onChange={values => handleMultiSelectChange('suitablePlace', values)}
+                  onChange={vals => handleMultiSelectChange('suitablePlace', vals)}
                 />
               </div>
               <div className="w-full lg:w-1/2">
@@ -234,7 +271,7 @@ const AddTiles = () => {
                   label="Size"
                   options={optionsData.size}
                   selectedValues={formData.size}
-                  onChange={values => handleMultiSelectChange('size', values)}
+                  onChange={vals => handleMultiSelectChange('size', vals)}
                 />
               </div>
             </div>
@@ -281,7 +318,7 @@ const AddTiles = () => {
       </div>
 
       {/* Preview Modal */}
-      <TilesPreview visible={showPreview} onClose={() => setShowPreview(false)} />
+      <TilePreview visible={showPreview} onClose={() => setShowPreview(false)} />
     </div>
   );
 };

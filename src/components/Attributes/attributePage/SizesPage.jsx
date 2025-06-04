@@ -1,17 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonTable from '@/components/common/CommonTable';
-import { getSizes, deleteSize } from '@/services/attributeServices/sizeService';
-import { toast, Bounce, ToastContainer } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+// import { fetchSizes, deleteSize } from '@/store/features/size/sizeThunks';
+import { fetchSizes, deleteSize } from '@/redux/slice/sizes/sizeThunks';
+import { toast, Bounce } from 'react-toastify';
 
 const SizesPage = () => {
-  const [sizesData, setSizesData] = useState([]);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { list: sizesData, loading, error } = useSelector(state => state.sizes);
+
   useEffect(() => {
-    fetchSizes();
-  }, []);
+    dispatch(fetchSizes());
+  }, [dispatch]);
+
   useEffect(() => {
     if (location.state?.toastMessage) {
       toast.success(location.state.toastMessage, {
@@ -27,24 +33,14 @@ const SizesPage = () => {
         bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
         progressStyle: { backgroundColor: '#6F4E37' },
       });
-
       window.history.replaceState({}, document.title);
     }
   }, [location]);
-  const fetchSizes = async () => {
-    try {
-      const data = await getSizes();
-      setSizesData(data);
-    } catch (error) {
-      console.error('Error fetching sizes:', error);
-    }
-  };
 
   const handleDelete = async id => {
     try {
-      await deleteSize(id);
-      fetchSizes();
-      toast.success('Sizes deleted successfully!', {
+      await dispatch(deleteSize(id)).unwrap();
+      toast.success('Size deleted successfully!', {
         position: 'top-right',
         autoClose: 3000,
         closeOnClick: true,
@@ -57,8 +53,12 @@ const SizesPage = () => {
         bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
         progressStyle: { backgroundColor: '#6F4E37' },
       });
-    } catch (error) {
-      console.error('Error deleting size:', error.response?.data || error.message);
+    } catch (err) {
+      console.error('Error deleting size:', err);
+      toast.error('Failed to delete size', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
     }
   };
 
@@ -72,7 +72,14 @@ const SizesPage = () => {
       buttonLabel="Add Sizes"
       onButtonClick={() => navigate('/admin/sizes/add')}
     >
-      <CommonTable type="sizes" data={sizesData} onEdit={handleEdit} onDelete={handleDelete} />
+      <CommonTable
+        type="sizes"
+        data={sizesData}
+        loading={loading}
+        error={error}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
     </Layout>
   );
 };

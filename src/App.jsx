@@ -42,6 +42,7 @@ import AddSeriesPage from './components/Attributes/addAttribute/AddSeriesPage';
 import MainAddTiles from './components/Tiles/MainAddTiles';
 import HeaderTilesCart from './components/Tiles/HeaderTilesCart';
 import TilesPreview from './components/Tiles/TilesPreview';
+import AddTiles from './components/Tiles/AddTiles';
 
 // ================== Layout Wrapper ==================
 const AppLayout = ({ children }) => {
@@ -51,6 +52,7 @@ const AppLayout = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
       {!isLoginPage && <AdminHeader />}
+      {/* {!isLoginPage && <Header />} */}
 
       <main className="flex-grow">{children}</main>
     </div>
@@ -199,7 +201,7 @@ const App = () => {
           path="/admin/tiles/add"
           element={
             <AppLayout>
-              <MainAddTiles />
+              <AddTiles />
             </AppLayout>
           }
         />
@@ -212,7 +214,6 @@ const App = () => {
             </AppLayout>
           }
         />
-        
       </Routes>
     </AuthProvider>
   );

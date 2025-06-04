@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { LogOut, Menu } from 'lucide-react';
 import { Icon } from './icons';
 import { useNavigate } from 'react-router-dom';
 import NavItem from './NavItem';
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '@/redux/slice/auth/authThunks';
 
 const AdminHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogout = () => {
+    dispatch(logoutUser());
     navigate('/');
   };
   const handleDashRoute = () => {

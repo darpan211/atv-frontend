@@ -1,74 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonTable from '@/components/common/CommonTable';
-import { getCategories, deleteCategory } from '@/services/attributeServices/categoryService';
 import { toast, Bounce } from 'react-toastify';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchCategories, deleteCategory } from '@/redux/slice/categories/categoryThunks';
 
 const CategoriesPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [categories, setCategories] = useState([]);
+  const dispatch = useDispatch();
 
-  // Load categories data
-  const loadData = async () => {
-    try {
-      const data = await getCategories();
-      setCategories(data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
+  const { list, loading, error } = useSelector(state => state.categories);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   useEffect(() => {
     if (location.state?.toastMessage) {
       toast.success(location.state.toastMessage, {
         position: 'top-right',
         autoClose: 3000,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
         theme: 'light',
         transition: Bounce,
-        className: 'bg-white rounded-md shadow-md border-2',
-        style: { borderColor: '#6F4E37' },
-        bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
-        progressStyle: { backgroundColor: '#6F4E37' },
       });
-
       window.history.replaceState({}, document.title);
     }
   }, [location]);
 
   const handleDelete = async id => {
     try {
-      await deleteCategory(id);
-      await loadData();
-
-      toast.success('Category deleted successfully!', {
-        position: 'top-right',
-        autoClose: 3000,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: 'light',
-        transition: Bounce,
-        className: 'bg-white rounded-md shadow-md border-2',
-        style: { borderColor: '#6F4E37' },
-        bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
-        progressStyle: { backgroundColor: '#6F4E37' },
-      });
-    } catch (error) {
-      console.error('Error deleting category:', error);
-      toast.error('Failed to delete category.', {
-        position: 'top-right',
-        autoClose: 3000,
-        theme: 'light',
-      });
+      await dispatch(deleteCategory(id));
+      await dispatch(fetchCategories());
+      toast.success('Category deleted successfully!');
+    } catch {
+      toast.error('Failed to delete category.');
     }
   };
 
@@ -80,9 +47,10 @@ const CategoriesPage = () => {
     >
       <CommonTable
         type="category"
-        data={categories}
+        data={list}
         onEdit={item => navigate(`/admin/categories/edit/${item._id}`, { state: item })}
         onDelete={handleDelete}
+        loading={loading}
       />
     </Layout>
   );

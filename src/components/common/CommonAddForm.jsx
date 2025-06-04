@@ -1,6 +1,7 @@
 import { useFormik } from 'formik';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
 
 const CommonAddForm = ({
   label,
@@ -11,13 +12,34 @@ const CommonAddForm = ({
 }) => {
   const navigate = useNavigate();
 
+  const validationSchema =
+    formType === 'sizes'
+      ? Yup.object().shape({
+          height: Yup.number()
+            .typeError('Height must be a number')
+            .positive('Height must be positive')
+            .required('Height is required'),
+          width: Yup.number()
+            .typeError('Width must be a number')
+            .positive('Width must be positive')
+            .required('Width is required'),
+        })
+      : Yup.object().shape({
+          name: Yup.string()
+            .min(3, 'Name must be at least 3 characters')
+            .required('Name is required'),
+        });
+
   const formik = useFormik({
     initialValues,
+    validationSchema,
     enableReinitialize: true,
+    validateOnChange: true,
+    // validateOnBlur: false, 
     onSubmit: values => {
       if (onSubmit) onSubmit(values);
     },
-    onReset: () => formik.resetForm(),
+    // onReset: () => formik.resetForm(),
   });
 
   const handleCancel = () => {
@@ -43,6 +65,9 @@ const CommonAddForm = ({
                 onBlur={formik.handleBlur}
                 className="w-2xl px-4 py-2 border bg-white rounded-md focus:outline-none"
               />
+              {formik.touched.height && formik.errors.height ? (
+                <div className="text-red-600 text-sm">{formik.errors.height}</div>
+              ) : null}
             </div>
 
             <div className="mb-6">
@@ -59,6 +84,9 @@ const CommonAddForm = ({
                 onBlur={formik.handleBlur}
                 className="w-2xl px-4 py-2 border bg-white rounded-md focus:outline-none"
               />
+              {formik.touched.width && formik.errors.width ? (
+                <div className="text-red-600 text-sm">{formik.errors.width}</div>
+              ) : null}
             </div>
           </>
         ) : (
@@ -76,6 +104,9 @@ const CommonAddForm = ({
               onBlur={formik.handleBlur}
               className="w-2xl px-4 py-2 border bg-white rounded-md focus:outline-none"
             />
+            {formik.touched.name && formik.errors.name ? (
+              <div className="text-red-600 text-sm">{formik.errors.name}</div>
+            ) : null}
           </div>
         )}
 

@@ -9,17 +9,15 @@ const axiosHandler = axios.create({
 
 axiosHandler.interceptors.request.use(
   config => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     if (token) {
       config.headers['Authorization'] = 'Bearer ' + token;
     }
     return config;
   },
   error => {
-    Promise.reject(error);
+    return Promise.reject(error);
   }
 );
-
-//axiosHandler.interceptors.response
 
 export default axiosHandler;

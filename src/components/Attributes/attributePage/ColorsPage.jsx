@@ -1,27 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonTable from '@/components/common/CommonTable';
-import { getColors, deleteColor } from '@/services/attributeServices/colorService';
-import { toast, Bounce } from 'react-toastify'; // ❌ No ToastContainer here
+import { toast, Bounce } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchColors } from '@/redux/slice/colors/colorThunks';
+import { deleteColor } from '@/redux/slice/colors/colorThunks';
 
 const ColorsPage = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const [colors, setColors] = useState([]);
 
-  const loadData = async () => {
-    try {
-      const data = await getColors();
-      setColors(data);
-    } catch (error) {
-      console.error('Error fetching colors:', error);
-    }
-  };
+  // Access colors list and loading/error from redux store
+  const { list: colors, loading, error } = useSelector(state => state.colors);
 
+  // Fetch colors on mount
   useEffect(() => {
-    loadData();
-  }, []);
+    dispatch(fetchColors());
+  }, [dispatch]);
+
+  // Show toast from location state
   useEffect(() => {
     if (location.state?.toastMessage) {
       toast.success(location.state.toastMessage, {
@@ -37,16 +36,14 @@ const ColorsPage = () => {
         bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
         progressStyle: { backgroundColor: '#6F4E37' },
       });
-
       window.history.replaceState({}, document.title);
     }
   }, [location]);
 
+  // Handle delete with dispatch
   const handleDelete = async id => {
     try {
-      await deleteColor(id);
-      await loadData();
-
+      await dispatch(deleteColor(id)).unwrap();
       toast.success('Color deleted successfully!', {
         position: 'top-right',
         autoClose: 3000,
@@ -60,8 +57,7 @@ const ColorsPage = () => {
         bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
         progressStyle: { backgroundColor: '#6F4E37' },
       });
-    } catch (error) {
-      console.error('Error deleting color:', error);
+    } catch {
       toast.error('Failed to delete color.', {
         position: 'top-right',
         autoClose: 3000,
@@ -79,9 +75,12 @@ const ColorsPage = () => {
       <CommonTable
         type="colors"
         data={colors}
+        loading={loading}
         onEdit={item => navigate(`/admin/colors/edit/${item._id}`, { state: item })}
         onDelete={handleDelete}
       />
+      {/* {error && <p className="text-red-500 mt-2">{error}</p>} */}
+      {error && <p className="text-red-500 mt-2">{error?.message || String(error)}</p>}
     </Layout>
   );
 };
