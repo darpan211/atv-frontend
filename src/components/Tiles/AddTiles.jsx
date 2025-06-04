@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Icon } from '../common/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { addTile } from '@/redux/slice/tiles/tileThunks';
 import { clearTilesState, clearSelectedTile } from '@/redux/slice/tiles/tileSlice';
 import { toast } from 'react-toastify';
 import TilePreview from './TilesPreview';
@@ -304,17 +303,16 @@ const AddTiles = () => {
               </div>
             </div>
           </div>
-
-          <div className="flex justify-center mt-10">
-            <button
-              type="submit"
-              onClick={handleSubmit}
-              className="bg-[#633e1f] text-white font-semibold px-6 py-3 rounded-lg transition-colors duration-200 text-lg shadow-md hover:shadow-lg"
-            >
-              Tiles Preview
-            </button>
-          </div>
         </form>
+        <div className="flex justify-center mt-10">
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="bg-[#633e1f] text-white font-semibold px-6 py-3 rounded-lg transition-colors duration-200 text-lg shadow-md hover:shadow-lg"
+          >
+            Tiles Preview
+          </button>
+        </div>
       </div>
 
       {/* Preview Modal */}
