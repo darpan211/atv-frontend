@@ -6,8 +6,14 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 const AddTilesDropdown = () => (
   <DropdownMenu.Root>
-    <DropdownMenu.Trigger className="font-bold text-gray-800 flex items-center gap-1 text-sm xl:text-base cursor-pointer hover:underline">
-      Add Tiles <ChevronDown size={14} /> {/* No rotation here */}
+    <DropdownMenu.Trigger asChild>
+      <button className="group font-bold text-gray-800 flex items-center gap-1 text-sm xl:text-base cursor-pointer hover:underline focus:outline-none focus:ring-0">
+        Add Tiles
+        <ChevronDown
+          size={14}
+          className="transition-transform duration-300 group-hover:rotate-180"
+        />
+      </button>
     </DropdownMenu.Trigger>
     <DropdownMenu.Content
       className="bg-white shadow-lg rounded-md p-2 mt-2 min-w-[180px]"
@@ -21,7 +27,7 @@ const AddTilesDropdown = () => (
         <DropdownMenu.Item
           key={item.label}
           asChild
-          className="px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 cursor-pointer flex "
+          className="px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 cursor-pointer flex"
         >
           <a href={item.href}>{item.label}</a>
         </DropdownMenu.Item>
@@ -34,26 +40,14 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileAddTilesOpen, setMobileAddTilesOpen] = useState(false);
 
-  const handleLogin = () => {
-    window.location.href = '/';
-  };
-
-  const handleRegister = () => {
-    window.location.href = '/register';
-  };
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
-
+  const handleLogin = () => (window.location.href = '/');
+  const handleRegister = () => (window.location.href = '/register');
+  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
     setMobileAddTilesOpen(false);
   };
-
-  const toggleAddTilesDropdown = () => {
-    setMobileAddTilesOpen(!mobileAddTilesOpen);
-  };
+  const toggleAddTilesDropdown = () => setMobileAddTilesOpen(!mobileAddTilesOpen);
 
   return (
     <header className="bg-white border-b border-gray-100 shadow-xl relative z-40 flex items-center">
@@ -70,7 +64,7 @@ const Header = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center justify-center flex-1 gap-6 xl:gap-8 ">
+          <div className="hidden lg:flex items-center justify-center flex-1 gap-6 xl:gap-8">
             {['Home', 'About Us'].map(item => (
               <span
                 key={item}
@@ -79,16 +73,20 @@ const Header = () => {
                 {item}
               </span>
             ))}
-            <AddTilesDropdown /> {/* arrow here is static */}
+
+            {/* Updated AddTilesDropdown */}
+            <AddTilesDropdown />
+
             {['Projects', 'Contact Us'].map(item => (
               <span
                 key={item}
-                className="font-bold text-gray-800 text-sm xl:text-base cursor-pointer hover:underline  hover:text-[#6F4E37]"
+                className="font-bold text-gray-800 text-sm xl:text-base cursor-pointer hover:underline hover:text-[#6F4E37]"
               >
                 {item}
               </span>
             ))}
-            {/* Services with rotating arrow ONLY */}
+
+            {/* Services with rotating arrow on hover */}
             <span className="group font-bold text-gray-800 text-sm xl:text-base flex items-center gap-1 cursor-pointer hover:underline">
               Services
               <ChevronDown
@@ -216,7 +214,7 @@ const Header = () => {
                 closeMobileMenu();
               }}
               variant="outline"
-              className="bg-[#6F4E37]  border-0 text-white w-full sm:flex-1 py-3"
+              className="bg-[#6F4E37] border-0 text-white w-full sm:flex-1 py-3"
             >
               <span className="flex items-center justify-center">
                 <Icon name="Userplus" height="50px" width="50px" />
@@ -227,7 +225,7 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile overlay */}
+      {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 bg-opacity-25 z-40" onClick={closeMobileMenu} />
       )}
