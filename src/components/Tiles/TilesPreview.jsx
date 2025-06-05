@@ -43,11 +43,11 @@ const TilePreview = ({ visible, onClose }) => {
             <div key={tile.id} className="relative bg-white rounded-xl shadow-md p-4 sm:p-6">
               <button
                 onClick={() => removeTile(tile.id)}
-                className="absolute -top-1 -right-1 bg-[#6F4E37] text-white w-7 h-7 rounded flex items-center justify-center hover:bg-[#4A3224]"
+                className="absolute cursor-pointer -top-1 -right-1 bg-[#6F4E37] text-white w-7 h-7 rounded flex items-center justify-center hover:bg-[#4A3224]"
               >
                 <Icon name="Close" width="14px" height="14px" />
               </button>
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
+              <div className="flex flex-col cursor-pointer sm:flex-row gap-4 sm:gap-6 items-start">
                 <img
                   src={tile.image}
                   alt={tile.title}
@@ -69,11 +69,11 @@ const TilePreview = ({ visible, onClose }) => {
         <div className="mt-8 flex flex-col sm:flex-row justify-center sm:gap-6 gap-4">
           <button
             onClick={onClose}
-            className="bg-white border border-gray-400 text-gray-800 px-6 py-3 rounded hover:bg-gray-100 w-full sm:w-auto"
+            className="bg-white border cursor-pointer border-gray-400 text-gray-800 px-6 py-3 rounded hover:bg-gray-100 w-full sm:w-auto"
           >
             Cancel
           </button>
-          <button className="bg-[#6F4E37] text-white px-6 py-3 rounded hover:bg-[#4A3224] w-full sm:w-auto">
+          <button className="bg-[#6F4E37] cursor-pointer text-white px-6 py-3 rounded hover:bg-[#4A3224] w-full sm:w-auto">
             Add Tiles
           </button>
         </div>

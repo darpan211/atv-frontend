@@ -146,7 +146,7 @@ const DataTable = ({
             size="icon"
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage === 1}
-            className="h-8 w-8 bg-[#DADADA]"
+            className="h-8 w-8 cursor-pointer bg-[#DADADA]"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -155,7 +155,7 @@ const DataTable = ({
             size="icon"
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="h-8 w-8 bg-[#DADADA]"
+            className="h-8 cursor-pointer w-8 bg-[#DADADA]"
           >
             <ChevronRight className="h-4 w-4 " />
           </Button>

@@ -35,7 +35,7 @@ const CommonAddForm = ({
     validationSchema,
     enableReinitialize: true,
     validateOnChange: true,
-    // validateOnBlur: false, 
+    // validateOnBlur: false,
     onSubmit: values => {
       if (onSubmit) onSubmit(values);
     },
@@ -114,19 +114,19 @@ const CommonAddForm = ({
           <button
             type="button"
             onClick={handleCancel}
-            className="bg-white text-black border px-6 py-2 rounded-md shadow-sm shadow-black hover:bg-gray-100 transition"
+            className="bg-white cursor-pointer text-black border px-6 py-2 rounded-md shadow-sm shadow-black hover:bg-gray-100 transition"
           >
             Cancel
           </button>
           <button
             type="reset"
-            className="bg-gray-700 text-white px-6 py-2 shadow-sm shadow-black rounded-md hover:bg-gray-800 transition"
+            className="bg-gray-700 cursor-pointer text-white px-6 py-2 shadow-sm shadow-black rounded-md hover:bg-gray-800 transition"
           >
             Reset
           </button>
           <button
             type="submit"
-            className="bg-[#6F4E37] text-white px-6 py-2 shadow-sm shadow-black rounded-md hover:bg-[#a98f7d] transition"
+            className="bg-[#6F4E37] cursor-pointer text-white px-6 py-2 shadow-sm shadow-black rounded-md hover:bg-[#a98f7d] transition"
           >
             {buttonText}
           </button>

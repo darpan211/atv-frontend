@@ -158,14 +158,14 @@ const CommonTable = ({ type, data, onEdit, onDelete }) => {
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="px-2 py-1 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-50"
+            className="px-2 py-1 rounded cursor-pointer text-gray-500 hover:bg-gray-200 disabled:opacity-50"
           >
             {'<'}
           </button>
           <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className="px-2 py-1 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-50"
+            className="px-2 py-1 rounded cursor-pointer text-gray-500 hover:bg-gray-200 disabled:opacity-50"
           >
             {'>'}
           </button>

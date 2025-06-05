@@ -137,19 +137,19 @@ const HeaderTilesCart = () => {
 
             {/* Buttons */}
             <button
-              className="w-full sm:w-auto bg-gray-700 text-white px-4 py-2 rounded text-sm"
+              className="w-full sm:w-auto cursor-pointer bg-gray-700 text-white px-4 py-2 rounded text-sm"
               onClick={handleReset}
             >
               Reset
             </button>
             <button
-              className="w-full sm:w-auto bg-[#6F4E37] hover:bg-[#5c3f2e] text-white px-4 py-2 rounded text-sm"
+              className="w-full cursor-pointer sm:w-auto bg-[#6F4E37] hover:bg-[#5c3f2e] text-white px-4 py-2 rounded text-sm"
               onClick={handleApply}
             >
               Apply
             </button>
             <button
-              className="w-full sm:w-auto bg-[#6F4E37] hover:bg-[#5c3f2e] text-white px-4 py-2 rounded text-sm"
+              className="w-full cursor-pointer sm:w-auto bg-[#6F4E37] hover:bg-[#5c3f2e] text-white px-4 py-2 rounded text-sm"
             >
               + Add New Tiles
             </button>

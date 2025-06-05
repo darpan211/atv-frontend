@@ -157,8 +157,8 @@ import { useNavigate } from 'react-router-dom';
 import { Icon } from '../common/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '@/redux/slice/auth/authThunks';
-import { FaRegEye } from "react-icons/fa";
-import { FaRegEyeSlash } from "react-icons/fa";
+import { FaRegEye } from 'react-icons/fa';
+import { FaRegEyeSlash } from 'react-icons/fa';
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -174,11 +174,11 @@ const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
-   useEffect(() => {
-    if (authState.user) {
-      navigate('/admin/dashboard', { replace: true });
-    }
-  }, [authState.user, navigate]);
+  useEffect(() => {
+  if (authState?.user?.user) {
+    navigate('/admin/dashboard');
+  }
+}, [authState?.user?.user, navigate]);
 
   const formik = useFormik({
     initialValues: {
@@ -256,11 +256,11 @@ const Login = () => {
                 </Button>
               </div>
 
-              <div className='relative'>
+              <div className="relative">
                 <Input
                   id="password"
                   name="password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   value={formik.values.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -270,11 +270,17 @@ const Login = () => {
                 {formik.touched.password && formik.errors.password && (
                   <div className="text-red-500 text-sm mt-1">{formik.errors.password}</div>
                 )}
-                {showPassword 
-                  ? <FaRegEye className='absolute right-2 top-4' onClick={() => setShowPassword(false)} /> 
-                  : <FaRegEyeSlash className='absolute right-2 top-4' onClick={() => setShowPassword(true)} /> 
-                }
-                
+                {showPassword ? (
+                  <FaRegEye
+                    className="absolute right-2 top-4"
+                    onClick={() => setShowPassword(false)}
+                  />
+                ) : (
+                  <FaRegEyeSlash
+                    className="absolute right-2 top-4"
+                    onClick={() => setShowPassword(true)}
+                  />
+                )}
               </div>
             </div>
             <div className="flex items-center space-x-2 pt-2">
@@ -299,7 +305,7 @@ const Login = () => {
 
             <Button
               type="submit"
-              className="w-full h-12 text-base bg-[#6C4A34] hover:bg-[#5c3a24] hover:shadow-lg transition-shadow text-white"
+              className="w-full h-12 text-base bg-[#6C4A34] hover:bg-[#5c3a24] hover:shadow-lg cursor-pointer transition-shadow text-white"
               disabled={authState.loading || !formik.isValid}
             >
               {authState.loading ? 'Signing in...' : 'Sign in'}
@@ -308,7 +314,7 @@ const Login = () => {
           <div className="mt-8 text-center md:text-left">
             <p className="text-muted-foreground">
               Don&apos;t have an account?{' '}
-              <Button variant="link" className="p-0 h-auto text-[#6C4A34]">
+              <Button variant="link" className="p-0 h-auto cursor-pointer text-[#6C4A34]">
                 Sign up
               </Button>
             </p>
