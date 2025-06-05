@@ -2,6 +2,7 @@ import { useFormik } from 'formik';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Input } from '../ui/input';
 
 export default function ListView({ title, addPath, placeholder, allItems }) {
   const [filteredItems, setFilteredItems] = useState < any > allItems;
@@ -32,7 +33,7 @@ export default function ListView({ title, addPath, placeholder, allItems }) {
       <div className="bg-[#FFF5EE] p-4 rounded-lg">
         <div className="overflow-x-auto">
           <form onSubmit={formik.handleSubmit} className="mb-4 max-w-sm relative">
-            <input
+            <Input
               type="text"
               name="search"
               placeholder={placeholder}

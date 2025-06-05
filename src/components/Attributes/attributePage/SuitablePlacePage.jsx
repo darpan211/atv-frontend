@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast, Bounce } from 'react-toastify';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 
 import {
@@ -11,15 +11,17 @@ import {
 import { clearSuitablePlacesState } from '@/redux/slice/suitablePlace/suitablePlaceSlice';
 
 import Layout from '@/components/common/Layout';
-import CommonTable from '@/components/common/CommonTable';
+import DataTable from '@/components/common/DataTable';
 import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
+import { DeleteIcon } from '@/components/common/icons/svgs/DeleteIcon';
+import { EditIcon } from '@/components/common/icons/svgs/EditIcon';
 
 const SuitablePlacePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const suitablePlaceState = useSelector((state) => state.suitablePlace);
+  const suitablePlaceState = useSelector(state => state.suitablePlace);
   const places = suitablePlaceState?.list || [];
   const loading = suitablePlaceState?.loading || false;
   const error = suitablePlaceState?.error || null;
@@ -27,6 +29,31 @@ const SuitablePlacePage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const columns = [
+    {
+      header: 'Suitable Place',
+      accessor: 'suitablePlace',
+    },
+    {
+      header: 'Actions',
+      className: 'w-32 text-center',
+      cell: row => (
+        <div className="btns flex gap-5 text-xl ml-4">
+          <div
+            className="cursor-pointer"
+            onClick={() => navigate(`/admin/places/edit/${row._id}`, { state: row })}
+          >
+            <EditIcon className="text-[#a98f7d]" />
+          </div>
+          <div className="cursor-pointer" onClick={() => handleDeleteClick(row?._id)}>
+            <DeleteIcon className="text-[#a98f7d] cursor-pointer" />
+          </div>
+        </div>
+      ),
+    },
+  ];
 
   // Show toast from location state
   useEffect(() => {
@@ -68,8 +95,8 @@ const SuitablePlacePage = () => {
     }
   }, [error]);
 
-  const handleDeleteClick = (item) => {
-    setSelectedPlace(item);
+  const handleDeleteClick = id => {
+    setSelectedPlace(id);
     setShowDeleteModal(true);
   };
 
@@ -112,6 +139,16 @@ const SuitablePlacePage = () => {
     setSelectedPlace(null);
   };
 
+  const handleSearchInput = query => {
+    setSearchQuery(query);
+  };
+
+  // Filter places based on search query
+  const filteredPlaces = useMemo(() => {
+    const lower = searchQuery.toLowerCase();
+    return places?.filter(place => place?.suitablePlace?.toLowerCase().includes(lower));
+  }, [searchQuery, places]);
+
   if (loading) return <div className="p-4 text-center">Loading...</div>;
 
   return (
@@ -120,13 +157,14 @@ const SuitablePlacePage = () => {
       buttonLabel="Add Suitable Place"
       onButtonClick={() => navigate('/admin/places/add')}
     >
-      <CommonTable
-        type="suitablePlace"
-        data={places}
-        onEdit={(item) =>
-          navigate(`/admin/places/edit/${item._id}`, { state: item })
-        }
-        onDelete={handleDeleteClick}
+      <DataTable
+        data={filteredPlaces}
+        columns={columns}
+        onSearch={handleSearchInput}
+        searchPlaceholder="Search suitable place"
+        addButtonText="Add Suitable Place"
+        emptyStateMessage="No suitable place found."
+        loading={loading}
       />
 
       {showDeleteModal && (

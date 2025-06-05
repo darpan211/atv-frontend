@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Layout from '@/components/common/Layout';
-import CommonTable from '@/components/common/CommonTable';
-// import { , deleteMaterial } from '@/store/slices/material/materialThunks';
+import DataTable from '@/components/common/DataTable';
 import { fetchMaterials, deleteMaterial } from '@/redux/slice/material/materialThunks';
 import { toast, Bounce } from 'react-toastify';
 import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
+import { DeleteIcon } from '@/components/common/icons/svgs/DeleteIcon';
+import { EditIcon } from '@/components/common/icons/svgs/EditIcon';
 
 const Materials = () => {
   const dispatch = useDispatch();
@@ -19,6 +20,32 @@ const Materials = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Define columns for DataTable
+  const columns = [
+    {
+      header: 'Material Name',
+      accessor: 'material', // Adjust this based on your material object structure
+    },
+    {
+      header: 'Actions',
+      className: 'w-32 text-center',
+      cell: row => (
+        <div className="btns flex gap-5 text-xl ml-4">
+          <div
+            className="cursor-pointer"
+            onClick={() => navigate(`/admin/materials/edit/${row._id}`, { state: row })}
+          >
+            <EditIcon className="text-[#a98f7d]" />
+          </div>
+          <div className="cursor-pointer" onClick={() => handleDeleteClick(row._id)}>
+            <DeleteIcon className="text-[#a98f7d] cursor-pointer" />
+          </div>
+        </div>
+      ),
+    },
+  ];
 
   useEffect(() => {
     dispatch(fetchMaterials());
@@ -44,13 +71,13 @@ const Materials = () => {
     }
   }, [location]);
 
-    const handleDeleteClick = item => {
-    setSelectedMaterial(item);
+  const handleDeleteClick = id => {
+    setSelectedMaterial(id);
     setShowDeleteModal(true);
   };
 
   const handleConfirmDelete = async () => {
-      try {
+    try {
       if (!selectedMaterial) return;
       setIsDeleting(true);
 
@@ -80,19 +107,30 @@ const Materials = () => {
     setSelectedMaterial(null);
   };
 
+  const handleSearchInput = query => {
+    setSearchQuery(query);
+  };
+
+  // Filter materials based on search query
+  const filteredMaterials = useMemo(() => {
+    const lower = searchQuery.toLowerCase();
+    return materials?.filter(material => material?.material?.toLowerCase().includes(lower));
+  }, [searchQuery, materials]);
+
   return (
     <Layout
       title="Materials"
       buttonLabel="Add Material"
       onButtonClick={() => navigate('/admin/materials/add')}
     >
-
-      <CommonTable
-        type="material"
-        data={materials}
+      <DataTable
+        data={filteredMaterials}
+        columns={columns}
+        onSearch={handleSearchInput}
+        searchPlaceholder="Search material"
+        addButtonText="Add Material"
+        emptyStateMessage="No material found."
         loading={loading}
-        onEdit={item => navigate(`/admin/materials/edit/${item._id}`, { state: item })}
-        onDelete={handleDeleteClick}
       />
 
       {showDeleteModal && (
@@ -103,7 +141,6 @@ const Materials = () => {
           isLoading={isDeleting}
         />
       )}
-
     </Layout>
   );
 };

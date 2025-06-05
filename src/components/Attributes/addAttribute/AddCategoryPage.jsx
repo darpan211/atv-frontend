@@ -24,9 +24,6 @@ const AddCategoryPage = () => {
     }
   }, [dispatch, isEdit, id]);
 
-  // Prepare initial form values (normalize "category" → "name")
-  // const initialValues =
-  //   isEdit && selectedCategory ? { name: selectedCategory.category || '' } : { name: '' };
   const initialValues = useMemo(() => {
     if (isEdit && selectedCategory) {
       return { name: selectedCategory.category || '' };

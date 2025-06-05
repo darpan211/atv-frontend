@@ -8,8 +8,13 @@ const getErrorMessage = error =>
 
 export const fetchColors = createAsyncThunk('colors/fetchColors', async (_, thunkAPI) => {
   try {
-    const response = await axiosHandler.get(`${BASE_URL}/api/v1/colors/getcolors`);
-    return response.data.data;
+    const state = thunkAPI.getState();
+    const existingList = state?.colors?.list;
+    if (!existingList || existingList?.length === 0) {
+      const response = await axiosHandler.get(`${BASE_URL}/api/v1/colors/getcolors`);
+      return response.data.data;
+    }
+    return existingList;
   } catch (error) {
     return thunkAPI.rejectWithValue(getErrorMessage(error));
   }

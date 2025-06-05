@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from './icons';
+import { Input } from '../ui/input';
 
 export default function CommonList({ title, buttonLabel, placeholder, route }) {
   const [filteredItems, setFilteredItems] = useState([]); // initially empty for now
@@ -51,7 +52,7 @@ export default function CommonList({ title, buttonLabel, placeholder, route }) {
               />
             </svg>
 
-            <input
+            <Input
               type="text"
               name="search"
               placeholder={placeholder}
