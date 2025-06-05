@@ -26,8 +26,8 @@ const CommonAddForm = ({
         })
       : Yup.object().shape({
           name: Yup.string()
-            .min(3, 'Name must be at least 3 characters')
-            .required('Name is required'),
+            .min(3, 'Name should be at least 3 characters long.')
+            .required('Please enter a name.'),
         });
 
   const formik = useFormik({

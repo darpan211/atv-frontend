@@ -42,24 +42,11 @@ const AddPlacePage = () => {
 
       if (isEdit) {
         await dispatch(updateSuitablePlace({ id, data: payload })).unwrap();
-        toast.success('Place updated successfully!', {
-          position: 'top-right',
-          autoClose: 3000,
-          transition: Bounce,
-          theme: 'light',
-        });
       } else {
         await dispatch(addSuitablePlace(payload)).unwrap();
-        toast.success('Place added successfully!', {
-          position: 'top-right',
-          autoClose: 3000,
-          transition: Bounce,
-          theme: 'light',
-        });
       }
 
       navigate('/admin/places', {
-        replace: true,
         state: {
           toastMessage: isEdit ? 'Place updated successfully!' : 'Place added successfully!',
         },
@@ -69,6 +56,7 @@ const AddPlacePage = () => {
       toast.error('Failed to save place.', {
         position: 'top-right',
         autoClose: 3000,
+        theme: 'light',
       });
     }
   };
