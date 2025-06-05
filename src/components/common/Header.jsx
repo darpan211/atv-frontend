@@ -6,30 +6,28 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 const AddTilesDropdown = () => (
   <DropdownMenu.Root>
-    <DropdownMenu.Trigger asChild>
-      <button className="group font-bold text-gray-800 flex items-center gap-1 text-sm xl:text-base cursor-pointer hover:underline focus:outline-none focus:ring-0">
-        Add Tiles
-        <ChevronDown
-          size={14}
-          className="transition-transform duration-300 group-hover:rotate-180"
-        />
-      </button>
+    <DropdownMenu.Trigger className="font-bold text-gray-800 flex items-center gap-1 text-sm xl:text-base cursor-pointer hover:text-[#6F4E37] outline-none hover:underline">
+      Add Tiles <ChevronDown size={14} /> {/* No rotation here */}
     </DropdownMenu.Trigger>
     <DropdownMenu.Content
-      className="bg-white shadow-lg rounded-md p-2 mt-2 min-w-[180px]"
+      className="bg-white shadow-lg rounded-xl p-2 mt-2 hover:text-[#6F4E37] cursor-pointer min-w-[230px]"
       sideOffset={5}
     >
       {[
-        { label: '- Tiles Add', href: '' },
-        { label: '- Tiles PDF Add', href: '' },
-        { label: '- Bulk Tiles Add', href: '' },
-      ].map(item => (
+        { label: 'Single Upload', href: '' },
+        { label: 'PDF Upload', href: '' },
+        { label: 'Bulk Upload', href: '' },
+      ].map((item, index, array) => (
         <DropdownMenu.Item
           key={item.label}
           asChild
-          className="px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 cursor-pointer flex"
+          className={` px-4 py-2 text-sm   text-black outline-none font-medium flex items-center gap-2 
+      ${index !== array.length - 1 ? 'border-b border-gray-300' : ''}`}
         >
-          <a href={item.href}>{item.label}</a>
+          <div className="w-full flex items-center gap-2">
+            <span className="text-gray-500">–</span>
+            <span>{item.label}</span>
+          </div>
         </DropdownMenu.Item>
       ))}
     </DropdownMenu.Content>
@@ -101,7 +99,7 @@ const Header = () => {
             <Button
               onClick={handleLogin}
               variant="outline"
-              className="bg-[#6F4E37] hover:bg-[#5d3e2a] border-0 text-white px-3 xl:px-4 py-2 text-sm xl:text-base"
+              className="bg-[#6F4E37]  border-0 cursor-pointer text-white px-3 xl:px-4 py-2 text-sm xl:text-base"
             >
               <span className="flex items-center">
                 <Icon name="UserIcon" height="50px" width="50px" />
@@ -111,7 +109,7 @@ const Header = () => {
             <Button
               onClick={handleRegister}
               variant="outline"
-              className="bg-[#6F4E37] hover:bg-[#5d3e2a] border-0 text-white px-3 xl:px-4 py-2 text-sm xl:text-base"
+              className="bg-[#6F4E37] cursor-pointer border-0 text-white px-3 xl:px-4 py-2 text-sm xl:text-base"
             >
               <span className="flex items-center">
                 <Icon name="Userplus" height="50px" width="50px" />
@@ -122,7 +120,7 @@ const Header = () => {
 
           {/* Mobile Menu Toggle */}
           <button
-            className="lg:hidden text-gray-800 focus:outline-none p-2"
+            className="lg:hidden text-gray-800 cursor-pointer focus:outline-none p-2"
             onClick={toggleMobileMenu}
             aria-label="Toggle menu"
           >
@@ -163,9 +161,9 @@ const Header = () => {
               {mobileAddTilesOpen && (
                 <div className="relative inline-block mt-2 py-5 w-[200px] text-center space-y-2 shadow-md rounded-2xl bg-gray-100">
                   {[
-                    { label: ' Tiles Add', href: '' },
-                    { label: ' Tiles PDF Add', href: '' },
-                    { label: ' Bulk Tiles Add', href: '' },
+                    { label: ' Singel Upload', href: '' },
+                    { label: ' Pdf Upload', href: '' },
+                    { label: ' Bulk Upload', href: '' },
                   ].map(subItem => (
                     <a
                       key={subItem.label}
@@ -201,7 +199,7 @@ const Header = () => {
                 closeMobileMenu();
               }}
               variant="outline"
-              className="bg-[#6F4E37] hover:bg-[#5d3e2a] border-0 text-white w-full sm:flex-1 py-3"
+              className="bg-[#6F4E37] cursor-pointer hover:bg-[#5d3e2a] border-0 text-white w-full sm:flex-1 py-3"
             >
               <span className="flex items-center justify-center">
                 <Icon name="UserIcon" height="50px" width="50px" />
@@ -214,7 +212,7 @@ const Header = () => {
                 closeMobileMenu();
               }}
               variant="outline"
-              className="bg-[#6F4E37] border-0 text-white w-full sm:flex-1 py-3"
+              className="bg-[#6F4E37] cursor-pointer border-0 text-white w-full sm:flex-1 py-3"
             >
               <span className="flex items-center justify-center">
                 <Icon name="Userplus" height="50px" width="50px" />

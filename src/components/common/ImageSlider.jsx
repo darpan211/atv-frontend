@@ -54,10 +54,10 @@ export function ImageSlider({
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-l-full rounded-sm h-20 w-12 bg-white text-[#5c4033] hover:bg-gray-100 shadow-md text-4xl"
+              className="rounded-l-full cursor-pointer rounded-sm h-20 w-12 bg-white text-[#5c4033] hover:bg-gray-100 shadow-md text-4xl"
               onClick={goToPrevious}
             >
-              {"<"}
+              {'<'}
             </Button>
           </div>
         )}
@@ -67,10 +67,10 @@ export function ImageSlider({
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-r-full rounded-sm h-20 w-12  bg-white text-[#5c4033] hover:bg-gray-100 shadow-md text-4xl"
-              onClick={goToNext} 
+              className="rounded-r-full cursor-pointer rounded-sm h-20 w-12  bg-white text-[#5c4033] hover:bg-gray-100 shadow-md text-4xl"
+              onClick={goToNext}
             >
-              {">"}
+              {'>'}
             </Button>
           </div>
         )}

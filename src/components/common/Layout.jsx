@@ -19,7 +19,7 @@ const Layout = ({ title, buttonLabel, onButtonClick, isEdit = false, children })
         {buttonLabel && onButtonClick && (
           <button
             onClick={onButtonClick}
-            className="bg-[#6F4E37] hover:bg-opacity-90 text-white font-medium py-2 px-4 rounded"
+            className="bg-[#6F4E37] cursor-pointer hover:bg-opacity-90 text-white font-medium py-2 px-4 rounded"
           >
             {buttonLabel}
           </button>

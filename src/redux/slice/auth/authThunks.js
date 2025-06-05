@@ -78,11 +78,11 @@ export const deleteUser = createAsyncThunk('auth/deleteUser', async (id, thunkAP
 
 // 6. Logout
 
-export const logoutUser = createAsyncThunk('auth/logoutUser', async (_, thunkAPI) => {
-  try {
-    localStorage.removeItem('authToken');
-    return true;
-  } catch (error) {
-    return thunkAPI.rejectWithValue('Failed to logout');
-  }
-});
+// export const logoutUser = createAsyncThunk('auth/logoutUser', async (_, thunkAPI) => {
+//   try {
+//     localStorage.removeItem('authToken');
+//     return true;
+//   } catch (error) {
+//     return thunkAPI.rejectWithValue('Failed to logout');
+//   }
+// });

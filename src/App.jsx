@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider } from './hooks/AuthContext';
 
 // Layout
@@ -43,28 +43,16 @@ import MainAddTiles from './components/Tiles/MainAddTiles';
 import HeaderTilesCart from './components/Tiles/HeaderTilesCart';
 import TilesPreview from './components/Tiles/TilesPreview';
 import AddTiles from './components/Tiles/AddTiles';
-
-// ================== Layout Wrapper ==================
-const AppLayout = ({ children }) => {
-  const location = useLocation();
-  const isLoginPage = location.pathname === '/' || location.pathname === '/login';
-
-  return (
-    <div className="min-h-screen flex flex-col">
-      {!isLoginPage && <AdminHeader />}
-      {/* {!isLoginPage && <Header />} */}
-
-      <main className="flex-grow">{children}</main>
-    </div>
-  );
-};
+// import { useSelector } from 'react-redux';
+import AppLayout from './hooks/AppLayout';
+import AuthSync from './hooks/AuthSync';
 
 // ================== App Routes ==================
 const App = () => {
   return (
     <AuthProvider>
+      <AuthSync/>
       <Routes>
-        {/* Login */}
         <Route
           path="/"
           element={

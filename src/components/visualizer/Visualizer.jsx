@@ -154,7 +154,7 @@ const TileVisualizer = () => {
     <div className="flex flex-col w-full min-h-screen text-black">
       <div className="flex flex-1 overflow-hidden relative">
         <button
-          className="fixed top-3 left-3 z-50 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white rounded-lg shadow-lg transition-colors duration-200 lg:hidden"
+          className="fixed top-3 cursor-pointer left-3 z-50 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white rounded-lg shadow-lg transition-colors duration-200 lg:hidden"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
           {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
@@ -162,7 +162,7 @@ const TileVisualizer = () => {
 
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 bg-opacity-50 z-30 lg:hidden"
+            className="fixed inset-0 bg-opacity-50 cursor-pointer z-30 lg:hidden"
             onClick={() => setIsSidebarOpen(false)}
           />
         )}
@@ -243,23 +243,48 @@ const TileVisualizer = () => {
         <div className="flex-1 flex flex-col bg-white min-h-screen lg:min-h-0">
           <div className="bg-[#EFEFEF] text-gray-800 p-3 sm:p-4 lg:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-300 mx-2 sm:mx-3 lg:mx-4 mt-14 sm:mt-16 lg:mt-0 shadow-lg gap-3 sm:gap-4">
             <div className="items-center gap-2 sm:gap-3 cursor-pointer">
-              <button className="flex items-center justify-center w-8 h-8 bg-[#6F4E37] rounded hover:bg-[#5a3e2a]">
-                <ChevronLeft className="text-white w-4 h-4" />
+              <button className="flex cursor-pointer items-center justify-center w-8 h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11 bg-[#6F4E37] hover:bg-[#5a3e2a] rounded transition-colors duration-200">
+                <ChevronLeft className="text-white w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
               </button>
               <span className="text-sm font-medium">Back</span>
             </div>
-            <div className="flex flex-wrap gap-2 sm:gap-3">
-              <button className="flex items-center px-3 py-2 bg-white border rounded hover:bg-gray-50 text-sm">
-                <img src={downloadIcon} alt="download" className="w-4 h-4 mr-2" /> Download
+            <div className="flex flex-col xs:flex-row sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+              <button className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-white border border-gray-300 rounded text-xs sm:text-sm lg:text-base hover:bg-gray-50 transition-colors duration-200 min-w-[120px] sm:min-w-[130px] lg:min-w-[140px]">
+                <span className="mr-2 flex-shrink-0">
+                  <img
+                    src={downloadIcon || "/placeholder.svg?height=16&width=16"}
+                    alt="download"
+                    className="w-4 h-4 sm:w-5 sm:h-5"
+                  />
+                </span>
+                <span>Download</span>
               </button>
-              <button className="flex items-center px-3 py-2 bg-[#6F4E37] text-white rounded hover:bg-[#5a3e2a] text-sm">
-                <img src={addCatelogIcon} alt="add catalog" className="w-4 h-4 mr-2" /> Add Catalog
+              <button className="flex items-center cursor-pointer justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white rounded text-xs sm:text-sm lg:text-base transition-colors duration-200 min-w-[120px] sm:min-w-[130px] lg:min-w-[140px]">
+                <span className="mr-2 flex-shrink-0">
+                  <img
+                    src={addCatelogIcon || "/placeholder.svg?height=16&width=16"}
+                    alt="add catalog"
+                    className="w-4 h-4 sm:w-5 sm:h-5"
+                  />
+                </span>
+                <span>Add Catalog</span>
               </button>
-              <button className="flex items-center px-3 py-2 bg-[#6F4E37] text-white rounded hover:bg-[#5a3e2a] text-sm">
-                <img src={roomIcon} alt="room" className="w-4 h-4 mr-2" /> Change Room
+              <button className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white rounded text-xs sm:text-sm lg:text-base transition-colors duration-200 min-w-[130px] sm:min-w-[140px] lg:min-w-[150px]">
+                <span className="mr-2 flex-shrink-0">
+                  <img
+                    src={roomIcon || "/placeholder.svg?height=16&width=16"}
+                    alt="room"
+                    className="w-4 h-4 sm:w-5 sm:h-5"
+                  />
+                </span>
+                <span>Change Room</span>
               </button>
-              <button className="w-10 h-10 bg-white border rounded hover:bg-gray-50">
-                <img src={squear} alt="square" className="w-4 h-4 mx-auto" />
+              <button className="flex cursor-pointer items-center justify-center w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors duration-200">
+                <img
+                  src={squear || "/placeholder.svg?height=16&width=16"}
+                  alt="square"
+                  className="w-4 h-4 sm:w-5 sm:h-5"
+                />
               </button>
             </div>
           </div>
