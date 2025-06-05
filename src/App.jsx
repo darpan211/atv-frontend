@@ -51,10 +51,18 @@ import AuthSync from './hooks/AuthSync';
 const App = () => {
   return (
     <AuthProvider>
-      <AuthSync/>
+      <AuthSync />
       <Routes>
         <Route
           path="/"
+          element={
+            <AppLayout>
+              <LoginPage />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/login"
           element={
             <AppLayout>
               <LoginPage />
@@ -186,7 +194,7 @@ const App = () => {
 
         {/* Add Tiles */}
         <Route
-          path="/admin/tiles/add"
+          path="/tiles/add"
           element={
             <AppLayout>
               <AddTiles />
@@ -195,7 +203,7 @@ const App = () => {
         />
 
         <Route
-          path="/admin/tiles/list"
+          path="/tiles/list"
           element={
             <AppLayout>
               <HeaderTilesCart />

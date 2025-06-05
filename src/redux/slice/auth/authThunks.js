@@ -32,9 +32,8 @@ export const login = createAsyncThunk('auth/login', async (credentials, thunkAPI
 
     const { token, user } = response.data.data; // <-- note the `.data.data`
 
-    console.log('Token:', token); // should print the token now
-
     localStorage.setItem('authToken', token);
+    localStorage.setItem('user', JSON.stringify(user));
 
     return response.data.data; // return the data object that contains token & user
   } catch (error) {
@@ -74,7 +73,6 @@ export const deleteUser = createAsyncThunk('auth/deleteUser', async (id, thunkAP
     return thunkAPI.rejectWithValue(error.response?.data || error.message);
   }
 });
-
 
 // 6. Logout
 

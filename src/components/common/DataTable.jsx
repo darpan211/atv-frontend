@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ChevronLeft, ChevronRight, Search, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 // This is our main Table component that can be reused across the application
 const DataTable = ({
@@ -63,7 +63,6 @@ const DataTable = ({
     setRowsPerPage(Number(value));
     setCurrentPage(1); // Reset to first page when changing rows per page
   };
-  console.log(data, 'chekek');
   return (
     <div className="w-full p-6 rounded-lg shadow-sm bg-[#FFF5EE]">
       {/* Table Header with Search and Add Button */}
@@ -77,7 +76,7 @@ const DataTable = ({
                 placeholder={searchPlaceholder}
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-10 pr-4 py-2 w-full text-sm placeholder-white bg-white  "
+                className="pl-10 pr-4 py-2 w-full text-sm hover:bg-white text-black h-10 bg-white  "
               />
             </div>
           )}
@@ -91,7 +90,10 @@ const DataTable = ({
           <TableHeader>
             <TableRow className="bg-[#6F4E37] hover:bg-[#6F4E37] cursor-default">
               {columns.map((column, index) => (
-                <TableHead key={index} className="border border-grey-500 font-medium text-white">
+                <TableHead
+                  key={index}
+                  className={`border border-grey-500 font-medium text-white ${column?.className ?? ''}`}
+                >
                   {column.header}
                 </TableHead>
               ))}
@@ -110,7 +112,7 @@ const DataTable = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center py-10 text-white">
+                <TableCell colSpan={columns.length} className="text-center px-4 py-4 text-gray-500">
                   {emptyStateMessage}
                 </TableCell>
               </TableRow>

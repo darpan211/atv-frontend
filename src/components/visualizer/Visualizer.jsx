@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, Heart, Menu, X } from 'lucide-react';
-import { TIELS } from '@/utils/constants'; 
+import { TIELS } from '@/utils/constants';
 import downloadIcon from '../../assets/download-icon.svg';
 import addCatelogIcon from '../../assets/addCatelog-icon.svg';
 import roomIcon from '../../assets/room-icon.svg';
 import squear from '../../assets/squear.svg';
 import filterIcon from '../../assets/Filter.png';
-import { Icon } from '../common/icons'; 
-import FilterPopup from './FilterPopup'; 
+import { Icon } from '../common/icons';
+import FilterPopup from './FilterPopup';
+import { Input } from '../ui/input';
 
 const SearchDropdown = ({ onFilterClick }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -72,7 +73,7 @@ const SearchDropdown = ({ onFilterClick }) => {
             >
               Tiles
             </span>
-            <input
+            <Input
               type="text"
               value={searchTerm}
               onChange={handleSearch}
@@ -252,7 +253,7 @@ const TileVisualizer = () => {
               <button className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-white border border-gray-300 rounded text-xs sm:text-sm lg:text-base hover:bg-gray-50 transition-colors duration-200 min-w-[120px] sm:min-w-[130px] lg:min-w-[140px]">
                 <span className="mr-2 flex-shrink-0">
                   <img
-                    src={downloadIcon || "/placeholder.svg?height=16&width=16"}
+                    src={downloadIcon || '/placeholder.svg?height=16&width=16'}
                     alt="download"
                     className="w-4 h-4 sm:w-5 sm:h-5"
                   />
@@ -262,7 +263,7 @@ const TileVisualizer = () => {
               <button className="flex items-center cursor-pointer justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white rounded text-xs sm:text-sm lg:text-base transition-colors duration-200 min-w-[120px] sm:min-w-[130px] lg:min-w-[140px]">
                 <span className="mr-2 flex-shrink-0">
                   <img
-                    src={addCatelogIcon || "/placeholder.svg?height=16&width=16"}
+                    src={addCatelogIcon || '/placeholder.svg?height=16&width=16'}
                     alt="add catalog"
                     className="w-4 h-4 sm:w-5 sm:h-5"
                   />
@@ -272,7 +273,7 @@ const TileVisualizer = () => {
               <button className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white rounded text-xs sm:text-sm lg:text-base transition-colors duration-200 min-w-[130px] sm:min-w-[140px] lg:min-w-[150px]">
                 <span className="mr-2 flex-shrink-0">
                   <img
-                    src={roomIcon || "/placeholder.svg?height=16&width=16"}
+                    src={roomIcon || '/placeholder.svg?height=16&width=16'}
                     alt="room"
                     className="w-4 h-4 sm:w-5 sm:h-5"
                   />
@@ -281,7 +282,7 @@ const TileVisualizer = () => {
               </button>
               <button className="flex cursor-pointer items-center justify-center w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors duration-200">
                 <img
-                  src={squear || "/placeholder.svg?height=16&width=16"}
+                  src={squear || '/placeholder.svg?height=16&width=16'}
                   alt="square"
                   className="w-4 h-4 sm:w-5 sm:h-5"
                 />

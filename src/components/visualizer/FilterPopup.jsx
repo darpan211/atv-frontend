@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import img from '../../assets/Filter1.png';
 import { VscChromeClose } from 'react-icons/vsc';
+import { Input } from '../ui/input';
 
 const FilterPopup = ({ onClose }) => {
   const [selectedCategory, setSelectedCategory] = useState(0);
@@ -163,7 +164,7 @@ const FilterPopup = ({ onClose }) => {
                     className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:border-[#6F4E37] transition-all"
                   >
                     <div className="relative">
-                      <input
+                      <Input
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => handleOptionChange(currentCategoryName, opt)}

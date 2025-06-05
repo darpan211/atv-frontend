@@ -2,6 +2,8 @@ import { useFormik } from 'formik';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 
 const CommonAddForm = ({
   label,
@@ -39,23 +41,26 @@ const CommonAddForm = ({
     onSubmit: values => {
       if (onSubmit) onSubmit(values);
     },
-    // onReset: () => formik.resetForm(),
   });
 
   const handleCancel = () => {
     navigate(-1);
   };
 
+  const handleReset = () => {
+    formik.setFieldValue('name', '');
+  };
+
   return (
     <div className="bg-[#FFF5EE] p-6 rounded-lg w-full">
-      <form onSubmit={formik.handleSubmit} onReset={formik.handleReset}>
+      <form onSubmit={formik.handleSubmit}>
         {formType === 'sizes' ? (
           <>
             <div className="mb-4">
-              <label htmlFor="height" className="block text-sm font-medium text-black mb-1">
+              <Label htmlFor="height" className="block text-sm font-medium text-black mb-1">
                 Height
-              </label>
-              <input
+              </Label>
+              <Input
                 id="height"
                 name="height"
                 type="text"
@@ -71,10 +76,10 @@ const CommonAddForm = ({
             </div>
 
             <div className="mb-6">
-              <label htmlFor="width" className="block text-sm font-medium text-black mb-1">
+              <Label htmlFor="width" className="block text-sm font-medium text-black mb-1">
                 Width
-              </label>
-              <input
+              </Label>
+              <Input
                 id="width"
                 name="width"
                 type="text"
@@ -94,7 +99,7 @@ const CommonAddForm = ({
             <label htmlFor="name" className="block text-sm font-medium text-black mb-1">
               {label}
             </label>
-            <input
+            <Input
               id="name"
               name="name"
               type="text"
@@ -121,6 +126,7 @@ const CommonAddForm = ({
           <button
             type="reset"
             className="bg-gray-700 cursor-pointer text-white px-6 py-2 shadow-sm shadow-black rounded-md hover:bg-gray-800 transition"
+            onClick={handleReset}
           >
             Reset
           </button>
