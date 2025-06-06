@@ -14,12 +14,13 @@ const SizesPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { list: sizesData, loading, error } = useSelector(state => state.sizes);
+  const { list: sizesData, loading, success } = useSelector(state => state.sizes);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedSize, setSelectedSize] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  console.log(success, 'success');
 
   const columns = [
     {
@@ -48,19 +49,7 @@ const SizesPage = () => {
 
   useEffect(() => {
     if (location.state?.toastMessage) {
-      toast.success(location.state.toastMessage, {
-        position: 'top-right',
-        autoClose: 3000,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: 'light',
-        transition: Bounce,
-        className: 'bg-white rounded-md shadow-md border-2',
-        style: { borderColor: '#6F4E37' },
-        bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
-        progressStyle: { backgroundColor: '#6F4E37' },
-      });
+      toast.success(location.state.toastMessage);
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -75,24 +64,12 @@ const SizesPage = () => {
       if (!selectedSize) return;
       setIsDeleting(true);
 
-      await dispatch(deleteSize(selectedSize)).unwrap();
-      await dispatch(fetchSizes());
-      toast.success('Size deleted successfully!', {
-        position: 'top-right',
-        autoClose: 3000,
-        theme: 'light',
-        transition: Bounce,
-        className: 'bg-white rounded-md shadow-md border-2',
-        style: { borderColor: '#6F4E37' },
-        bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
-        progressStyle: { backgroundColor: '#6F4E37' },
-      });
+      dispatch(deleteSize(selectedSize));
+      dispatch(fetchSizes());
+      toast.success('Size deleted successfully!');
     } catch (err) {
       console.error('Error deleting size:', err);
-      toast.error('Failed to delete size', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
+      toast.error('Failed to delete size');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);

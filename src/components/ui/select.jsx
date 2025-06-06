@@ -148,7 +148,7 @@ const SelectItem = React.forwardRef(({ className, children, variant, size, ...pr
     ref={ref}
     data-slot="select-item"
     className={cn(
-      'data-[state=checked]:bg-[#03c9d7] data-[state=checked]:text-white',
+      'data-[state=checked]:bg-[#6F4E37] data-[state=checked]:text-white',
       selectItemVariants({ variant, size, className })
     )}
     {...props}

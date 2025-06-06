@@ -20,6 +20,7 @@ const materialSlice = createSlice({
   reducers: {
     clearSelectedMaterial: state => {
       state.selectedMaterial = null;
+      state.error = null;
     },
   },
   extraReducers: builder => {
@@ -35,34 +36,67 @@ const materialSlice = createSlice({
       })
       .addCase(fetchMaterials.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload || 'Failed to fetch materials.';
       })
 
       // fetchMaterialById
+      .addCase(fetchMaterialById.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(fetchMaterialById.fulfilled, (state, action) => {
+        state.loading = false;
         state.selectedMaterial = action.payload;
+      })
+      .addCase(fetchMaterialById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to fetch material by ID.';
       })
 
       // addMaterial
+      .addCase(addMaterial.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(addMaterial.fulfilled, (state, action) => {
+        state.loading = false;
         state.list.push(action.payload.data);
       })
-
-      // deleteMaterial
-      .addCase(deleteMaterial.fulfilled, (state, action) => {
-        // action.meta.arg holds the id passed to deleteMaterial thunk
-        state.list = state.list.filter(item => item._id !== action.meta.arg);
+      .addCase(addMaterial.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to add material.';
       })
 
       // updateMaterial
+      .addCase(updateMaterial.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(updateMaterial.fulfilled, (state, action) => {
-        // action.meta.arg is the object { id, data }, so get id from arg.id
+        state.loading = false;
         const id = action.meta.arg.id;
         const index = state.list.findIndex(mat => mat._id === id);
         if (index !== -1) {
-          // action.payload.data is the updated material data
-          state.list[index] = { ...state.list[index], ...action.payload.data };
+          state.list[index] = { ...state.list[index], ...action.payload.data.data };
         }
+      })
+      .addCase(updateMaterial.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update material.';
+      })
+
+      // deleteMaterial
+      .addCase(deleteMaterial.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteMaterial.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list = state.list.filter(item => item._id !== action.meta.arg);
+      })
+      .addCase(deleteMaterial.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to delete material.';
       });
   },
 });

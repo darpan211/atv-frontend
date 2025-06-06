@@ -35,23 +35,12 @@ const AddSizePage = () => {
 
       if (isEdit) {
         await dispatch(updateSize({ id, data: payload })).unwrap();
-        toast.success('Size updated successfully!', {
-          position: 'top-right',
-          autoClose: 3000,
-          transition: Bounce,
-          theme: 'light',
-        });
+        toast.success('Size updated successfully!');
       } else {
         await dispatch(addSize(payload)).unwrap();
-        toast.success('Size added successfully!', {
-          position: 'top-right',
-          autoClose: 3000,
-          transition: Bounce,
-          theme: 'light',
-        });
+        toast.success('Size added successfully!');
       }
 
-      // navigate('/admin/sizes');
       navigate('/admin/sizes', {
         state: {
           toastMessage: isEdit ? 'Sizes updated successfully!' : 'Sizes added successfully!',
@@ -59,10 +48,8 @@ const AddSizePage = () => {
       });
     } catch (err) {
       console.error('Failed to submit:', err);
-      toast.error('Failed to save size.', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
+      const errorMessage = err?.response?.data?.message || err?.message || 'Failed to save size.';
+      toast.error(errorMessage);
     }
   };
 

@@ -11,6 +11,7 @@ import {
   updateMaterial,
 } from '@/redux/slice/material/materialThunks';
 import { clearSelectedMaterial } from '@/redux/slice/material/materialSlice';
+import { toast } from 'react-toastify';
 
 const AddMaterialPage = () => {
   const dispatch = useDispatch();
@@ -36,8 +37,10 @@ const AddMaterialPage = () => {
     try {
       if (isEdit) {
         await dispatch(updateMaterial({ id, data: payload })).unwrap();
+        toast.success('Material updated successfully!');
       } else {
         await dispatch(addMaterial(payload)).unwrap();
+        toast.success('Material added successfully!');
       }
 
       navigate('/admin/materials', {
@@ -47,6 +50,13 @@ const AddMaterialPage = () => {
       });
     } catch (error) {
       console.error('Failed to submit material:', error);
+
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        (typeof error === 'string' ? error : 'Failed to save material.');
+
+      toast.error(errorMessage);
     }
   };
 

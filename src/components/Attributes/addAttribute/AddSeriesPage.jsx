@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
 import { fetchSeriesById, addSeries, updateSeries } from '@/redux/slice/series/seriesThunks';
+import { toast } from 'react-toastify';
 
 const AddSeriesPage = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ const AddSeriesPage = () => {
   const { mode, id } = useParams();
   const isEdit = mode === 'edit';
 
-  const { currentItem: seriesData, loading } = useSelector(state => state.series);
+  const { selectedSeries, loading } = useSelector(state => state.series);
 
   useEffect(() => {
     if (isEdit && id) {
@@ -21,11 +22,14 @@ const AddSeriesPage = () => {
 
   const handleSubmit = async values => {
     const payload = { series: values.name };
+
     try {
       if (isEdit) {
         await dispatch(updateSeries({ id, data: payload })).unwrap();
+        toast.success('Series updated successfully!');
       } else {
         await dispatch(addSeries(payload)).unwrap();
+        toast.success('Series added successfully!');
       }
 
       navigate('/admin/series', {
@@ -35,10 +39,17 @@ const AddSeriesPage = () => {
       });
     } catch (error) {
       console.error('Failed to submit series:', error);
+
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        (typeof error === 'string' ? error : 'Failed to save series.');
+
+      toast.error(errorMessage);
     }
   };
 
-  const initialValues = isEdit ? { name: seriesData?.series || '' } : { name: '' };
+  const initialValues = isEdit ? { name: selectedSeries?.series || '' } : { name: '' };
 
   if (isEdit && loading) return <div className="p-4 text-center">Loading...</div>;
 

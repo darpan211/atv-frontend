@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './hooks/AuthContext';
 
 // Layout
@@ -21,8 +23,6 @@ import Rooms from './components/admin/Rooms';
 import RoomForm from './components/admin/RoomForm';
 
 // Attribute Management (Category, Series, etc.)
-// import AttributePage from './components/Attributes/AttributePage';
-// import AddAttributePage from './components/Attributes/AddAttributePage';
 import AdminHeader from './components/common/AdminHeader';
 import CategoriesPage from './components/Attributes/attributePage/CategoriesPage';
 import Series from './components/Attributes/attributePage/Series';
@@ -51,6 +51,18 @@ import AuthSync from './hooks/AuthSync';
 const App = () => {
   return (
     <AuthProvider>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable={false}
+        pauseOnHover
+        theme="light"
+      />
       <AuthSync />
       <Routes>
         <Route
