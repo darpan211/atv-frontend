@@ -60,7 +60,7 @@ export const MultiSelectDropdown = ({ label, options, selectedValues, onChange }
                 key={option.value}
                 className="flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-gray-100"
               >
-                <Input
+                <input
                   type="checkbox"
                   className="custom-checkbox"
                   checked={selectedValues.some(item => item.value === option.value)}

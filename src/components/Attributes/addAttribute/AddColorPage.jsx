@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
 import { fetchColorById, addColor, updateColor } from '@/redux/slice/colors/colorThunks';
+import { toast } from 'react-toastify';
 
 const AddColorPage = () => {
   const dispatch = useDispatch();
@@ -33,8 +34,10 @@ const AddColorPage = () => {
     try {
       if (isEdit) {
         await dispatch(updateColor({ id, data: payload })).unwrap();
+        toast.success('Color updated successfully!');
       } else {
         await dispatch(addColor(payload)).unwrap();
+        toast.success('Color added successfully!');
       }
 
       navigate('/admin/colors', {
@@ -43,8 +46,8 @@ const AddColorPage = () => {
         },
       });
     } catch (err) {
-      console.error('Failed to submit:', err);
-      // Optionally, you can handle error state or toast here
+      console.log('Failed to submit:', err);
+      toast.error(err?.message || err || 'Failed to save color.');
     }
   };
 

@@ -53,19 +53,7 @@ const Materials = () => {
 
   useEffect(() => {
     if (location.state?.toastMessage) {
-      toast.success(location.state.toastMessage, {
-        position: 'top-right',
-        autoClose: 3000,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: 'light',
-        transition: Bounce,
-        className: 'bg-white rounded-md shadow-md border-2',
-        style: { borderColor: '#6F4E37' },
-        bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
-        progressStyle: { backgroundColor: '#6F4E37' },
-      });
+      toast.success(location.state.toastMessage);
 
       window.history.replaceState({}, document.title); // Clear navigation state
     }
@@ -81,18 +69,9 @@ const Materials = () => {
       if (!selectedMaterial) return;
       setIsDeleting(true);
 
-      await dispatch(deleteMaterial(selectedMaterial)).unwrap();
-      await dispatch(fetchMaterials());
-      toast.success('Material deleted successfully!', {
-        position: 'top-right',
-        autoClose: 3000,
-        theme: 'light',
-        transition: Bounce,
-        className: 'bg-white rounded-md shadow-md border-2',
-        style: { borderColor: '#6F4E37' },
-        bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
-        progressStyle: { backgroundColor: '#6F4E37' },
-      });
+      dispatch(deleteMaterial(selectedMaterial));
+      dispatch(fetchMaterials());
+      toast.success('Material deleted successfully!');
     } catch (error) {
       toast.error('Failed to delete material.');
     } finally {

@@ -13,19 +13,6 @@ export const register = createAsyncThunk('auth/register', async (credentials, th
   }
 });
 
-// 2. Login User
-// export const login = createAsyncThunk('auth/login', async (credentials, thunkAPI) => {
-//   try {
-//     const response = await axiosHandler.post(`${BASE_URL}/api/v1/auth/login`, credentials);
-//     const { token, user } = response.data;
-
-//     localStorage.setItem('authToken', token);
-
-//     return response.data;
-//   } catch (error) {
-//     return thunkAPI.rejectWithValue(error.response?.data || error.message);
-//   }
-// });
 export const login = createAsyncThunk('auth/login', async (credentials, thunkAPI) => {
   try {
     const response = await axiosHandler.post(`${BASE_URL}/api/v1/auth/login`, credentials);
@@ -73,14 +60,3 @@ export const deleteUser = createAsyncThunk('auth/deleteUser', async (id, thunkAP
     return thunkAPI.rejectWithValue(error.response?.data || error.message);
   }
 });
-
-// 6. Logout
-
-// export const logoutUser = createAsyncThunk('auth/logoutUser', async (_, thunkAPI) => {
-//   try {
-//     localStorage.removeItem('authToken');
-//     return true;
-//   } catch (error) {
-//     return thunkAPI.rejectWithValue('Failed to logout');
-//   }
-// });
