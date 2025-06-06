@@ -2,50 +2,19 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Minus, ChevronDown } from 'lucide-react';
 import { Icon } from './icons';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-
-const AddTilesDropdown = () => (
-  <DropdownMenu.Root>
-    <DropdownMenu.Trigger className="font-bold text-gray-800 flex items-center gap-1 text-sm xl:text-base cursor-pointer hover:text-[#6F4E37] outline-none hover:underline">
-      Add Tiles <ChevronDown size={14} /> {/* No rotation here */}
-    </DropdownMenu.Trigger>
-    <DropdownMenu.Content
-      className="bg-white shadow-lg rounded-xl p-2 mt-2 hover:text-[#6F4E37] cursor-pointer min-w-[230px]"
-      sideOffset={5}
-    >
-      {[
-        { label: 'Single Upload', href: '' },
-        { label: 'PDF Upload', href: '' },
-        { label: 'Bulk Upload', href: '' },
-      ].map((item, index, array) => (
-        <DropdownMenu.Item
-          key={item.label}
-          asChild
-          className={` px-4 py-2 text-sm   text-black outline-none font-medium flex items-center gap-2 
-      ${index !== array.length - 1 ? 'border-b border-gray-300' : ''}`}
-        >
-          <div className="w-full flex items-center gap-2">
-            <span className="text-gray-500">–</span>
-            <span>{item.label}</span>
-          </div>
-        </DropdownMenu.Item>
-      ))}
-    </DropdownMenu.Content>
-  </DropdownMenu.Root>
-);
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mobileAddTilesOpen, setMobileAddTilesOpen] = useState(false);
+  // const [mobileAddTilesOpen, setMobileAddTilesOpen] = useState(false);
 
   const handleLogin = () => (window.location.href = '/');
   const handleRegister = () => (window.location.href = '/register');
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
-    setMobileAddTilesOpen(false);
+    // setMobileAddTilesOpen(false);
   };
-  const toggleAddTilesDropdown = () => setMobileAddTilesOpen(!mobileAddTilesOpen);
+  // const toggleAddTilesDropdown = () => setMobileAddTilesOpen(!mobileAddTilesOpen);
 
   return (
     <header className="bg-white border-b border-gray-100 shadow-xl relative z-40 flex items-center">
@@ -71,9 +40,6 @@ const Header = () => {
                 {item}
               </span>
             ))}
-
-            {/* Updated AddTilesDropdown */}
-            <AddTilesDropdown />
 
             {['Projects', 'Contact Us'].map(item => (
               <span
@@ -149,36 +115,7 @@ const Header = () => {
                 </span>
               </div>
             ))}
-
-            {/* Mobile Add Tiles Dropdown */}
-            <div>
-              <span
-                className="block text-gray-800 font-medium hover:text-[#6F4E37] transition-colors cursor-pointer py-2 text-base sm:text-lg"
-                onClick={toggleAddTilesDropdown}
-              >
-                Add Tiles
-              </span>
-              {mobileAddTilesOpen && (
-                <div className="relative inline-block mt-2 py-5 w-[200px] text-center space-y-2 shadow-md rounded-2xl bg-gray-100">
-                  {[
-                    { label: ' Singel Upload', href: '' },
-                    { label: ' Pdf Upload', href: '' },
-                    { label: ' Bulk Upload', href: '' },
-                  ].map(subItem => (
-                    <a
-                      key={subItem.label}
-                      href={subItem.href}
-                      onClick={closeMobileMenu}
-                      className="flex items-center gap-2 text-sm font-medium hover:text-[#6F4E37] cursor-pointer border-b border-gray-400 px-2 py-1"
-                    >
-                      <Minus size={14} />
-                      {subItem.label}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
-
+           
             {['Projects', 'Contact Us'].map(item => (
               <div key={item}>
                 <span
