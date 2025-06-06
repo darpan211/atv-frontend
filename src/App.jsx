@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './hooks/AuthContext';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Layout
 import Header from './components/common/Header';

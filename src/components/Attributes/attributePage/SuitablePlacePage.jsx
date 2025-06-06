@@ -58,7 +58,6 @@ const SuitablePlacePage = () => {
   // Show toast from location state
   useEffect(() => {
     if (location.state?.toastMessage) {
-      // console.log("Suitable Place Location State:", location.state);
       toast.success(location.state.toastMessage, {
         position: 'top-right',
         autoClose: 3000,

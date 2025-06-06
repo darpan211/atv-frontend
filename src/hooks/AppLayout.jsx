@@ -1,8 +1,9 @@
-import AdminHeader from '@/components/common/AdminHeader';
-import Header from '@/components/common/Header';
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import AdminHeader from "@/components/common/AdminHeader";
+import Header from "@/components/common/Header";
+import SellerHeader from "@/components/common/SellerHeader";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AppLayout = ({ children }) => {
   const location = useLocation();
@@ -23,11 +24,25 @@ const AppLayout = ({ children }) => {
   }, [authToken, isProtectedRoute, navigate]);
 
   const userRole = user?.user?.role || parseUser?.role;
-  const isAdmin = userRole === 'admin';
+
+  const renderHeader = () => {
+    if (isLoginPage) return null;
+
+    switch (userRole) {
+      case 'admin':
+        return <AdminHeader />;
+      case 'seller':
+        return <SellerHeader />;
+      default:
+        return <Header />;
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
-      {!isLoginPage && (isAdmin ? <AdminHeader /> : <Header />)}
+      {/* Render header based on user role */}
+      {renderHeader()}
+      {/* Main content area */}
       <main className="flex-grow">{children}</main>
     </div>
   );

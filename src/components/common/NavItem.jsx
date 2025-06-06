@@ -8,17 +8,43 @@ const NavItem = ({ label, withDropdown }) => {
   const dropdownRef = useRef(null);
 
   const isAttributes = label === 'Manage Attributes';
+  const isManageUsers = label === 'Manage Users';
+  const isManageSellers = label === 'Manage Sellers';
+  const isManageRooms = label === 'Manage Rooms';
+
+  const attributeItems = [
+    { label: 'Manage Categories', path: '/admin/categories' },
+    { label: 'Manage Series', path: '/admin/series' },
+    { label: 'Manage Materials', path: '/admin/materials' },
+    { label: 'Manage Sizes', path: '/admin/sizes' },
+    { label: 'Manage Colors', path: '/admin/colors' },
+    { label: 'Manage Suitable Places', path: '/admin/places' },
+  ];
+
+  const userItems = [
+    { label: 'Manage Admin', path: '/admin/manage-admin' },
+    { label: 'Add Admin', path: '/admin/add-admin' },
+  ];
+
+  const sellerItems = [
+    { label: 'Seller List', path: '/admin/seller/list' },
+    { label: 'Add Seller', path: '/admin/seller/create' },
+  ];
+
+  const roomItems = [
+    { label: 'View All Room', path: '/admin/addroom/list' },
+    { label: 'Add Room', path: '/admin/roomform' },
+  ];
 
   const dropdownItems = isAttributes
-    ? [
-        { label: 'Manage Categories', path: '/admin/categories' },
-        { label: 'Manage Series', path: '/admin/series' },
-        { label: 'Manage Materials', path: '/admin/materials' },
-        { label: 'Manage Sizes', path: '/admin/sizes' },
-        { label: 'Manage Colors', path: '/admin/colors' },
-        { label: 'Manage Suitable Places', path: '/admin/places' },
-      ]
-    : [];
+  ? attributeItems
+  : isManageUsers
+  ? userItems
+  : isManageSellers
+  ? sellerItems
+  : isManageRooms
+  ? roomItems
+  : [];
 
   const handleClick = () => {
     if (withDropdown) {
@@ -63,7 +89,7 @@ const NavItem = ({ label, withDropdown }) => {
             {dropdownItems.map((item, idx) => (
               <li
                 key={idx}
-                className="px-4 py-2 hover:bg-gray-100 border-b border-white last:border-none cursor-pointer"
+                className="px-4 py-2 hover:bg-gray-100 border-b hover:text-[#6C4A34] transition-all duration-200 ease-in-out border-white last:border-none cursor-pointer"
                 onClick={() => handleItemClick(item.path)}
               >
                 {item.label}
