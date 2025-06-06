@@ -8,7 +8,7 @@ export default function BlockDesign() {
                title: "Design development",
                description:
                     "The architecture company meets with the client to discuss their needs, budget, and timeline.",
-               icon: <div className="">{<Icon name="Square" height={'50px'} width={'50px'} />}</div>,
+               icon: <div>{<Icon name="Square" height={'50px'} width={'50px'} />}</div>,
           },
           {
                title: "Concept design",

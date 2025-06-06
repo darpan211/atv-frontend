@@ -7,6 +7,10 @@ import { UserIcon } from './svgs/UserIcon';
 import { Userplus } from './svgs/Userplus';
 import { Upload } from './svgs/Upload';
 import { Close } from './svgs/Close';
+import { Main } from './svgs/Main';
+import { Grid } from './svgs/Grid';
+import { Main1 } from './svgs/Main1';
+import { Grid1 } from './svgs/Grid1';
 
 export const Icon = ({ name, size, height, width, className }) => {
   const icons = {
@@ -19,6 +23,10 @@ export const Icon = ({ name, size, height, width, className }) => {
     Userplus,
     Upload,
     Close,
+    Main,
+    Grid,
+    Main1,
+    Grid1,
   };
 
   const SvgIcon = icons[name];
