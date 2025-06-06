@@ -2,6 +2,7 @@ import { useFormik } from 'formik';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Input } from '../ui/input';
 
 export default function ListView({ title, addPath, placeholder, allItems }) {
   const [filteredItems, setFilteredItems] = useState < any > allItems;
@@ -22,14 +23,17 @@ export default function ListView({ title, addPath, placeholder, allItems }) {
     <div className="p-6 bg-white min-h-screen">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl md:text-3xl font-bold">{title}</h1>
-        <Button onClick={handleAddClick} className="bg-[#6F4E37] text-white hover:bg-[#a98f7d]">
+        <Button
+          onClick={handleAddClick}
+          className="bg-[#6F4E37] cursor-pointer text-white hover:bg-[#a98f7d]"
+        >
           + Add
         </Button>
       </div>
       <div className="bg-[#FFF5EE] p-4 rounded-lg">
         <div className="overflow-x-auto">
           <form onSubmit={formik.handleSubmit} className="mb-4 max-w-sm relative">
-            <input
+            <Input
               type="text"
               name="search"
               placeholder={placeholder}
@@ -85,8 +89,8 @@ export default function ListView({ title, addPath, placeholder, allItems }) {
               <span>
                 1–{filteredItems.length} of {filteredItems.length}
               </span>
-              <button className="px-2 py-1 rounded text-gray-500 hover:bg-gray-200">{`<`}</button>
-              <button className="px-2 py-1 rounded text-gray-500 hover:bg-gray-200">{`>`}</button>
+              <button className="px-2 py-1 rounded text-gray-500 cursor-pointer hover:bg-gray-200">{`<`}</button>
+              <button className="px-2 py-1 rounded text-gray-500 cursor-pointer hover:bg-gray-200">{`>`}</button>
             </div>
           </div>
         </div>

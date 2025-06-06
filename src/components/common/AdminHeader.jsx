@@ -4,7 +4,7 @@ import { Icon } from './icons';
 import { useNavigate } from 'react-router-dom';
 import NavItem from './NavItem';
 import { useDispatch } from 'react-redux';
-import { logoutUser } from '@/redux/slice/auth/authThunks';
+import { logout } from '@/redux/slice/auth/authSlice';
 
 const AdminHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -12,7 +12,7 @@ const AdminHeader = () => {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    dispatch(logoutUser());
+    dispatch(logout());
     navigate('/');
   };
 

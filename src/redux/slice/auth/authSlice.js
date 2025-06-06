@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { register, login, fetchUser, updateUser, deleteUser, logoutUser } from './authThunks';
+import { register, login, fetchUser, updateUser, deleteUser } from './authThunks';
 
 const initialState = {
   user: null,
@@ -13,6 +13,8 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout(state) {
+      localStorage.removeItem('authToken');
+      console.log('satate', state);
       state.user = null;
       state.error = null;
       state.success = false;
@@ -50,6 +52,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.success = true;
+        console.log(state.user);
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -97,17 +100,6 @@ const authSlice = createSlice({
       })
       .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
-      })
-
-      // Logout
-      .addCase(logoutUser.fulfilled, state => {
-        state.user = null;
-        state.success = false;
-        state.loading = false;
-        state.error = null;
-      })
-      .addCase(logoutUser.rejected, (state, action) => {
         state.error = action.payload;
       })
 

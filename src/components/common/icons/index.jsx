@@ -11,6 +11,8 @@ import { Main } from './svgs/Main';
 import { Grid } from './svgs/Grid';
 import { Main1 } from './svgs/Main1';
 import { Grid1 } from './svgs/Grid1';
+import { DeleteIcon } from './svgs/DeleteIcon';
+import { EditIcon } from './svgs/EditIcon';
 
 export const Icon = ({ name, size, height, width, className }) => {
   const icons = {
@@ -27,6 +29,8 @@ export const Icon = ({ name, size, height, width, className }) => {
     Grid,
     Main1,
     Grid1,
+    DeleteIcon,
+    EditIcon,
   };
 
   const SvgIcon = icons[name];
@@ -34,5 +38,5 @@ export const Icon = ({ name, size, height, width, className }) => {
     return null;
   }
 
-  return <SvgIcon width={width} height={height} className={className} />;
+  return <SvgIcon width={width} size={size} height={height} className={className} />;
 };

@@ -6,8 +6,13 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // Fetch all series
 export const fetchSeries = createAsyncThunk('series/fetchSeries', async (_, thunkAPI) => {
   try {
-    const response = await axiosHandler.get(`${BASE_URL}/api/v1/series/getseries`);
-    return response.data.data;
+    const state = thunkAPI.getState();
+    const existingList = state?.series?.list;
+    if (!existingList || existingList?.length === 0) {
+      const response = await axiosHandler.get(`${BASE_URL}/api/v1/series/getseries`);
+      return response.data.data;
+    }
+    return existingList;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || error.message);
   }

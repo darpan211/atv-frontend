@@ -9,7 +9,7 @@ const DeleteConfirmationModal = ({ onCancel, onConfirm, tile }) => {
       <div className="bg-[#FFF5EE] rounded-xl w-full max-w-sm p-6 relative shadow-lg border border-gray-300 text-center">
         <button
           onClick={onCancel}
-          className="absolute top-0 right-0 mt-2 mr-2 bg-[#6F4E37] text-white rounded-bl-lg rounded-tr-lg w-8 h-8 flex items-center justify-center hover:bg-[#4a3224]"
+          className="absolute cursor-pointer top-0 right-0 mt-2 mr-2 bg-[#6F4E37] text-white rounded-bl-lg rounded-tr-lg w-8 h-8 flex items-center justify-center hover:bg-[#4a3224]"
         >
           <Icon name="Close" width="12px" height="12px" />
         </button>
@@ -21,13 +21,13 @@ const DeleteConfirmationModal = ({ onCancel, onConfirm, tile }) => {
 
         <div className="flex justify-center gap-4">
           <button
-            className="bg-white border border-gray-300 text-gray-800 px-6 py-2 rounded shadow hover:bg-gray-100 transition"
+            className="bg-white border cursor-pointer border-gray-300 text-gray-800 px-6 py-2 rounded shadow hover:bg-gray-100 transition"
             onClick={onCancel}
           >
             Cancel
           </button>
           <button
-            className="bg-[#6F4E37] text-white px-6 py-2 rounded shadow hover:bg-[#4a3224] transition"
+            className="bg-[#6F4E37] cursor-pointer text-white px-6 py-2 rounded shadow hover:bg-[#4a3224] transition"
             onClick={onConfirm}
           >
             Delete

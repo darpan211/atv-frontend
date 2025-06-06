@@ -8,6 +8,7 @@ import {
   addCategory,
   updateCategory,
 } from '@/redux/slice/categories/categoryThunks'; // adjust import path if needed
+import { toast } from 'react-toastify';
 
 const AddCategoryPage = () => {
   const dispatch = useDispatch();
@@ -24,9 +25,6 @@ const AddCategoryPage = () => {
     }
   }, [dispatch, isEdit, id]);
 
-  // Prepare initial form values (normalize "category" → "name")
-  // const initialValues =
-  //   isEdit && selectedCategory ? { name: selectedCategory.category || '' } : { name: '' };
   const initialValues = useMemo(() => {
     if (isEdit && selectedCategory) {
       return { name: selectedCategory.category || '' };
@@ -51,7 +49,7 @@ const AddCategoryPage = () => {
       });
     } catch (err) {
       console.error('Failed to submit:', err);
-      // Optionally handle errors or toast
+      toast.error(err?.message || 'Failed to save category.');
     }
   };
 

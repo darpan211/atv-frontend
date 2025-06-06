@@ -11,7 +11,7 @@ import {
 } from '@/redux/slice/suitablePlace/suitablePlaceThunks';
 import { clearSuitablePlacesState } from '@/redux/slice/suitablePlace/suitablePlaceSlice';
 
-import { toast, Bounce } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 const AddPlacePage = () => {
   const navigate = useNavigate();
@@ -37,39 +37,31 @@ const AddPlacePage = () => {
   }, [dispatch, isEdit, id]);
 
   const handleSubmit = async values => {
-    try {
-      const payload = { suitablePlace: values.name };
+    const payload = { suitablePlace: values.name };
 
+    try {
       if (isEdit) {
         await dispatch(updateSuitablePlace({ id, data: payload })).unwrap();
-        toast.success('Place updated successfully!', {
-          position: 'top-right',
-          autoClose: 3000,
-          transition: Bounce,
-          theme: 'light',
-        });
+        toast.success('Place updated successfully!');
       } else {
         await dispatch(addSuitablePlace(payload)).unwrap();
-        toast.success('Place added successfully!', {
-          position: 'top-right',
-          autoClose: 3000,
-          transition: Bounce,
-          theme: 'light',
-        });
+        toast.success('Place added successfully!');
       }
 
       navigate('/admin/places', {
-        replace: true,
         state: {
           toastMessage: isEdit ? 'Place updated successfully!' : 'Place added successfully!',
         },
       });
     } catch (error) {
-      console.error('Failed to submit:', error);
-      toast.error('Failed to save place.', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
+      console.error('Failed to submit place:', error);
+
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        (typeof error === 'string' ? error : 'Failed to save place.');
+
+      toast.error(errorMessage);
     }
   };
 

@@ -43,6 +43,7 @@ import { useManageAttributes } from './ManageAttributesPage'; // already defined
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useFormikContext } from 'formik';
+import { Input } from '../ui/input';
 
 ManageAttributesPage.Header = function Header({ title, buttonLabel, navigateTo }) {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ ManageAttributesPage.Header = function Header({ title, buttonLabel, navigateTo }
       <h1 className="text-2xl md:text-3xl font-bold">{title}</h1>
       <Button
         onClick={() => navigate(navigateTo)}
-        className="bg-[#6F4E37] text-white hover:bg-[#a98f7d]"
+        className="bg-[#6F4E37] cursor-pointer text-white hover:bg-[#a98f7d]"
       >
         {buttonLabel}
       </Button>
@@ -87,7 +88,7 @@ ManageAttributesPage.SearchBox = function SearchBox({ placeholder, data }) {
         />
       </svg>
 
-      <input
+      <Input
         type="text"
         name="search"
         placeholder={placeholder}
@@ -213,7 +214,7 @@ ManageAttributesPage.Pagination = function Pagination() {
       <button
         onClick={() => goToPage(currentPage - 1)}
         disabled={currentPage === 1}
-        className={`px-3 py-1 border rounded ${
+        className={`px-3 py-1 border rounded cursor-pointer ${
           currentPage === 1 ? 'text-gray-400 border-gray-300' : 'text-[#6F4E37] border-[#6F4E37]'
         }`}
       >
@@ -240,7 +241,7 @@ ManageAttributesPage.Pagination = function Pagination() {
       <button
         onClick={() => goToPage(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className={`px-3 py-1 border rounded ${
+        className={`px-3 py-1 border rounded cursor-pointer ${
           currentPage === totalPages
             ? 'text-gray-400 border-gray-300'
             : 'text-[#6F4E37] border-[#6F4E37]'

@@ -1,33 +1,38 @@
-import React from 'react';
-import img from '../../assets/Tiles6.png';
-import img1 from '../../assets/Tiles1.png';
-import img2 from '../../assets/Tiles2.png';
-import img3 from '../../assets/Tiles3.png';
-import img4 from '../../assets/Tiles4.png';
-import img5 from '../../assets/Tiles5.png';
+import React, { useState, useEffect } from 'react';
 import { Icon } from '../common/icons';
+import { Input } from '../ui/input';
 
-const TilePreview = ({ visible, onClose }) => {
-  if (!visible) return null;
+const TilePreview = ({ visible, onClose, tiles }) => {
+  const [tileData, setTileData] = useState([]);
 
-  const [tiles, setTiles] = React.useState([
-    { id: 1, image: img, title: 'Tiles Name', description: 'Lorem Ipsum...', series: 'test', category: 'test', suitablePlace: 'test', size: 'test' },
-    { id: 2, image: img1, title: 'Tiles Name', description: 'Lorem Ipsum...', series: 'test', category: 'test', suitablePlace: 'test', size: 'test' },
-    { id: 3, image: img2, title: 'Tiles Name', description: 'Lorem Ipsum...', series: 'test', category: 'test', suitablePlace: 'test', size: 'test' },
-    { id: 4, image: img3, title: 'Tiles Name', description: 'Lorem Ipsum...', series: 'test', category: 'test', suitablePlace: 'test', size: 'test' },
-    { id: 5, image: img4, title: 'Tiles Name', description: 'Lorem Ipsum...', series: 'test', category: 'test', suitablePlace: 'test', size: 'test' },
-    { id: 6, image: img5, title: 'Tiles Name', description: 'Lorem Ipsum...', series: 'test', category: 'test', suitablePlace: 'test', size: 'test' },
-  ]);
+  useEffect(() => {
+    if (tiles && tiles.length > 0) {
+      const previewData = tiles.map((file, index) => ({
+        id: index,
+        file,
+        preview: URL.createObjectURL(file),
+        title: '',
+        thickness: '',
+      }));
+      setTileData(previewData);
+    }
+  }, [tiles]);
+
+  const handleInputChange = (id, field, value) => {
+    setTileData(prev => prev.map(tile => (tile.id === id ? { ...tile, [field]: value } : tile)));
+  };
 
   const removeTile = id => {
-    setTiles(prev => prev.filter(tile => tile.id !== id));
+    setTileData(prev => prev.filter(tile => tile.id !== id));
   };
 
   const handleBackdropClick = e => {
     if (e.target.id === 'modal-backdrop') {
-      onClose(); // Close on outside click
+      onClose();
     }
   };
+
+  if (!visible) return null;
 
   return (
     <div
@@ -36,31 +41,40 @@ const TilePreview = ({ visible, onClose }) => {
       onClick={handleBackdropClick}
     >
       <div className="bg-[#FFF5EE] w-full max-w-7xl rounded-xl p-6 sm:p-10 md:p-12 relative border shadow-xl overflow-y-auto max-h-[90vh]">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800 text-center sm:text-left">Tiles Preview</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800 text-center sm:text-left">
+          Tiles Preview
+        </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {tiles.map(tile => (
+          {tileData.map(tile => (
             <div key={tile.id} className="relative bg-white rounded-xl shadow-md p-4 sm:p-6">
               <button
                 onClick={() => removeTile(tile.id)}
-                className="absolute -top-1 -right-1 bg-[#6F4E37] text-white w-7 h-7 rounded flex items-center justify-center hover:bg-[#4A3224]"
+                className="absolute cursor-pointer -top-1 -right-1 bg-[#6F4E37] text-white w-7 h-7 rounded flex items-center justify-center hover:bg-[#4A3224]"
               >
                 <Icon name="Close" width="14px" height="14px" />
               </button>
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
+
+              <div className="flex flex-col gap-4 items-center">
                 <img
-                  src={tile.image}
-                  alt={tile.title}
-                  className="w-full sm:w-[120px] h-auto sm:h-[120px] object-cover rounded border"
+                  src={tile.preview}
+                  alt="Tile Preview"
+                  className="w-full sm:w-[150px] h-[150px] object-cover rounded border"
                 />
-                <div className="text-sm text-gray-700 flex-1">
-                  <h3 className="font-semibold text-base sm:text-lg mb-2">{tile.title}</h3>
-                  <p className="text-gray-600 mb-2">{tile.description}</p>
-                  <p><strong>Series:</strong> {tile.series}</p>
-                  <p><strong>Category:</strong> {tile.category}</p>
-                  <p><strong>Suitable Place:</strong> {tile.suitablePlace}</p>
-                  <p><strong>Size:</strong> {tile.size}</p>
-                </div>
+                <Input
+                  type="text"
+                  placeholder="Tile Name"
+                  value={tile.title}
+                  onChange={e => handleInputChange(tile.id, 'title', e.target.value)}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                />
+                <Input
+                  type="text"
+                  placeholder="Thickness (e.g., 10mm)"
+                  value={tile.thickness}
+                  onChange={e => handleInputChange(tile.id, 'thickness', e.target.value)}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                />
               </div>
             </div>
           ))}
@@ -69,11 +83,11 @@ const TilePreview = ({ visible, onClose }) => {
         <div className="mt-8 flex flex-col sm:flex-row justify-center sm:gap-6 gap-4">
           <button
             onClick={onClose}
-            className="bg-white border border-gray-400 text-gray-800 px-6 py-3 rounded hover:bg-gray-100 w-full sm:w-auto"
+            className="bg-white border cursor-pointer border-gray-400 text-gray-800 px-6 py-3 rounded hover:bg-gray-100 w-full sm:w-auto"
           >
             Cancel
           </button>
-          <button className="bg-[#6F4E37] text-white px-6 py-3 rounded hover:bg-[#4A3224] w-full sm:w-auto">
+          <button className="bg-[#6F4E37] cursor-pointer text-white px-6 py-3 rounded hover:bg-[#4A3224] w-full sm:w-auto">
             Add Tiles
           </button>
         </div>

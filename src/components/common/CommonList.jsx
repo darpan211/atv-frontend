@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from './icons';
+import { Input } from '../ui/input';
 
 export default function CommonList({ title, buttonLabel, placeholder, route }) {
   const [filteredItems, setFilteredItems] = useState([]); // initially empty for now
@@ -25,7 +26,10 @@ export default function CommonList({ title, buttonLabel, placeholder, route }) {
     <div className="p-6 bg-white min-h-screen">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl md:text-3xl font-bold">{title}</h1>
-        <Button onClick={handleNavigation} className="bg-[#6F4E37] text-white hover:bg-[#a98f7d]">
+        <Button
+          onClick={handleNavigation}
+          className="bg-[#6F4E37] text-white cursor-pointer hover:bg-[#a98f7d]"
+        >
           {buttonLabel}
         </Button>
       </div>
@@ -48,7 +52,7 @@ export default function CommonList({ title, buttonLabel, placeholder, route }) {
               />
             </svg>
 
-            <input
+            <Input
               type="text"
               name="search"
               placeholder={placeholder}
@@ -162,8 +166,12 @@ export default function CommonList({ title, buttonLabel, placeholder, route }) {
             <span>
               1–{filteredItems.length} of {filteredItems.length}
             </span>
-            <button className="px-2 py-1 rounded text-gray-500 hover:bg-gray-200">{'<'}</button>
-            <button className="px-2 py-1 rounded text-gray-500 hover:bg-gray-200">{'>'}</button>
+            <button className="px-2 py-1 cursor-pointer rounded text-gray-500 hover:bg-gray-200">
+              {'<'}
+            </button>
+            <button className="px-2 py-1 cursor-pointer rounded text-gray-500 hover:bg-gray-200">
+              {'>'}
+            </button>
           </div>
         </div>
       </div>

@@ -88,7 +88,7 @@ const EnhancedErrorFallback = ({ error, resetErrorBoundary }) => {
               <div className="mt-4">
                 <button
                   onClick={() => setShowDetails(!showDetails)}
-                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="inline-flex items-center cursor-pointer px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   {showDetails ? 'Hide' : 'Show'} Technical Details
                 </button>
@@ -109,7 +109,7 @@ const EnhancedErrorFallback = ({ error, resetErrorBoundary }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button
                   onClick={resetErrorBoundary}
-                  className="w-full flex items-center justify-center px-5 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-sm font-medium rounded-lg hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="w-full cursor-pointer flex items-center justify-center px-5 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-sm font-medium rounded-lg hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   <svg
                     className="w-5 h-5 mr-2"
@@ -130,7 +130,7 @@ const EnhancedErrorFallback = ({ error, resetErrorBoundary }) => {
 
                 <button
                   onClick={() => window.location.reload()}
-                  className="w-full flex items-center justify-center px-5 py-3 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+                  className="w-full cursor-pointer flex items-center justify-center px-5 py-3 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
                 >
                   <svg
                     className="w-5 h-5 mr-2"
@@ -160,7 +160,7 @@ const EnhancedErrorFallback = ({ error, resetErrorBoundary }) => {
 
             <div className="mt-8 pt-6 border-t border-gray-200">
               <div className="flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-6">
-                <button className="text-sm text-indigo-600 hover:text-indigo-500 font-medium flex items-center">
+                <button className="text-sm cursor-pointer text-indigo-600 hover:text-indigo-500 font-medium flex items-center">
                   <svg
                     className="w-5 h-5 mr-2"
                     fill="none"
@@ -178,7 +178,7 @@ const EnhancedErrorFallback = ({ error, resetErrorBoundary }) => {
                   Visit Help Center
                 </button>
 
-                <button className="text-sm text-indigo-600 hover:text-indigo-500 font-medium flex items-center">
+                <button className="text-sm cursor-pointer text-indigo-600 hover:text-indigo-500 font-medium flex items-center">
                   <svg
                     className="w-5 h-5 mr-2"
                     fill="none"

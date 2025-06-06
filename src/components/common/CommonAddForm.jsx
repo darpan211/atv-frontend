@@ -2,6 +2,8 @@ import { useFormik } from 'formik';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 
 const CommonAddForm = ({
   label,
@@ -26,8 +28,8 @@ const CommonAddForm = ({
         })
       : Yup.object().shape({
           name: Yup.string()
-            .min(3, 'Name must be at least 3 characters')
-            .required('Name is required'),
+            .min(3, 'Name should be at least 3 characters long.')
+            .required('Please enter a name.'),
         });
 
   const formik = useFormik({
@@ -35,31 +37,34 @@ const CommonAddForm = ({
     validationSchema,
     enableReinitialize: true,
     validateOnChange: true,
-    // validateOnBlur: false, 
+    // validateOnBlur: false,
     onSubmit: values => {
       if (onSubmit) onSubmit(values);
     },
-    // onReset: () => formik.resetForm(),
   });
 
   const handleCancel = () => {
     navigate(-1);
   };
 
+  const handleReset = () => {
+    formik.setFieldValue('name', '');
+  };
+
   return (
     <div className="bg-[#FFF5EE] p-6 rounded-lg w-full">
-      <form onSubmit={formik.handleSubmit} onReset={formik.handleReset}>
+      <form onSubmit={formik.handleSubmit}>
         {formType === 'sizes' ? (
           <>
             <div className="mb-4">
-              <label htmlFor="height" className="block text-sm font-medium text-black mb-1">
+              <Label htmlFor="height" className="block text-sm font-medium text-black mb-1">
                 Height
-              </label>
-              <input
+              </Label>
+              <Input
                 id="height"
                 name="height"
                 type="text"
-                placeholder="Enter height"
+                placeholder="Enter height (In mm)"
                 value={formik.values.height || ''}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -71,14 +76,14 @@ const CommonAddForm = ({
             </div>
 
             <div className="mb-6">
-              <label htmlFor="width" className="block text-sm font-medium text-black mb-1">
+              <Label htmlFor="width" className="block text-sm font-medium text-black mb-1">
                 Width
-              </label>
-              <input
+              </Label>
+              <Input
                 id="width"
                 name="width"
                 type="text"
-                placeholder="Enter width"
+                placeholder="Enter width (In mm)"
                 value={formik.values.width || ''}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -94,7 +99,7 @@ const CommonAddForm = ({
             <label htmlFor="name" className="block text-sm font-medium text-black mb-1">
               {label}
             </label>
-            <input
+            <Input
               id="name"
               name="name"
               type="text"
@@ -114,19 +119,20 @@ const CommonAddForm = ({
           <button
             type="button"
             onClick={handleCancel}
-            className="bg-white text-black border px-6 py-2 rounded-md shadow-sm shadow-black hover:bg-gray-100 transition"
+            className="bg-white cursor-pointer text-black border px-6 py-2 rounded-md shadow-sm shadow-black hover:bg-gray-100 transition"
           >
             Cancel
           </button>
           <button
             type="reset"
-            className="bg-gray-700 text-white px-6 py-2 shadow-sm shadow-black rounded-md hover:bg-gray-800 transition"
+            className="bg-gray-700 cursor-pointer text-white px-6 py-2 shadow-sm shadow-black rounded-md hover:bg-gray-800 transition"
+            onClick={handleReset}
           >
             Reset
           </button>
           <button
             type="submit"
-            className="bg-[#6F4E37] text-white px-6 py-2 shadow-sm shadow-black rounded-md hover:bg-[#a98f7d] transition"
+            className="bg-[#6F4E37] cursor-pointer text-white px-6 py-2 shadow-sm shadow-black rounded-md hover:bg-[#a98f7d] transition"
           >
             {buttonText}
           </button>

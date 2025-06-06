@@ -3,13 +3,19 @@ import axiosHandler from '../../../services/axiosHandler';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// Fetch all suitable places
 export const fetchSuitablePlaces = createAsyncThunk(
   'suitablePlace/fetchSuitablePlaces',
   async (_, thunkAPI) => {
     try {
-      const response = await axiosHandler.get(`${BASE_URL}/api/v1/suitablePlace/getsuitablePlace`);
-      return response.data.data; // return data array
+      const state = thunkAPI.getState();
+      const existingList = state?.suitablePlace?.list;
+      if (!existingList || existingList?.length === 0) {
+        const response = await axiosHandler.get(
+          `${BASE_URL}/api/v1/suitablePlace/getsuitablePlace`
+        );
+        return response.data.data;
+      }
+      return existingList;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }

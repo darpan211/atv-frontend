@@ -1,5 +1,7 @@
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './hooks/AuthContext';
 
 // Layout
@@ -21,8 +23,6 @@ import Rooms from './components/admin/Rooms';
 import RoomForm from './components/admin/RoomForm';
 
 // Attribute Management (Category, Series, etc.)
-// import AttributePage from './components/Attributes/AttributePage';
-// import AddAttributePage from './components/Attributes/AddAttributePage';
 import AdminHeader from './components/common/AdminHeader';
 import CategoriesPage from './components/Attributes/attributePage/CategoriesPage';
 import Series from './components/Attributes/attributePage/Series';
@@ -43,30 +43,38 @@ import MainAddTiles from './components/Tiles/MainAddTiles';
 import HeaderTilesCart from './components/Tiles/HeaderTilesCart';
 import TilesPreview from './components/Tiles/TilesPreview';
 import AddTiles from './components/Tiles/AddTiles';
-
-// ================== Layout Wrapper ==================
-const AppLayout = ({ children }) => {
-  const location = useLocation();
-  const isLoginPage = location.pathname === '/' || location.pathname === '/login';
-
-  return (
-    <div className="min-h-screen flex flex-col">
-      {!isLoginPage && <AdminHeader />}
-      {/* {!isLoginPage && <Header />} */}
-
-      <main className="flex-grow">{children}</main>
-    </div>
-  );
-};
+// import { useSelector } from 'react-redux';
+import AppLayout from './hooks/AppLayout';
+import AuthSync from './hooks/AuthSync';
 
 // ================== App Routes ==================
 const App = () => {
   return (
     <AuthProvider>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable={false}
+        pauseOnHover
+        theme="light"
+      />
+      <AuthSync />
       <Routes>
-        {/* Login */}
         <Route
           path="/"
+          element={
+            <AppLayout>
+              <LoginPage />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/login"
           element={
             <AppLayout>
               <LoginPage />
@@ -198,7 +206,7 @@ const App = () => {
 
         {/* Add Tiles */}
         <Route
-          path="/admin/tiles/add"
+          path="/tiles/add"
           element={
             <AppLayout>
               <AddTiles />
@@ -207,7 +215,7 @@ const App = () => {
         />
 
         <Route
-          path="/admin/tiles/list"
+          path="/tiles/list"
           element={
             <AppLayout>
               <HeaderTilesCart />

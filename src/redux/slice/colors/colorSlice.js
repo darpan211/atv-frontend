@@ -14,10 +14,12 @@ const colorSlice = createSlice({
   reducers: {
     clearSelectedColor: state => {
       state.selectedColor = null;
+      state.error = null;
     },
   },
   extraReducers: builder => {
     builder
+      // fetchColors
       .addCase(fetchColors.pending, state => {
         state.loading = true;
         state.error = null;
@@ -28,26 +30,66 @@ const colorSlice = createSlice({
       })
       .addCase(fetchColors.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload || 'Failed to fetch colors.';
       })
 
+      // fetchColorById
+      .addCase(fetchColorById.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(fetchColorById.fulfilled, (state, action) => {
+        state.loading = false;
         state.selectedColor = action.payload;
       })
+      .addCase(fetchColorById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to fetch color by ID.';
+      })
 
+      // addColor
+      .addCase(addColor.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(addColor.fulfilled, (state, action) => {
+        state.loading = false;
         state.list.push(action.payload.data);
       })
-
-      .addCase(deleteColor.fulfilled, (state, action) => {
-        state.list = state.list.filter(item => item._id !== action.payload);
+      .addCase(addColor.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to add color.';
       })
 
+      // updateColor
+      .addCase(updateColor.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(updateColor.fulfilled, (state, action) => {
+        state.loading = false;
         const index = state.list.findIndex(color => color._id === action.payload.id);
         if (index !== -1) {
-          state.list[index] = { ...state.list[index], ...action.payload.data };
+          state.list[index] = { ...state.list[index], ...action.payload.data.data };
         }
+      })
+      .addCase(updateColor.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update color.';
+      })
+
+      // deleteColor
+      .addCase(deleteColor.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteColor.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list = state.list.filter(item => item._id !== action.payload);
+      })
+      .addCase(deleteColor.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to delete color.';
       });
   },
 });
