@@ -1,47 +1,50 @@
-'use client';
-
 import { useState } from 'react';
-import tileImage from '../../assets/room_1196_thumb 3.png';
-import img from '../../assets/image (2).png';
 import {
   Heart,
   Trash2,
-  Check,
   ChevronDown,
   ChevronUp,
   X,
   Search,
-  Grid3X3,
-  List,
   Menu,
   ChevronLeft,
   ChevronRight,
+  Edit,
 } from 'lucide-react';
+import img from '../../assets/image (2).png';
+import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 import { Icon } from '../common/icons';
 
 const TileManagement = () => {
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'table'
+  const [viewMode, setViewMode] = useState('grid');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedTile, setSelectedTile] = useState(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
 
   const [tiles, setTiles] = useState([
     {
       id: 1,
-      name: 'Name one',
+      name: 'MONALISA ONYX AQUA GMYK',
+      code: '(S232DA83) copy',
       size: '600 x 600',
       series: 'Wooden',
       category: 'Floor Tiles',
-      priority: 'Medium Priority',
+      priority: 'High Priority',
       isActive: true,
       isFavorited: true,
       material: 'Porcelain',
       finish: 'Glossy',
+      color: 'Gainsboro',
     },
     {
       id: 2,
       name: 'Name two',
+      code: '(S232DA84)',
       size: '400 x 400',
       series: 'Modern',
       category: 'Wall Tiles',
@@ -50,10 +53,12 @@ const TileManagement = () => {
       isFavorited: false,
       material: 'Ceramic',
       finish: 'Matte',
+      color: 'White',
     },
     {
       id: 3,
       name: 'Name three',
+      code: '(S232DA85)',
       size: '300 x 300',
       series: 'Classic',
       category: 'Bathroom Tiles',
@@ -62,10 +67,12 @@ const TileManagement = () => {
       isFavorited: true,
       material: 'Natural Stone',
       finish: 'Textured',
+      color: 'Gray',
     },
     {
       id: 4,
       name: 'Tile name',
+      code: '(S232DA86)',
       size: '800 x 800',
       series: 'Luxury',
       category: 'Kitchen Tiles',
@@ -74,6 +81,7 @@ const TileManagement = () => {
       isFavorited: false,
       material: 'Marble',
       finish: 'Polished',
+      color: 'Beige',
     },
   ]);
 
@@ -103,7 +111,7 @@ const TileManagement = () => {
     finishes: ['Glossy', 'Matte', 'Textured', 'Polished', 'Natural'],
     sizes: ['200 x 1200', '300 x 300', '400 x 400', '600 x 600', '800 x 800', '1200 x 600'],
     materials: ['Ceramic', 'Porcelain', 'Natural Stone', 'Glass', 'Marble'],
-    colors: ['White', 'Black', 'Gray', 'Beige', 'Brown', 'Blue', 'Green'],
+    colors: ['White', 'Black', 'Gray', 'Beige', 'Brown', 'Blue', 'Green', 'Gainsboro'],
   };
 
   const [expandedSections, setExpandedSections] = useState({
@@ -118,20 +126,82 @@ const TileManagement = () => {
 
   const handlePriorityChange = (id, newPriority) => {
     setTiles(tiles.map(tile => (tile.id === id ? { ...tile, priority: newPriority } : tile)));
+    if (selectedTile && selectedTile.id === id) {
+      setSelectedTile({ ...selectedTile, priority: newPriority });
+    }
   };
 
   const handleToggleFavorite = id => {
     setTiles(
       tiles.map(tile => (tile.id === id ? { ...tile, isFavorited: !tile.isFavorited } : tile))
     );
+    if (selectedTile && selectedTile.id === id) {
+      setSelectedTile({ ...selectedTile, isFavorited: !selectedTile.isFavorited });
+    }
   };
 
   const handleToggleActive = id => {
     setTiles(tiles.map(tile => (tile.id === id ? { ...tile, isActive: !tile.isActive } : tile)));
+    if (selectedTile && selectedTile.id === id) {
+      setSelectedTile({ ...selectedTile, isActive: !selectedTile.isActive });
+    }
   };
 
   const handleDelete = id => {
     setTiles(tiles.filter(tile => tile.id !== id));
+    if (selectedTile && selectedTile.id === id) {
+      setIsPopupOpen(false);
+      setSelectedTile(null);
+      setIsEditMode(false);
+    }
+  };
+
+  const openTilePopup = tile => {
+    setSelectedTile(tile);
+    setIsPopupOpen(true);
+    setIsEditMode(false);
+  };
+
+  const closeTilePopup = () => {
+    setIsPopupOpen(false);
+    setSelectedTile(null);
+    setIsEditMode(false);
+    setEditFormData({});
+  };
+
+  const openEditMode = tile => {
+    setEditFormData({
+      name: tile.name,
+      priority: tile.priority.replace(' Priority', ''),
+      size: tile.size,
+      material: tile.material,
+      finish: tile.finish,
+      series: tile.series,
+      color: tile.color,
+    });
+    setIsEditMode(true);
+  };
+
+  const handleEditFormChange = (field, value) => {
+    setEditFormData({ ...editFormData, [field]: value });
+  };
+
+  const handleSaveEdit = () => {
+    const updatedTile = {
+      ...selectedTile,
+      name: editFormData.name,
+      priority: `${editFormData.priority} Priority`,
+      size: editFormData.size,
+      material: editFormData.material,
+      finish: editFormData.finish,
+      series: editFormData.series,
+      color: editFormData.color,
+    };
+
+    setTiles(tiles.map(tile => (tile.id === selectedTile.id ? updatedTile : tile)));
+    setSelectedTile(updatedTile);
+    setIsEditMode(false);
+    alert('Tile updated successfully!');
   };
 
   const toggleSection = section => {
@@ -148,7 +218,7 @@ const TileManagement = () => {
         ? prev[category].filter(item => item !== value)
         : [...prev[category], value],
     }));
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   };
 
   const removeFilter = (category, value) => {
@@ -171,15 +241,16 @@ const TileManagement = () => {
   const getPriorityColor = priority => {
     switch (priority) {
       case 'Low Priority':
-        return 'bg-green-500';
+        return 'bg-[#2CC29A]';
       case 'Medium Priority':
-        return 'bg-orange-500';
+        return 'bg-[#EA9A3E]';
       case 'High Priority':
-        return 'bg-red-500';
+        return 'bg-[#EA3E3E]';
       default:
         return 'bg-gray-500';
     }
   };
+
   const filteredTiles = tiles.filter(tile => {
     const matchesSearch =
       tile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -200,6 +271,8 @@ const TileManagement = () => {
           return values.includes(tile.finish);
         case 'sizes':
           return values.includes(tile.size);
+        case 'colors':
+          return values.includes(tile.color);
         default:
           return true;
       }
@@ -221,52 +294,260 @@ const TileManagement = () => {
     setRowsPerPage(newRowsPerPage);
     setCurrentPage(1);
   };
+  const EditFormPopup = ({ tile, isOpen, onClose, formData, onChange, onSave }) => {
+    if (!isOpen || !tile) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+        <div className="bg-[#fdf0e6] rounded-md shadow-lg w-full max-w-2xl p-4 sm:p-6 relative max-h-[90vh] overflow-y-auto">
+          <button
+            className="absolute top-0 right-0 text-gray-600 hover:text-black z-10 cursor-pointer"
+            onClick={onClose}
+            aria-label="Close edit form"
+          >
+            <X size={30} className="bg-[#6F4E37] text-white rounded-bl-sm p-1" />
+          </button>
+
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+            <div className="w-full lg:w-1/2">
+              <img
+                src={img || '/placeholder.svg?height=400&width=400'}
+                alt="Tile"
+                className="rounded-md w-full h-48 sm:h-64 lg:h-full object-cover border"
+              />
+            </div>
+            <div className="w-full lg:w-1/2 space-y-3">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Name</label>
+                <input
+                  type="text"
+                  placeholder="Enter name"
+                  value={formData.name || ''}
+                  onChange={e => onChange('name', e.target.value)}
+                  className="w-full mt-1 px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#7b4f28]"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700">Priority</label>
+                <div className="mt-1 flex border rounded overflow-hidden w-fit ">
+                  {['Low', 'Medium', 'High'].map((level, idx) => (
+                    <button
+                      key={level}
+                      className={`px-3 sm:px-4 py-1 text-xs border-r last:border-r-0 transition-colors cursor-pointer ${
+                        formData.priority === level
+                          ? 'bg-[#7b4f28] text-white'
+                          : 'bg-white text-gray-800 hover:bg-gray-50'
+                      } ${idx === 0 ? 'rounded-l' : ''} ${idx === 2 ? 'rounded-r' : ''}`}
+                      onClick={() => onChange('priority', level)}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Dropdown Fields */}
+              {[
+                {
+                  label: 'Sizes',
+                  key: 'size',
+                  options: ['300 x 300', '400 x 400', '600 x 600', '800 x 800'],
+                },
+                {
+                  label: 'Materials',
+                  key: 'material',
+                  options: ['Porcelain', 'Ceramic', 'Natural Stone', 'Glass', 'Marble'],
+                },
+                {
+                  label: 'Finishes',
+                  key: 'finish',
+                  options: ['Glossy', 'Matte', 'Textured', 'Polished', 'Natural'],
+                },
+                {
+                  label: 'Series',
+                  key: 'series',
+                  options: ['Wooden', 'Modern', 'Classic', 'Luxury', 'Rustic'],
+                },
+                {
+                  label: 'Color',
+                  key: 'color',
+                  options: ['Gainsboro', 'White', 'Gray', 'Beige', 'Brown', 'Black'],
+                },
+              ].map(({ label, key, options }) => (
+                <div key={key}>
+                  <label className="text-sm font-medium text-gray-700">{label}</label>
+                  <select
+                    value={formData[key] || ''}
+                    onChange={e => onChange(key, e.target.value)}
+                    className="cursor-pointer w-full mt-1 px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#7b4f28]"
+                  >
+                    <option value="">Select {label}</option>
+                    {options.map(option => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom Buttons */}
+          <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+            <button
+              onClick={() => handleDelete(tile.id)}
+              className="cursor-pointer bg-white border border-gray-300 text-gray-700 py-2 px-6 rounded hover:bg-gray-100 text-sm font-medium transition-colors"
+            >
+              Delete
+            </button>
+            <button
+              onClick={onSave}
+              className="cursor-pointer bg-[#6F4E37] text-white py-2 px-6 rounded hover:bg-[#6F4E37] text-sm font-medium transition-colors"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // View Popup Component
+  const TilePopup = ({ tile, isOpen, onClose, onEdit }) => {
+    if (!isOpen || !tile) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+        <div className="relative bg-[#FFF5EE] rounded-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <button
+            onClick={onClose}
+            className="absolute top-0 right-0 z-10 cursor-pointer"
+            aria-label="Close popup"
+          >
+            <X size={30} className="bg-[#6F4E37] text-white rounded-bl-sm p-1" />
+          </button>
+
+          {/* Content */}
+          <div className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Image Section */}
+              <div className="aspect-square border w-full max-w-[262px] h-[300px] sm:h-[369px] rounded-lg p-2 mx-auto md:mx-0">
+                <img
+                  src={img || '/placeholder.svg?height=400&width=400'}
+                  alt={tile.name}
+                  className="w-full h-full object-cover rounded"
+                />
+              </div>
+
+              {/* Details Section */}
+              <div className="space-y-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{tile.name}</h3>
+                  <p className="text-sm text-gray-600">{tile.code}</p>
+                </div>
+
+                {/* Priority */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">Priority</label>
+                  <div className="flex items-center">
+                    <span
+                      className={`px-3 py-1 rounded-full text-white text-sm font-medium ${getPriorityColor(tile.priority)}`}
+                    >
+                      {tile.priority}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Other Details */}
+                {[
+                  { label: 'Sizes', value: tile.size },
+                  { label: 'Materials', value: tile.material },
+                  { label: 'Finishes', value: tile.finish },
+                  { label: 'Series', value: tile.series },
+                  { label: 'Color', value: tile.color },
+                ].map(({ label, value }) => (
+                  <div key={label} className="space-y-1">
+                    <label className="text-sm font-semibold text-gray-700">{label}</label>
+                    <p className="text-sm text-gray-900">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6 pt-4">
+              <button
+                onClick={() => handleDelete(tile.id)}
+                className="cursor-pointer px-4 py-2 bg-white text-black rounded-md font-medium transition-colors border border-gray-300 hover:bg-gray-50"
+                style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)' }}
+              >
+                Delete
+              </button>
+
+              <button
+                onClick={() => onEdit(tile)}
+                className="cursor-pointer px-4 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5a3d2b] transition-colors font-medium flex items-center justify-center gap-2"
+              >
+                <Edit size={16} />
+                Edit
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const TileCard = ({ tile }) => {
     const priorities = ['Low', 'Medium', 'High'];
 
     return (
-      <div className="w-auto bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
-        <div className="relative bg-gray-200 p-4 rounded-t-xl flex justify-center items-center h-32 sm:h-40 lg:h-44">
-          <img src={img} alt="" />
+      <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div
+          className="relative bg-gray-200 p-2 sm:p-4 rounded-t-xl flex justify-center items-center h-32 sm:h-40 lg:h-44 cursor-pointer"
+          onClick={() => openTilePopup(tile)}
+        >
+          <img
+            src={img || '/placeholder.svg'}
+            alt=""
+            className="object-contain max-h-full max-w-full"
+          />
           <button
-            onClick={() => handleToggleFavorite(tile.id)}
-            className={`absolute top-2 right-2 p-1.5 rounded-md shadow-md transition-all duration-200
-    ${tile.isFavorited ? 'bg-white' : 'bg-[#6F4E37] bg-opacity-90 hover:bg-opacity-100'}`}
+            onClick={e => {
+              e.stopPropagation();
+              handleToggleFavorite(tile.id);
+            }}
+            className={`cursor-pointer absolute top-2 right-2 p-1.5 rounded-md shadow-md transition-all duration-200 ${
+              tile.isFavorited ? 'bg-white' : 'bg-[#6F4E37] bg-opacity-90 hover:bg-opacity-100'
+            }`}
           >
             <Heart
-              size={14}
-              className={
-                tile.isFavorited ? 'text-[#6F4E37] fill-[#6F4E37]' : 'text-white fill-white'
-              }
+              size={16}
+              className={`${tile.isFavorited ? 'text-[#6F4E37] fill-[#6F4E37]' : 'text-white fill-white'}`}
             />
           </button>
         </div>
 
-        <div className="p-4 sm:p-4 space-y-3">
+        <div className="p-3 sm:p-4 space-y-3">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{tile.name}</h3>
-
           <div className="space-y-1 text-xs sm:text-sm text-gray-600">
-            <div className="flex justify-between">
-              <span className="font-medium">Size:</span>
-              <span className="text-right">{tile.size}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-medium">Series:</span>
-              <span className="text-right truncate ml-2">{tile.series}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-medium">Category:</span>
-              <span className="text-right truncate ml-2">{tile.category}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-medium">Material:</span>
-              <span className="text-right truncate ml-2">{tile.material}</span>
-            </div>
+            {[
+              { label: 'Size', value: tile.size },
+              { label: 'Series', value: tile.series },
+              { label: 'Category', value: tile.category },
+              { label: 'Material', value: tile.material },
+            ].map((item, index) => (
+              <div key={index} className="flex justify-between gap-2">
+                <span className="font-medium whitespace-nowrap">{item.label}:</span>
+                <span className="text-right truncate flex-1">{item.value}</span>
+              </div>
+            ))}
           </div>
 
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-1 bg-gray-100 rounded-full px-2 py-1 h-7 items-center">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap gap-1 bg-gray-100 rounded-full px-2 py-1 items-center">
               {priorities.map(p => {
                 const full = `${p} Priority`;
                 const isSelected = tile.priority === full;
@@ -274,7 +555,7 @@ const TileManagement = () => {
                   <button
                     key={p}
                     onClick={() => handlePriorityChange(tile.id, full)}
-                    className={`px-1.5 py-0.5 text-xs rounded-full font-medium transition-all h-full flex-1 ${
+                    className={`cursor-pointer px-2 py-0.5 text-xs rounded-full font-medium transition-all ${
                       isSelected
                         ? 'bg-white text-gray-800 shadow-sm'
                         : 'text-gray-700 hover:bg-gray-200'
@@ -287,28 +568,28 @@ const TileManagement = () => {
             </div>
 
             <span
-              className={`text-xs font-semibold px-2 py-1 rounded-full text-center text-white ${getPriorityColor(tile.priority)}`}
+              className={`text-xs font-semibold px-2 py-1 rounded-full text-white ${getPriorityColor(tile.priority)}`}
             >
               {tile.priority}
             </span>
           </div>
+        </div>
+        <div className="mt-3 sm:mt-4">
+          <div className="flex items-center justify-between bg-[#FFF5EE] rounded p-3 gap-3">
+            <label className="inline-flex items-center gap-2 text-[#5C4033] text-sm font-medium">
+              <input
+                type="checkbox"
+                checked={tile.isActive}
+                onChange={() => handleToggleActive(tile.id)}
+                className="accent-[#6F4E37] w-4 h-4 cursor-pointer"
+              />
+              Active
+            </label>
 
-          <div className="flex flex-col sm:flex-row gap-2 pt-2">
-            <button
-              onClick={() => handleToggleActive(tile.id)}
-              className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded text-xs sm:text-sm font-medium transition-all flex-1 ${
-                tile.isActive
-                  ? 'bg-green-100 text-green-800 border border-green-200'
-                  : 'bg-gray-100 text-gray-600 border border-gray-300'
-              }`}
-            >
-              <Check size={14} />
-              {tile.isActive ? 'Active' : 'Inactive'}
-            </button>
-
+            {/* Delete Button */}
             <button
               onClick={() => handleDelete(tile.id)}
-              className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-800 border border-red-200 rounded text-xs sm:text-sm font-medium hover:bg-red-200 transition-all flex-1"
+              className="cursor-pointer flex items-center gap-1.5 px-4 py-2 bg-[#5C4033] text-white rounded text-sm font-medium hover:opacity-90 transition-all"
             >
               <Trash2 size={14} />
               Delete
@@ -338,7 +619,7 @@ const TileManagement = () => {
                 <button
                   key={p}
                   onClick={() => handlePriorityChange(tile.id, full)}
-                  className={`px-1 py-0.5 text-xs rounded font-medium transition-all ${
+                  className={`px-1 py-0.5 text-xs rounded font-medium transition-all cursor-pointer ${
                     isSelected ? 'bg-white' : ' text-gray-600 hover:bg-gray-300'
                   }`}
                 >
@@ -392,11 +673,14 @@ const TileManagement = () => {
             <tbody className="divide-y divide-gray-200">
               {paginatedTiles.map((tile, index) => (
                 <tr key={tile.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                  <td className="px-2 sm:px-4 py-4 border-r border-gray-200">
+                  <td
+                    className="px-2 sm:px-4 py-4 border-r border-gray-200"
+                    onClick={() => openTilePopup(tile)}
+                  >
                     <img
-                      src={tileImage}
+                      src={img || '/placeholder.svg'}
                       alt={name}
-                      className="max-h-55 object-contain rounded-lg"
+                      className="max-h-55 object-contain rounded-lg cursor-pointer"
                     />
                   </td>
                   <td className="px-2 sm:px-4 py-4 text-xs sm:text-sm text-gray-900 border-r border-gray-200 font-medium">
@@ -417,10 +701,10 @@ const TileManagement = () => {
                   <td className="px-2 sm:px-4 py-4 text-xs sm:text-sm text-gray-900 border-r border-gray-200">
                     {tile.series}
                   </td>
-                  <td className="px-2 sm:px-4 py-4 border-r border-gray-200 ">
+                  <td className="px-2 sm:px-4 py-4 border-r border-gray-200">
                     <button
                       onClick={() => handleToggleActive(tile.id)}
-                      className={`px-2 py-1 rounded text-xs font-medium transition-all ${
+                      className={`px-2 py-1 cursor-pointer rounded text-xs font-medium transition-all ${
                         tile.isActive
                           ? 'bg-[#005E06] text-white hover:bg-[#005e06ea]'
                           : 'bg-[#DADADA] text-[#6E6E6E] hover:bg-[#dadadaed]'
@@ -432,24 +716,24 @@ const TileManagement = () => {
                   <td className="px-2 sm:px-4 py-4 border-r border-gray-200">
                     <button
                       onClick={() => handleToggleFavorite(tile.id)}
-                      className={`p-2 rounded transition-all ${
+                      className={`p-2 rounded transition-all cursor-pointer ${
                         tile.isFavorited
-                          ? 'bg-white text-[#6F4E37] border-[#6f4e37] border' // background white, text #6F4E37
-                          : 'bg-[#6F4E37] text-gray-600 '
+                          ? 'bg-white text-[#6F4E37] border-[#6f4e37] border'
+                          : 'bg-[#6F4E37] text-white'
                       }`}
                     >
                       <Heart
                         size={14}
-                        fill={tile.isFavorited ? '#6F4E37' : 'white'} // fill color set karo
+                        className={tile.isFavorited ? 'fill-[#6F4E37]' : 'fill-white'}
                       />
                     </button>
                   </td>
                   <td className="px-2 sm:px-4 py-4">
                     <button
                       onClick={() => handleDelete(tile.id)}
-                      className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-all"
+                      className="p-2 text-[#6F4E37] rounded transition-all cursor-pointer"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 width={22.22} height={25} />
                     </button>
                   </td>
                 </tr>
@@ -484,6 +768,7 @@ const TileManagement = () => {
                 className="p-1 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={currentPage === 1}
                 onClick={() => handlePageChange(currentPage - 1)}
+                aria-label="Previous page"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -491,6 +776,7 @@ const TileManagement = () => {
                 className="p-1 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={currentPage === totalPages}
                 onClick={() => handlePageChange(currentPage + 1)}
+                aria-label="Next page"
               >
                 <ChevronRight size={16} />
               </button>
@@ -510,13 +796,18 @@ const TileManagement = () => {
         <button
           onClick={() => toggleSection(filterKey)}
           className="w-full flex items-center justify-between py-3 px-1 text-left font-medium text-gray-900 hover:text-gray-700 transition-colors"
+          aria-expanded={isExpanded}
+          aria-controls={`filter-section-${filterKey}`}
         >
           <span className="text-sm sm:text-base">{title}</span>
           {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
 
         {isExpanded && (
-          <div className="pb-4 space-y-2 max-h-48 overflow-y-auto">
+          <div
+            id={`filter-section-${filterKey}`}
+            className="pb-4 space-y-2 max-h-48 overflow-y-auto"
+          >
             {options.map(option => (
               <label
                 key={option}
@@ -540,39 +831,38 @@ const TileManagement = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 w-full">
-      <div className="flex w-full">
+      <div className="flex w-full relative">
+        {/* Sidebar Overlay for Mobile */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
         <div
-          className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-    fixed lg:static 
-    top-16 lg:top-0 
-    inset-y-0 left-0 
-    z-40 
-    w-72 sm:w-80 
-    bg-white 
-    border-r border-gray-200 
-    transition-transform duration-300 ease-in-out 
-    lg:translate-x-0 
-    lg:transition-none 
-    overflow-hidden 
-    flex flex-col
-  `}
+          className={`${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } fixed lg:static top-0 left-0 z-40 w-72 sm:w-80 h-full bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transition-none overflow-hidden flex flex-col`}
         >
+          {/* Mobile Close Button */}
           <div className="lg:hidden flex justify-end p-4 border-b border-gray-200">
             <button
               onClick={() => setSidebarOpen(false)}
-              className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-red-800"
+              aria-label="Close sidebar"
             >
               <X size={20} />
             </button>
           </div>
-          {/* Filter Header */}
+
           <div className="p-4 border-b border-gray-200 flex-shrink-0">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Filter</h2>
               <button
                 onClick={clearAllFilters}
-                className="text-red-600 hover:text-red-700 text-sm font-medium underline hover:no-underline transition-all"
+                className="cursor-pointer text-[#CA0000] hover:text-[#CA0000] text-sm font-medium underline hover:no-underline transition-all"
               >
                 Clear All
               </button>
@@ -588,6 +878,7 @@ const TileManagement = () => {
               </p>
             )}
           </div>
+
           {getTotalFilters() > 0 && (
             <div className="p-4 border-b border-gray-200 flex-shrink-0">
               <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
@@ -602,6 +893,7 @@ const TileManagement = () => {
                       <button
                         onClick={() => removeFilter(category, item)}
                         className="ml-1 hover:bg-green-200 rounded-full p-0.5"
+                        aria-label={`Remove ${category} filter: ${item}`}
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -611,6 +903,7 @@ const TileManagement = () => {
               </div>
             </div>
           )}
+
           <div className="flex-1 overflow-y-auto p-4">
             <FilterSection
               title="Collections"
@@ -633,91 +926,102 @@ const TileManagement = () => {
             <FilterSection title="Colors" filterKey="colors" options={filterOptions.colors} />
           </div>
         </div>
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-        <div className="flex-1 min-h-screen bg-gray-50 flex flex-col w-full">
+
+        <div className="flex-1 min-h-screen bg-gray-50 flex flex-col w-full lg:ml-0">
           <div className="bg-[#E9D8CB] px-4 py-3 border-b border-gray-200 flex-shrink-0 w-full">
-            <div className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:justify-between w-full">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:justify-between ">
+              <div className="flex items-start gap-2 sm:gap-4 flex-wrap justify-between w-full">
                 <button
                   onClick={() => setSidebarOpen(true)}
                   className="lg:hidden p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-white/50"
+                  aria-label="Open sidebar"
                 >
                   <Menu size={20} />
                 </button>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="relative flex-shrink-0">
+                <div className="flex flex-col md:flex-row gap-3 md:items-start flex-1">
+                  {/* Search Field - fixed width, stacked above on small screens */}
+                  <div className="relative flex-shrink-0  w-52 sm:w-48 md:w-56">
                     <input
                       type="text"
                       placeholder="Search tiles..."
                       value={searchTerm}
                       onChange={e => setSearchTerm(e.target.value)}
-                      className="pl-8 pr-4 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 w-24 sm:w-32 md:w-40"
+                      className="pr-8 pl-4 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6f4e37]"
+                      aria-label="Search tiles"
                     />
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                    <Search
+                      className="absolute right-2 top-2.5 h-5 w-5 text-[#6f4e37]"
+                      aria-hidden="true"
+                    />
+                  </div>
+
+                  {/* Dropdown Filters */}
+                  <div className="flex flex-wrap gap-2 md:ml-4">
+                    {[
+                      { label: 'Sort by', options: ['Name', 'Priority', 'Size'] },
+                      { label: 'Order', options: ['Ascending', 'Descending'] },
+                      { label: 'Status', options: ['Active', 'Inactive'] },
+                      { label: 'Priority', options: ['Low', 'Medium', 'High'] },
+                      { label: 'Favorites', options: ['Favorited', 'Not Favorited'] },
+                    ].map((filter, index) => (
+                      <div key={index} className="relative w-[135px] sm:w-auto flex-shrink-0">
+                        <select className="w-full appearance-none px-3 pr-7 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6f4e37]">
+                          <option>{filter.label}</option>
+                          {filter.options.map(opt => (
+                            <option key={opt}>{opt}</option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500">
+                          <Icon name="Arrow" width={8} />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                <div className="hidden md:flex gap-2">
-                  <select className="px-3 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                    <option>Sort by</option>
-                    <option>Name</option>
-                    <option>Priority</option>
-                    <option>Size</option>
-                  </select>
-                  <select className="px-3 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                    <option>Order</option>
-                    <option>Ascending</option>
-                    <option>Descending</option>
-                  </select>
-                  <select className="px-3 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                    <option>Status</option>
-                    <option>Active</option>
-                    <option>Inactive</option>
-                  </select>
-                </div>
+                {/* View Toggle */}
+                <div className="w-full md:w-auto flex justify-center md:justify-center lg:justify-end gap-2 mt-3 sm:mt-0">
+                  {/* Grid View */}
+                  <div className="border border-gray-300 rounded-md overflow-hidden">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-2 transition-all rounded ${viewMode === 'grid' ? 'bg-[#6f4e37]' : 'bg-white'} cursor-pointer`}
+                      title="Grid View"
+                      aria-label="Switch to grid view"
+                      aria-pressed={viewMode === 'grid'}
+                    >
+                      <Icon
+                        name={viewMode === 'grid' ? 'Grid' : 'Grid1'}
+                        height="20"
+                        width="20"
+                        color={viewMode === 'grid' ? '#6f4e37' : 'white'}
+                      />
+                    </button>
+                  </div>
 
-                <div className="flex gap-2 border border-gray-300 rounded-md overflow-hidden bg-white p-1">
-  
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 transition-all rounded ${
-                      viewMode === 'grid' ? 'bg-white ' : 'bg-[#6f4e37]'
-                    }`}
-                    title="Grid View"
-                  >
-                    <Icon
-                      name={viewMode === 'grid' ? 'Grid1' : 'Grid'}
-                      height="50px"
-                      width="50px"
-                      color={viewMode === 'grid' ? '#6f4e37' : 'white'}
-                    />
-                  </button>
-
-                  <button
-                    onClick={() => setViewMode('table')}
-                    className={`p-2 transition-all rounded ${
-                      viewMode === 'table' ? 'bg-white ' : 'bg-[#6f4e37]'
-                    }`}
-                    title="Table View"
-                  >
-                    <Icon
-                      name={viewMode === 'table' ? 'Main' : 'Main1'}
-                      height="50px"
-                      width="50px"
-                      color={viewMode === 'table' ? 'white' : '#6f4e37 '}
-                    />
-                  </button>
+                  {/* Table View */}
+                  <div className="border border-gray-300 rounded-md overflow-hidden">
+                    <button
+                      onClick={() => setViewMode('table')}
+                      className={`p-2 transition-all rounded ${viewMode === 'table' ? 'bg-[#6f4e37]' : 'bg-white'} cursor-pointer`}
+                      title="Table View"
+                      aria-label="Switch to table view"
+                      aria-pressed={viewMode === 'table'}
+                    >
+                      <Icon
+                        name={viewMode === 'table' ? 'Main1' : 'Main'}
+                        height="20"
+                        width="20"
+                        color={viewMode === 'table' ? 'white' : '#6f4e37'}
+                      />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Content */}
           <div className="flex-1 p-2 sm:p-4 lg:p-6 overflow-auto w-full">
             {filteredTiles.length === 0 ? (
               <div className="text-center py-12">
@@ -732,8 +1036,8 @@ const TileManagement = () => {
                 </p>
               </div>
             ) : viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4   gap-4 w-full">
-                {filteredTiles.map(tile => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 w-full">
+                {paginatedTiles.map(tile => (
                   <TileCard key={tile.id} tile={tile} />
                 ))}
               </div>
@@ -743,6 +1047,25 @@ const TileManagement = () => {
           </div>
         </div>
       </div>
+
+      {/* Popups */}
+      {!isEditMode && (
+        <TilePopup
+          tile={selectedTile}
+          isOpen={isPopupOpen}
+          onClose={closeTilePopup}
+          onEdit={openEditMode}
+        />
+      )}
+
+      <EditFormPopup
+        tile={selectedTile}
+        isOpen={isEditMode}
+        onClose={closeTilePopup}
+        formData={editFormData}
+        onChange={handleEditFormChange}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 };
