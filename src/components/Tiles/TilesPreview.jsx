@@ -1,99 +1,88 @@
-import React, { useState, useEffect } from 'react';
-import { Icon } from '../common/icons';
-import { Input } from '../ui/input';
+import React from 'react';
+import { FaHeart, FaTrashAlt, FaEdit } from 'react-icons/fa';
+import img from '../../assets/img1.png';
 
-const TilePreview = ({ visible, onClose, tiles }) => {
-  const [tileData, setTileData] = useState([]);
+const dummyTiles = [
+  {
+    id: 1,
+    imageUrl: {img},
+    name: '',
+    thickness: '',
+    color: 'Gainsboro',
+  },
+  {
+    id: 2,
+    imageUrl: 'img1.png',
+    name: '',
+    thickness: '',
+    color: 'Gainsboro',
+  },
+  {
+    id: 3,
+    imageUrl: 'img1.png',
+    name: '',
+    thickness: '',
+    color: 'Gainsboro',
+  },
+  {
+    id: 4,
+    imageUrl: 'img1.png',
+    name: '',
+    thickness: '',
+    color: 'Gainsboro',
+  },
+];
 
-  useEffect(() => {
-    if (tiles && tiles.length > 0) {
-      const previewData = tiles.map((file, index) => ({
-        id: index,
-        file,
-        preview: URL.createObjectURL(file),
-        title: '',
-        thickness: '',
-      }));
-      setTileData(previewData);
-    }
-  }, [tiles]);
-
-  const handleInputChange = (id, field, value) => {
-    setTileData(prev => prev.map(tile => (tile.id === id ? { ...tile, [field]: value } : tile)));
-  };
-
-  const removeTile = id => {
-    setTileData(prev => prev.filter(tile => tile.id !== id));
-  };
-
-  const handleBackdropClick = e => {
-    if (e.target.id === 'modal-backdrop') {
-      onClose();
-    }
-  };
-
-  if (!visible) return null;
-
+const TilesPreview = () => {
   return (
-    <div
-      id="modal-backdrop"
-      className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50 px-4 sm:px-6"
-      onClick={handleBackdropClick}
-    >
-      <div className="bg-[#FFF5EE] w-full max-w-7xl rounded-xl p-6 sm:p-10 md:p-12 relative border shadow-xl overflow-y-auto max-h-[90vh]">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800 text-center sm:text-left">
-          Tiles Preview
-        </h2>
+    <div className="p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        {dummyTiles.map(tile => (
+          <div
+            key={tile.id}
+            className="rounded-xl overflow-hidden border border-gray-300 shadow-md"
+          >
+            <img src={tile.imageUrl} alt="Tile" className="w-full h-40 object-cover" />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {tileData.map(tile => (
-            <div key={tile.id} className="relative bg-white rounded-xl shadow-md p-4 sm:p-6">
-              <button
-                onClick={() => removeTile(tile.id)}
-                className="absolute cursor-pointer -top-1 -right-1 bg-[#6F4E37] text-white w-7 h-7 rounded flex items-center justify-center hover:bg-[#4A3224]"
-              >
-                <Icon name="Close" width="14px" height="14px" />
-              </button>
+            <div className="p-4 space-y-3">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Tile name"
+                  className="w-full border border-gray-300 rounded-md pl-3 pr-8 py-1 text-sm"
+                />
+                <FaEdit className="absolute right-2 top-2.5 text-gray-500 text-sm" />
+              </div>
 
-              <div className="flex flex-col gap-4 items-center">
-                <img
-                  src={tile.preview}
-                  alt="Tile Preview"
-                  className="w-full sm:w-[150px] h-[150px] object-cover rounded border"
-                />
-                <Input
+              <div className="relative">
+                <input
                   type="text"
-                  placeholder="Tile Name"
-                  value={tile.title}
-                  onChange={e => handleInputChange(tile.id, 'title', e.target.value)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                  placeholder="Thickness"
+                  className="w-full border border-gray-300 rounded-md pl-3 pr-8 py-1 text-sm"
                 />
-                <Input
-                  type="text"
-                  placeholder="Thickness (e.g., 10mm)"
-                  value={tile.thickness}
-                  onChange={e => handleInputChange(tile.id, 'thickness', e.target.value)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-                />
+                <FaEdit className="absolute right-2 top-2.5 text-gray-500 text-sm" />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full bg-gray-400 border" />
+                <span className="text-sm font-medium text-gray-800">{tile.color}</span>
               </div>
             </div>
-          ))}
-        </div>
 
-        <div className="mt-8 flex flex-col sm:flex-row justify-center sm:gap-6 gap-4">
-          <button
-            onClick={onClose}
-            className="bg-white border cursor-pointer border-gray-400 text-gray-800 px-6 py-3 rounded hover:bg-gray-100 w-full sm:w-auto"
-          >
-            Cancel
-          </button>
-          <button className="bg-[#6F4E37] cursor-pointer text-white px-6 py-3 rounded hover:bg-[#4A3224] w-full sm:w-auto">
-            Add Tiles
-          </button>
-        </div>
+            <div className="flex justify-between items-center bg-[#fceee3] px-4 py-2 rounded-b-xl">
+              <button className="text-[#7b4f28]">
+                <FaHeart size={16} />
+              </button>
+              <button className="flex items-center gap-1 text-white text-sm bg-[#7b4f28] px-3 py-1.5 rounded-md hover:bg-[#633e1f] transition">
+                <FaTrashAlt size={12} />
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
-export default TilePreview;
+export default TilesPreview;
