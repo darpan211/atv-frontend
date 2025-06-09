@@ -22,10 +22,42 @@ const AdminHeader = () => {
 
   const navLinks = [
     { label: 'Dashboard', onClick: handleDashRoute },
-    { label: 'Manage Users', withDropdown: true },
-    { label: 'Manage Sellers', withDropdown: true },
-    { label: 'Manage Rooms', withDropdown: true },
-    { label: 'Manage Attributes', withDropdown: true },
+    { 
+      label: 'Manage Users',
+      withDropdown: true,
+      dropdownItems: [
+        { label: 'Manage Admin', path: '/admin/dashboard/list' },
+        { label: 'Add Admin', path: '/admin/dashboard/create' },
+      ]
+    },
+    { 
+      label: 'Manage Sellers',
+      withDropdown: true,
+      dropdownItems: [
+        { label: 'Seller List', path: '/admin/seller/list' },
+        { label: 'Add Seller', path: '/admin/seller/create' },
+      ]
+    },
+    { 
+      label: 'Manage Rooms',
+      withDropdown: true,
+      dropdownItems: [
+        { label: 'View All Room', path: '/admin/addroom/list' },
+        { label: 'Add Room', path: '/admin/roomform' },
+      ]
+     },
+    { 
+      label: 'Manage Attributes',
+      withDropdown: true,
+      dropdownItems : [
+        { label: 'Manage Categories', path: '/admin/categories' },
+        { label: 'Manage Series', path: '/admin/series' },
+        { label: 'Manage Materials', path: '/admin/materials' },
+        { label: 'Manage Sizes', path: '/admin/sizes' },
+        { label: 'Manage Colors', path: '/admin/colors' },
+        { label: 'Manage Suitable Places', path: '/admin/places' },
+      ]
+    },
   ];
 
   return (
@@ -37,7 +69,12 @@ const AdminHeader = () => {
       <nav className="hidden lg:flex items-center space-x-5 text-sm xl:text-base font-medium">
         {navLinks.map((item, idx) => (
           <React.Fragment key={item.label}>
-            <NavItem label={item.label} onClick={item.onClick} withDropdown={item.withDropdown} />
+            <NavItem
+              label={item.label}
+              onClick={item.onClick}
+              withDropdown={item.withDropdown}
+              dropdownItems={item.dropdownItems}
+            />
             {idx < navLinks.length - 1 && <Divider />}
           </React.Fragment>
         ))}
@@ -74,6 +111,7 @@ const AdminHeader = () => {
                 setMenuOpen(false);
               }}
               withDropdown={item.withDropdown}
+              dropdownItems={item.dropdownItems}
             />
           ))}
           <button

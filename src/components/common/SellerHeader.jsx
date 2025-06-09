@@ -22,7 +22,18 @@ const SellerHeader = () => {
 
   const navLinks = [
     { label: 'Dashboard', onClick: handleDashRoute },
-    { label: 'Manage Tiles', withDropdown: true },
+    {
+      label: 'Manage Tiles',
+      withDropdown: true,
+      dropdownItems: [
+        { label: 'View All Design', hasDynamicChildren: true },
+        { label: 'Tiles by Categories', hasDynamicChildren: true },
+        { label: 'Tiles by Sizes', hasDynamicChildren: true },
+        { label: 'Tiles by Finishes', hasDynamicChildren: true },
+        { label: 'Tiles by Series', hasDynamicChildren: true },
+        { label: 'Tiles by Materials', hasDynamicChildren: true },
+      ],
+    },
     { label: 'All Tiles Design', withDropdown: true },
     { label: '3D Visualization', withDropdown: true },
     { label: 'Company Profile', withDropdown: true },
@@ -37,7 +48,14 @@ const SellerHeader = () => {
       <nav className="hidden lg:flex items-center space-x-5 text-sm xl:text-base font-medium">
         {navLinks.map((item, idx) => (
           <React.Fragment key={item.label}>
-            <NavItem label={item.label} onClick={item.onClick} withDropdown={item.withDropdown} />
+            <NavItem
+              label={item.label}
+              onClick={item.onClick}
+              withDropdown={item.withDropdown}
+              dropdownItems={item.dropdownItems}
+              enableDynamicNested={true}
+            />
+
             {idx < navLinks.length - 1 && <Divider />}
           </React.Fragment>
         ))}
@@ -74,6 +92,8 @@ const SellerHeader = () => {
                 setMenuOpen(false);
               }}
               withDropdown={item.withDropdown}
+              dropdownItems={item.dropdownItems}
+              enableDynamicNested={true}
             />
           ))}
           <button

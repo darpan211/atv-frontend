@@ -28,7 +28,7 @@ const AppLayout = ({ children }) => {
   const renderHeader = () => {
     if (isLoginPage) return null;
 
-    switch (userRole) {
+    switch ("seller") {
       case 'admin':
         return <AdminHeader />;
       case 'seller':

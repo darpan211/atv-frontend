@@ -240,6 +240,10 @@ const Login = () => {
               {formik.touched.email && formik.errors.email && (
                 <div className="text-red-500 text-sm mt-1">{formik.errors.email}</div>
               )}
+
+              {authState.error && (
+                <div className="text-red-600 text-sm">{authState.error.message}</div>
+              )}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -299,9 +303,7 @@ const Login = () => {
               </Label>
             </div>
 
-            {authState.error && (
-              <div className="text-red-600 text-center text-sm">{authState.error}</div>
-            )}
+
 
             <Button
               type="submit"

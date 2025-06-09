@@ -47,6 +47,8 @@ import AddTiles from './components/Tiles/AddTiles';
 // import { useSelector } from 'react-redux';
 import AppLayout from './hooks/AppLayout';
 import AuthSync from './hooks/AuthSync';
+import AddNewAdmin from './pages/Admin/AddNewAdmin';
+import AdminList from './pages/Admin/AdminList';
 
 // ================== App Routes ==================
 const App = () => {
@@ -77,6 +79,25 @@ const App = () => {
           element={
             <AppLayout>
               <Dashboard />
+            </AppLayout>
+          }
+        />
+
+        <Route
+          path="/admin/dashboard/create"
+          element={
+            <AppLayout>
+              {/* <AddNewSeller /> */}
+              <AddNewAdmin/>
+            </AppLayout>
+          }
+        />
+
+        <Route
+          path="/admin/dashboard/list"
+          element={
+            <AppLayout>
+              <AdminList/>
             </AppLayout>
           }
         />

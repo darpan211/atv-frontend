@@ -1,67 +1,95 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ChevronDown } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
+import { fetchSizes } from '@/redux/slice/sizes/sizeThunks';
+import { fetchColors } from '@/redux/slice/colors/colorThunks';
+import { fetchMaterials } from '@/redux/slice/material/materialThunks';
+import { fetchSeries } from '@/redux/slice/series/seriesThunks';
+import { fetchSuitablePlaces } from '@/redux/slice/suitablePlace/suitablePlaceThunks';
 
-const NavItem = ({ label, withDropdown }) => {
+const labelToThunkMap = {
+  categories: fetchCategories,
+  sizes: fetchSizes,
+  colors: fetchColors,
+  materials: fetchMaterials,
+  series: fetchSeries,
+  places: fetchSuitablePlaces,
+};
+
+const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested = false }) => {
+  const dispatch = useDispatch();
+  const categories = useSelector(state => state.categories.list?.data ?? null);
+  const sizes = useSelector(state => state.sizes.list?.data ?? null);
+  const colors = useSelector(state => state.colors.list?.data ?? null);
+  const materials = useSelector(state => state.materials.list?.data ?? null);
+  const series = useSelector(state => state.series.list?.data ?? null);
+
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [nestedItems, setNestedItems] = useState([]);
+  const [activeMainKey, setActiveMainKey] = useState(null);
   const dropdownRef = useRef(null);
+  const timeoutRef = useRef(null);
 
-  const isAttributes = label === 'Manage Attributes';
-  const isManageUsers = label === 'Manage Users';
-  const isManageSellers = label === 'Manage Sellers';
-  const isManageRooms = label === 'Manage Rooms';
+  const handleMainHover = async (item) => {
+    if (!enableDynamicNested) return;
+    const normalizedLabel = item.label?.toLowerCase().replace(/\s+/g, '');
+    const matchedKey = Object.keys(labelToThunkMap).find(key =>
+      normalizedLabel.includes(key)
+    );
 
-  const attributeItems = [
-    { label: 'Manage Categories', path: '/admin/categories' },
-    { label: 'Manage Series', path: '/admin/series' },
-    { label: 'Manage Materials', path: '/admin/materials' },
-    { label: 'Manage Sizes', path: '/admin/sizes' },
-    { label: 'Manage Colors', path: '/admin/colors' },
-    { label: 'Manage Suitable Places', path: '/admin/places' },
-  ];
-
-  const userItems = [
-    { label: 'Manage Admin', path: '/admin/manage-admin' },
-    { label: 'Add Admin', path: '/admin/add-admin' },
-  ];
-
-  const sellerItems = [
-    { label: 'Seller List', path: '/admin/seller/list' },
-    { label: 'Add Seller', path: '/admin/seller/create' },
-  ];
-
-  const roomItems = [
-    { label: 'View All Room', path: '/admin/addroom/list' },
-    { label: 'Add Room', path: '/admin/roomform' },
-  ];
-
-  const dropdownItems = isAttributes
-  ? attributeItems
-  : isManageUsers
-  ? userItems
-  : isManageSellers
-  ? sellerItems
-  : isManageRooms
-  ? roomItems
-  : [];
-
-  const handleClick = () => {
-    if (withDropdown) {
-      setIsOpen(prev => !prev);
+    if (matchedKey) {
+      dispatch(labelToThunkMap[matchedKey]());
+      setActiveMainKey(matchedKey);
+    } else {
+      setNestedItems([]);
+      setActiveMainKey(null);
     }
   };
 
-  const handleItemClick = path => {
-    navigate(path);
-    setIsOpen(false);
+  const sourceMap = useMemo(() => ({
+    categories,
+    sizes,
+    colors,
+    materials,
+    series,
+  }), [categories, sizes, colors, materials, series]);
+
+  useEffect(() => {
+    if (!enableDynamicNested || !activeMainKey) return;
+
+    const list = sourceMap[activeMainKey];
+    if (list && list.length > 0) {
+      console.log(`Formatting items for key: ${activeMainKey}`, list);
+      const formatted = list.map((item) => ({
+        label: item.name || item.category || item.material || item.sizes || item.color || item.series,
+        path: `/tiles/${activeMainKey}/${item.slug || (item.name || item.category || item.material || item.sizes || item.color || item.series)?.toLowerCase().replace(/\s+/g, '-')}`,
+      }));
+      setNestedItems(formatted);
+    }
+  }, [categories, sizes, colors, materials, series, activeMainKey, enableDynamicNested, sourceMap]);
+
+  const handleClick = () => {
+    if (withDropdown) {
+      setIsOpen((prev) => !prev);
+    }
   };
 
-  // Close dropdown if clicked outside
+  const handleItemClick = (path) => {
+    if (path) {
+      navigate(path);
+      setIsOpen(false);
+      setActiveMainKey(null);
+    }
+  };
+
   useEffect(() => {
-    const handleClickOutside = event => {
+    const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
+        setActiveMainKey(null);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -73,26 +101,67 @@ const NavItem = ({ label, withDropdown }) => {
       <div
         onClick={handleClick}
         className={`flex items-center space-x-1 cursor-pointer 
-        px-3 py-2 rounded-md transition duration-150 
-        ${isOpen ? 'bg-white text-[#6C4A34]' : 'hover:bg-white hover:text-[#6C4A34] text-white'}`}
+          px-3 py-2 rounded-md transition duration-150 
+          ${isOpen ? 'bg-white text-[#6C4A34]' : 'hover:bg-white hover:text-[#6C4A34] text-white'}`}
       >
         <span>{label}</span>
         {withDropdown && <ChevronDown className="w-4 h-4" />}
       </div>
 
       {withDropdown && isOpen && (
-        <div
-          className="absolute left-0 top-12 mt-1 w-56 
-          bg-white text-black shadow-lg rounded-lg z-50"
-        >
+        <div className="absolute left-0 top-12 mt-1 w-56 bg-white text-black shadow-lg rounded-lg z-50">
           <ul className="py-2 text-sm">
             {dropdownItems.map((item, idx) => (
               <li
                 key={idx}
-                className="px-4 py-2 hover:bg-gray-100 border-b hover:text-[#6C4A34] transition-all duration-200 ease-in-out border-white last:border-none cursor-pointer"
-                onClick={() => handleItemClick(item.path)}
+                onMouseEnter={() => {
+                  handleMainHover(item);
+                  clearTimeout(timeoutRef.current); // clear any scheduled close
+                }}
+                onMouseLeave={() => {
+                  timeoutRef.current = setTimeout(() => {
+                    setActiveMainKey(null);
+                    setNestedItems([]);
+                  }, 300);
+                }}
+                className="group px-4 py-2 hover:bg-gray-100 border-b last:border-none hover:text-[#6C4A34] transition-all duration-200 ease-in-out cursor-pointer relative"
+                onClick={() => item.path && handleItemClick(item.path)}
               >
-                {item.label}
+                <div className="flex justify-between items-center">
+                  {item.label}
+                  {(item.hasDynamicChildren || !item.path) && (
+                    <ChevronRight
+                      className={`w-4 h-4 ml-2 transition-transform duration-200 ease-in-out ${
+                        item.label.toLowerCase().replace(/\s+/g, '').includes(activeMainKey) && nestedItems.length > 0
+                          ? 'rotate-90'
+                          : ''
+                      }`}
+                    />
+                  )}
+                </div>
+
+                {item.label.toLowerCase().replace(/\s+/g, '').includes(activeMainKey) && nestedItems.length > 0 && (
+                  <ul
+                    className="absolute top-0 left-full ml-1 w-56 bg-white text-black shadow-lg rounded-lg py-2 text-sm z-50"
+                    onMouseEnter={() => clearTimeout(timeoutRef.current)}
+                    onMouseLeave={() => {
+                      timeoutRef.current = setTimeout(() => {
+                        setActiveMainKey(null);
+                        setNestedItems([]);
+                      }, 300);
+                    }}
+                  >
+                    {nestedItems.map((subItem, subIdx) => (
+                      <li
+                        key={subIdx}
+                        className="px-4 py-2 hover:bg-gray-100 border-b last:border-none hover:text-[#6C4A34] transition cursor-pointer"
+                        onClick={() => handleItemClick(subItem.path)}
+                      >
+                        {subItem.label}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>
