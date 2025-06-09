@@ -13,181 +13,152 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Validation schema using Yup
-const SellerSchema = Yup.object().shape({
-  company_name: Yup.string().required('Seller name is required'),
-  owner_name: Yup.string().required('Owner name is required'),
-  mobile: Yup.string()
-    .matches(/^\d{10,12}$/, 'Mobile number must be between 10-12 digits')
-    .required('Mobile number is required'),
-  email: Yup.string().email('Invalid email address').required('Email is required'),
-  password: Yup.string()
-    .min(8, 'Password must be at least 8 characters')
-    .required('Password is required'),
+const RoomSchema = Yup.object().shape({
+  template_name: Yup.string().required('Template name is required'),
+  category: Yup.string().required('Category is required'),
+  room_type: Yup.string().required('Room type is required'),
   status: Yup.string().oneOf(['active', 'inactive']).required('Status is required'),
-  metadata: Yup.object().shape({
-    gst: Yup.string()
-      .matches(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'Invalid GST format')
-      .required('GST number is required'),
-    address: Yup.string().required('Address is required'),
-    city: Yup.string().required('City is required'),
-  }),
+  description: Yup.string().required('Description is required'),
 });
 
-const AddNewSeller = () => {
+const AddNewRoom = () => {
   const navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
-      company_name: '',
-      owner_name: '',
-      email: '',
-      mobile: '',
-      password: '',
+      template_name: '',
+      category: '',
+      room_type: '',
       status: '',
-      role: 'seller',
-      metadata: {
-        gst: '',
-        address: '',
-        city: '',
-      },
+      description: '',
     },
-    validationSchema: SellerSchema,
+    validationSchema: RoomSchema,
     onSubmit: async values => {
-      // Transform the values to match the required structure
-      const sellerData = {
-        company_name: values.company_name,
-        owner_name: values.owner_name,
-        email: values.email,
-        mobile: values.mobile,
-        password: values.password,
-        status: values.status,
-        role: values.role,
-        metadata: {
-          gst: values.metadata.gst,
-          address: values.metadata.address,
-          city: values.metadata.city,
-        },
-      };
-
       try {
-        // Here you would typically make an API call to save the seller
-        console.log('Submitting seller data:', sellerData);
-
-        // Reset form after successful submission
-        formik.resetForm();
+        // Here you would typically make an API call to save the room
+        console.log('Submitting room data:', values);
+        toast.success('Room template added successfully!');
+        navigate('/admin/room/list');
       } catch (error) {
-        console.error('Error adding seller:', error);
+        console.error('Error adding room:', error);
+        toast.error('Failed to add room template');
       }
     },
   });
 
-  // Helper function to manage nested metadata fields
-  const handleMetadataChange = e => {
-    const { name, value } = e.target;
-    const field = name.split('.')[1]; // Extract the field name after 'metadata.'
-
-    formik.setValues({
-      ...formik.values,
-      metadata: {
-        ...formik.values.metadata,
-        [field]: value,
-      },
-    });
-  };
-
   const handleCancel = () => {
     formik.resetForm();
-    navigate('/admin/seller/list');
+    navigate('/admin/room/list');
   };
+
+  const fileInputRef = React.useRef(null);
+  const [previewUrl, setPreviewUrl] = React.useState(null);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files && event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setPreviewUrl(null);
+  };
+
   return (
-    <>
+    <div className="p-6 max-w-7xl mx-auto">
       <div>
         <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-3xl font-bold py-4 mt-6 px-4 sm:px-8 md:px-12">
           Add New Room Template
         </h1>
       </div>
-      <div className="sm:mx-10 p-6 bg-[#FFF5EE] ">
+      <div className="sm:mx-10 p-6 bg-[#FFF5EE]">
         <form onSubmit={formik.handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-[#FFF5EE] ">
-            {/* Seller Name */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-[#FFF5EE]">
+            {/* Template Name */}
             <div className="space-y-2">
-              <Label htmlFor="company_name font-[500]">Template Name</Label>
+              <Label htmlFor="template_name" className="font-medium">Template Name</Label>
               <Input
-                id="company_name"
-                name="company_name"
-                placeholder="Enter Template name"
-                value={formik.values.company_name}
+                id="template_name"
+                name="template_name"
+                placeholder="Enter template name"
+                value={formik.values.template_name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className={`bg-white text-black h-10 hover:bg-white font-[400] ${
-                  formik.touched.company_name && formik.errors.company_name ? 'border-red-500' : ''
+                  formik.touched.template_name && formik.errors.template_name ? 'border-red-500' : ''
                 }`}
               />
-              {formik.touched.company_name && formik.errors.company_name && (
-                <div className="text-red-500 text-sm">{formik.errors.company_name}</div>
+              {formik.touched.template_name && formik.errors.template_name && (
+                <div className="text-red-500 text-sm">{formik.errors.template_name}</div>
               )}
             </div>
 
+            {/* Category */}
             <div className="space-y-2">
-              <Label htmlFor="status" className="font-medium">
-                Category
-              </Label>
+              <Label htmlFor="category" className="font-medium">Category</Label>
               <Select
-                name="Category"
-                value={formik.values.status}
-                onValueChange={value => formik.setFieldValue('status', value)}
+                name="category"
+                value={formik.values.category}
+                onValueChange={value => formik.setFieldValue('category', value)}
               >
                 <SelectTrigger
-                  id="status"
+                  id="category"
                   className={`bg-white h-10 ${
-                    formik.touched.status && formik.errors.status ? 'border-red-500' : ''
+                    formik.touched.category && formik.errors.category ? 'border-red-500' : ''
                   }`}
                 >
-                  <SelectValue placeholder="Select Category" />
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Category 1</SelectItem>
-                  <SelectItem value="inactive">Category2</SelectItem>
+                  <SelectItem value="luxury">Luxury</SelectItem>
+                  <SelectItem value="standard">Standard</SelectItem>
+                  <SelectItem value="budget">Budget</SelectItem>
                 </SelectContent>
               </Select>
-              {formik.touched.status && formik.errors.status && (
-                <div className="text-red-500 text-sm">{formik.errors.status}</div>
+              {formik.touched.category && formik.errors.category && (
+                <div className="text-red-500 text-sm">{formik.errors.category}</div>
               )}
             </div>
 
+            {/* Room Type */}
             <div className="space-y-2">
-              <Label htmlFor="status" className="font-medium">
-                Room Type
-              </Label>
+              <Label htmlFor="room_type" className="font-medium">Room Type</Label>
               <Select
-                name=" Room Type"
-                value={formik.values.status}
-                onValueChange={value => formik.setFieldValue('status', value)}
+                name="room_type"
+                value={formik.values.room_type}
+                onValueChange={value => formik.setFieldValue('room_type', value)}
               >
                 <SelectTrigger
-                  id="status"
+                  id="room_type"
                   className={`bg-white h-10 ${
-                    formik.touched.status && formik.errors.status ? 'border-red-500' : ''
+                    formik.touched.room_type && formik.errors.room_type ? 'border-red-500' : ''
                   }`}
                 >
-                  <SelectValue placeholder="Select Room" />
+                  <SelectValue placeholder="Select room type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active"> Room Type 1</SelectItem>
-                  <SelectItem value="inactive"> Room Type 2</SelectItem>
+                  <SelectItem value="single">Single</SelectItem>
+                  <SelectItem value="double">Double</SelectItem>
+                  <SelectItem value="suite">Suite</SelectItem>
+                  <SelectItem value="deluxe">Deluxe</SelectItem>
                 </SelectContent>
               </Select>
-              {formik.touched.status && formik.errors.status && (
-                <div className="text-red-500 text-sm">{formik.errors.status}</div>
+              {formik.touched.room_type && formik.errors.room_type && (
+                <div className="text-red-500 text-sm">{formik.errors.room_type}</div>
               )}
             </div>
 
-            {/* Status - New Field */}
+            {/* Status */}
             <div className="space-y-2">
-              <Label htmlFor="status" className="font-medium">
-                Status
-              </Label>
+              <Label htmlFor="status" className="font-medium">Status</Label>
               <Select
                 name="status"
                 value={formik.values.status}
@@ -211,65 +182,93 @@ const AddNewSeller = () => {
               )}
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6 bg-[#FFF5EE]">
+
+          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6 bg-[#FFF5EE] mt-6">
             {/* Description field (50%) */}
             <div className="space-y-2 w-full">
-              <Label htmlFor="metadata.address" className="font-medium">
-                Description
-              </Label>
+              <Label htmlFor="description" className="font-medium">Description</Label>
               <textarea
-                id="metadata.address"
-                name="metadata.address"
-                placeholder="Enter short description (optional)"
-                value={formik.values.metadata.address}
-                onChange={handleMetadataChange}
+                id="description"
+                name="description"
+                placeholder="Enter room description"
+                value={formik.values.description}
+                onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className={`bg-white text-black h-28 w-full resize-none p-2 rounded-md font-[400] ${
-                  formik.touched.metadata?.address && formik.errors.metadata?.address
+                  formik.touched.description && formik.errors.description
                     ? 'border border-red-500'
                     : 'border border-gray-300'
                 }`}
               />
-              {formik.touched.metadata?.address && formik.errors.metadata?.address && (
-                <div className="text-red-500 text-sm">{formik.errors.metadata?.address}</div>
+              {formik.touched.description && formik.errors.description && (
+                <div className="text-red-500 text-sm">{formik.errors.description}</div>
               )}
             </div>
 
             {/* Upload Image button (50%) */}
             <div className="space-y-2 w-full">
               <label className="text-black font-medium">Upload Image</label>
-              <button
-                type="button"
-                className="flex cursor-pointer items-center gap-2 bg-[#6F4E37] text-white px-4 py-2 rounded-md hover:bg-[#a98f7d] transition"
-              >
-                <Upload className="w-4 h-4" />
-                <span className="font-medium">Upload Image</span>
-              </button>
+              {previewUrl && (
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className="w-50  h-28 object-cover rounded-md"
+                />
+              )}
+              <div className="flex flex-row gap-4 mt-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/jpeg,image/png,image/jpg"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex cursor-pointer items-center gap-2 bg-[#6F4E37] text-white px-4 py-2 rounded-md hover:bg-[#a98f7d] transition"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span className="font-medium">Upload Image</span>
+                </button>
+                {previewUrl && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="flex cursor-pointer items-center gap-2 bg-[#6F4E37] text-white px-4 py-2 rounded-md hover:bg-[#a98f7d] transition"
+                  >
+                    <span className="font-medium">Remove</span>
+                  </button>
+                )}
+              </div>
+              {formik.touched.image && formik.errors.image && (
+                <div className="text-red-500 text-sm">{formik.errors.image}</div>
+              )}
             </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex flex-col md:flex-row justify-center mt-8 space-y-4 md:space-y-0 md:space-x-4 items-center">
+          {/* Form Actions */}
+          <div className="flex justify-end gap-4 mt-6">
             <Button
-              variant="outline"
               type="button"
-              className="h-10 w-full md:w-40 cursor-pointer"
-              onClick={() => handleCancel()}
+              variant="outline"
+              onClick={handleCancel}
+              className="bg-white text-[#6F4E37] border-[#6F4E37] hover:bg-[#6F4E37] hover:text-white"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="bg-[#6F4E37] hover:bg-[#a98f7d] text-white h-10 w-full md:w-40 cursor-pointer"
-              disabled={formik.isSubmitting}
+              className="bg-[#6F4E37] text-white hover:bg-[#a98f7d]"
             >
-              {formik.isSubmitting ? 'Saving...' : 'Add Template'}
+              Save
             </Button>
           </div>
         </form>
       </div>
-    </>
+      <ToastContainer />
+    </div>
   );
 };
 
-export default AddNewSeller;
+export default AddNewRoom;

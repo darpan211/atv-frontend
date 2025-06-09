@@ -10,6 +10,7 @@ import seriesReducer from './series/seriesSlice';
 import sizesReducer from './sizes/sizeSlice';
 import suitablePlaceReducer from './suitablePlace/suitablePlaceSlice';
 import tileReducer from './tiles/tileSlice';
+import sellerReducer from './seller/sellerSlice';
 
 const encryptor = encryptTransform({
   secretKey: import.meta.env.VITE_SECRET_KEY,
@@ -33,6 +34,7 @@ const rootReducer = combineReducers({
   sizes: sizesReducer,
   suitablePlace: suitablePlaceReducer,
   tiles: tileReducer,
+  seller: sellerReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
