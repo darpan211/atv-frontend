@@ -49,19 +49,7 @@ const Series = () => {
 
   useEffect(() => {
     if (location.state?.toastMessage) {
-      toast.success(location.state.toastMessage, {
-        position: 'top-right',
-        autoClose: 3000,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: 'light',
-        transition: Bounce,
-        className: 'bg-white rounded-md shadow-md border-2',
-        style: { borderColor: '#6F4E37' },
-        bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
-        progressStyle: { backgroundColor: '#6F4E37' },
-      });
+      toast.success(location.state.toastMessage);
 
       window.history.replaceState({}, document.title);
     }
@@ -77,14 +65,9 @@ const Series = () => {
       if (!selectedSeries) return;
       setIsDeleting(true);
 
-      await dispatch(deleteSeries(selectedSeries)).unwrap();
-      await dispatch(fetchSeries());
-      toast.success('Series deleted successfully!', {
-        position: 'top-right',
-        autoClose: 3000,
-        theme: 'light',
-        transition: Bounce,
-      });
+      dispatch(deleteSeries(selectedSeries));
+      dispatch(fetchSeries());
+      toast.success('Series deleted successfully!');
     } catch (error) {
       toast.error('Failed to delete series.');
     } finally {

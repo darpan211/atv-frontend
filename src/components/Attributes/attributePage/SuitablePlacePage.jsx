@@ -58,19 +58,8 @@ const SuitablePlacePage = () => {
   // Show toast from location state
   useEffect(() => {
     if (location.state?.toastMessage) {
-      toast.success(location.state.toastMessage, {
-        position: 'top-right',
-        autoClose: 3000,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: 'light',
-        transition: Bounce,
-        className: 'bg-white rounded-md shadow-md border-2',
-        style: { borderColor: '#6F4E37' },
-        bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
-        progressStyle: { backgroundColor: '#6F4E37' },
-      });
+      // console.log('Suitable Place Location State:', location.state);
+      toast.success(location.state.toastMessage);
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -86,11 +75,7 @@ const SuitablePlacePage = () => {
   // Show error toast if loading failed
   useEffect(() => {
     if (error) {
-      toast.error('Failed to load suitable places.', {
-        position: 'top-right',
-        autoClose: 3000,
-        theme: 'light',
-      });
+      toast.error('Failed to load suitable places.');
     }
   }, [error]);
 
@@ -104,28 +89,12 @@ const SuitablePlacePage = () => {
       if (!selectedPlace) return;
 
       setIsDeleting(true);
-      await dispatch(deleteSuitablePlace(selectedPlace)).unwrap();
-      await dispatch(fetchSuitablePlaces());
+      dispatch(deleteSuitablePlace(selectedPlace));
+      dispatch(fetchSuitablePlaces());
 
-      toast.success('Place deleted successfully!', {
-        position: 'top-right',
-        autoClose: 3000,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: 'light',
-        transition: Bounce,
-        className: 'bg-white rounded-md shadow-md border-2',
-        style: { borderColor: '#6F4E37' },
-        bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
-        progressStyle: { backgroundColor: '#6F4E37' },
-      });
+      toast.success('Place deleted successfully!');
     } catch {
-      toast.error('Failed to delete place.', {
-        position: 'top-right',
-        autoClose: 3000,
-        theme: 'light',
-      });
+      toast.error('Failed to delete place.');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,17 +35,35 @@ const DataTable = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
-  // Calculate pagination values
-  const totalItems = data.length;
+  // Filter data based on search query
+  const filteredData = useMemo(() => {
+    if (!searchQuery) return data;
+    
+    const searchTerms = searchQuery.toLowerCase().split(' ').filter(term => term.length > 0);
+    if (searchTerms.length === 0) return data;
+
+    return data.filter(item => {
+      return searchTerms.every(term => {
+        return Object.values(item).some(value => {
+          if (value === null || value === undefined) return false;
+          return String(value).toLowerCase().includes(term);
+        });
+      });
+    });
+  }, [data, searchQuery]);
+
+  // Calculate pagination values based on filtered data
+  const totalItems = filteredData.length;
   const totalPages = Math.ceil(totalItems / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = Math.min(startIndex + rowsPerPage, totalItems);
-  const currentData = data.slice(startIndex, endIndex);
+  const currentData = filteredData.slice(startIndex, endIndex);
 
   // Handle search input change
   const handleSearchChange = e => {
     const query = e.target.value;
     setSearchQuery(query);
+    setCurrentPage(1); // Reset to first page when searching
     if (onSearch) {
       onSearch(query);
     }
@@ -63,6 +81,7 @@ const DataTable = ({
     setRowsPerPage(Number(value));
     setCurrentPage(1); // Reset to first page when changing rows per page
   };
+
   return (
     <div className="w-full p-6 rounded-lg shadow-sm bg-[#FFF5EE]">
       {/* Table Header with Search and Add Button */}
@@ -113,7 +132,7 @@ const DataTable = ({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="text-center px-4 py-4 text-gray-500">
-                  {emptyStateMessage}
+                  {searchQuery ? "No results found matching your search." : emptyStateMessage}
                 </TableCell>
               </TableRow>
             )}
@@ -141,7 +160,7 @@ const DataTable = ({
 
         <div className="flex items-center space-x-1">
           <div className="text-sm text-gray-500 mr-4 ">
-            {startIndex + 1}-{endIndex} of {totalItems}
+            {totalItems > 0 ? `${startIndex + 1}-${endIndex} of ${totalItems}` : '0 results'}
           </div>
           <Button
             variant="outline"

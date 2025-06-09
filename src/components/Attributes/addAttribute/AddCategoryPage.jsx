@@ -8,6 +8,7 @@ import {
   addCategory,
   updateCategory,
 } from '@/redux/slice/categories/categoryThunks'; // adjust import path if needed
+import { toast } from 'react-toastify';
 
 const AddCategoryPage = () => {
   const dispatch = useDispatch();
@@ -48,7 +49,7 @@ const AddCategoryPage = () => {
       });
     } catch (err) {
       console.error('Failed to submit:', err);
-      // Optionally handle errors or toast
+      toast.error(err?.message || 'Failed to save category.');
     }
   };
 

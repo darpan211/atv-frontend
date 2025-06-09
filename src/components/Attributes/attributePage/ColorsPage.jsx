@@ -58,19 +58,7 @@ const ColorsPage = () => {
     if (location.state?.toastMessage) {
       console.log('Colour Page', location);
 
-      toast.success(location.state.toastMessage, {
-        position: 'top-right',
-        autoClose: 3000,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: 'light',
-        transition: Bounce,
-        className: 'bg-white rounded-md shadow-md border-2',
-        style: { borderColor: '#6F4E37' },
-        bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
-        progressStyle: { backgroundColor: '#6F4E37' },
-      });
+      toast.success(location.state.toastMessage);
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -86,30 +74,14 @@ const ColorsPage = () => {
 
       setIsDeleting(true);
 
-      await dispatch(deleteColor(selectedColor)).unwrap();
-      await dispatch(fetchColors());
+      dispatch(deleteColor(selectedColor));
+      dispatch(fetchColors());
 
-      console.log('Colour Success Delete');
+      // console.log('Colour Success Delete');
 
-      toast.success('Color deleted successfully!', {
-        position: 'top-right',
-        autoClose: 3000,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: 'light',
-        transition: Bounce,
-        className: 'bg-white rounded-md shadow-md border-2',
-        style: { borderColor: '#6F4E37' },
-        bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
-        progressStyle: { backgroundColor: '#6F4E37' },
-      });
+      toast.success('Color deleted successfully!');
     } catch {
-      toast.error('Failed to delete color.', {
-        position: 'top-right',
-        autoClose: 3000,
-        theme: 'light',
-      });
+      toast.error('Failed to delete color.');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);

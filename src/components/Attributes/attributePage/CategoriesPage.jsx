@@ -50,12 +50,7 @@ const CategoriesPage = () => {
 
   useEffect(() => {
     if (location.state?.toastMessage) {
-      toast.success(location.state.toastMessage, {
-        position: 'top-right',
-        autoClose: 3000,
-        theme: 'light',
-        transition: Bounce,
-      });
+      toast.success(location.state.toastMessage);
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -68,8 +63,8 @@ const CategoriesPage = () => {
   const handleConfirmDelete = async () => {
     try {
       if (!selectedCategory) return;
-      await dispatch(deleteCategory(selectedCategory));
-      await dispatch(fetchCategories());
+      dispatch(deleteCategory(selectedCategory));
+      dispatch(fetchCategories());
       toast.success('Category deleted successfully!');
     } catch {
       toast.error('Failed to delete category.');
