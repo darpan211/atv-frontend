@@ -14,7 +14,6 @@ const authSlice = createSlice({
   reducers: {
     logout(state) {
       localStorage.removeItem('authToken');
-      console.log('satate', state);
       state.user = null;
       state.error = null;
       state.success = false;
@@ -52,7 +51,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.success = true;
-        console.log(state.user);
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -101,8 +99,7 @@ const authSlice = createSlice({
       .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-
+      });
   },
 });
 
