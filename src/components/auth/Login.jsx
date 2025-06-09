@@ -156,7 +156,9 @@ const Login = () => {
             </div>
 
             {authState.error && (
-              <div className="text-red-600 text-center text-sm">{authState.error}</div>
+              <div className="text-red-600 text-center text-sm">
+                {authState.error?.message || ''}
+              </div>
             )}
 
             <Button

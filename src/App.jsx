@@ -39,11 +39,8 @@ import AddPlacePage from './components/Attributes/addAttribute/AddPlacePage';
 import AddSeriesPage from './components/Attributes/addAttribute/AddSeriesPage';
 
 // Add Tiles
-import MainAddTiles from './components/Tiles/MainAddTiles';
 import HeaderTilesCart from './components/Tiles/HeaderTilesCart';
-import TilesPreview from './components/Tiles/TilesPreview';
 import AddTiles from './components/Tiles/AddTiles';
-// import { useSelector } from 'react-redux';
 import AppLayout from './hooks/AppLayout';
 import AuthSync from './hooks/AuthSync';
 
