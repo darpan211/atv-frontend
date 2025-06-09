@@ -48,7 +48,7 @@ const Login = () => {
         );
 
         if (login.fulfilled.match(resultAction)) {
-          console.log('Login successful');
+          // console.log('Login successful');
           navigate('/admin/dashboard');
         } else {
           alert(resultAction.payload || 'Login failed. Please check your credentials.');

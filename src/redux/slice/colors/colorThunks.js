@@ -31,7 +31,7 @@ export const addColor = createAsyncThunk('colors/addColor', async (data, thunkAP
 
 export const deleteColor = createAsyncThunk('colors/deleteColor', async (id, thunkAPI) => {
   try {
-    await axiosHandler.delete(`${BASE_URL}/api/v1/colors/deletcolors/${id}`);
+    await axiosHandler.delete(`${BASE_URL}/api/v1/colors/deletecolors/${id}`);
     return id; // ✅ Return just the ID
   } catch (error) {
     return thunkAPI.rejectWithValue(getErrorMessage(error));

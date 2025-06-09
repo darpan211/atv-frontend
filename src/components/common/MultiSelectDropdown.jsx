@@ -19,7 +19,7 @@ export const MultiSelectDropdown = ({ label, options, selectedValues, onChange }
   const toggleDropdown = () => setShowDropdown(prev => !prev);
 
   const handleCheckboxChange = option => {
-    console.log(option, 'option====>>>');
+    // console.log(option, 'option====>>>');
 
     const isSelected = selectedValues.some(item => item.value === option.value);
     const updatedValues = isSelected

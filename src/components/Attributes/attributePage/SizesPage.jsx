@@ -20,7 +20,7 @@ const SizesPage = () => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  console.log(success, 'success');
+  // console.log(success, 'success');
 
   const columns = [
     {

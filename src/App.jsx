@@ -91,7 +91,8 @@ const App = () => {
 
         {/* Sellers */}
         <Route
-          path="/admin/seller/create"
+          // path="/admin/seller/create"
+          path="/admin/seller/:mode/:id?"
           element={
             <AppLayout>
               <AddNewSeller />
