@@ -204,7 +204,7 @@ const FilterPopup = ({ onClose }) => {
           </button>
           <button
             onClick={() => {
-              console.log('Applied filters:', selectedOptions);
+              // console.log('Applied filters:', selectedOptions);
               onClose();
             }}
             className="px-4 py-2 bg-[#6F4E37] text-white rounded-lg hover:bg-[#6f4e37cc] transition-colors"

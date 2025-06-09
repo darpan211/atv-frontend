@@ -77,7 +77,7 @@ const ColorsPage = () => {
       dispatch(deleteColor(selectedColor));
       dispatch(fetchColors());
 
-      console.log('Colour Success Delete');
+      // console.log('Colour Success Delete');
 
       toast.success('Color deleted successfully!');
     } catch {

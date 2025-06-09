@@ -39,7 +39,7 @@ const AddNewRoom = () => {
     onSubmit: async values => {
       try {
         // Here you would typically make an API call to save the room
-        console.log('Submitting room data:', values);
+        // console.log('Submitting room data:', values);
         toast.success('Room template added successfully!');
         navigate('/admin/room/list');
       } catch (error) {

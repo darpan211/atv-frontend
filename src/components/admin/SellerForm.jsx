@@ -64,7 +64,7 @@ const SellerForm = () => {
   const isEdit = mode === 'edit';
 
   const { currentSeller, loading, error } = useSelector((state) => state.seller);
-console.log(currentSeller);
+// console.log(currentSeller);
 
   useEffect(() => {
     if (isEdit && id) {
@@ -134,26 +134,11 @@ console.log(currentSeller);
             }
           });
         } else {
-          toast.error(resultAction.payload?.message || `Failed to ${isEdit ? 'update' : 'add'} seller`, {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          });
+          toast.error(resultAction.payload?.message || `Failed to ${isEdit ? 'update' : 'add'} seller`);
         }
       } catch (error) {
         toast.error(
-          error.response?.data?.message || `An error occurred while ${isEdit ? 'updating' : 'adding'} the seller`,
-          {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          }
+          error.response?.data?.message || `An error occurred while ${isEdit ? 'updating' : 'adding'} the seller`
         );
       }
     },
@@ -196,14 +181,7 @@ console.log(currentSeller);
 
   const handleCancel = () => {
     formik.resetForm();
-    toast.info('Form cancelled', {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    });
+    toast.info('Form cancelled');
     navigate('/admin/seller/list');
   };
 

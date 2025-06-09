@@ -23,24 +23,12 @@ const Seller = () => {
   const dispatch = useDispatch();
   
   const { list: sellers, loading, error } = useSelector(state => state.seller);
-console.log("All Sellers",sellers);
+// console.log("All Sellers",sellers);
 
   // Show toast from location state
   useEffect(() => {
     if (location.state?.toastMessage) {
-      toast.success(location.state.toastMessage, {
-        position: 'top-right',
-        autoClose: 3000,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: 'light',
-        transition: Bounce,
-        className: 'bg-white rounded-md shadow-md border-2',
-        style: { borderColor: '#6F4E37' },
-        bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
-        progressStyle: { backgroundColor: '#6F4E37' },
-      });
+      toast.success(location.state.toastMessage);
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -51,19 +39,11 @@ console.log("All Sellers",sellers);
       .unwrap()
       .then(response => {
         if (!response || response.length === 0) {
-          toast.info('No sellers found.', {
-            position: 'top-right',
-            autoClose: 3000,
-            theme: 'light',
-          });
+          toast.info('No sellers found.');
         }
       })
       .catch(error => {
-        toast.error(error?.message || 'Failed to fetch sellers', {
-          position: 'top-right',
-          autoClose: 3000,
-          theme: 'light',
-        });
+        toast.error(error?.message || 'Failed to fetch sellers');
       });
   }, [dispatch, location.state?.toastMessage]);
 
@@ -86,22 +66,9 @@ console.log("All Sellers",sellers);
       setIsDeleting(true);
       await dispatch(deleteSeller(selectedSeller._id)).unwrap();
       await dispatch(fetchSellers());
-      toast.success('Seller deleted successfully!', {
-        position: 'top-right',
-        autoClose: 3000,
-        theme: 'light',
-        transition: Bounce,
-        className: 'bg-white rounded-md shadow-md border-2',
-        style: { borderColor: '#6F4E37' },
-        bodyClassName: 'text-[#6F4E37] font-semibold text-lg',
-        progressStyle: { backgroundColor: '#6F4E37' },
-      });
+      toast.success('Seller deleted successfully!');
     } catch (error) {
-      toast.error(error?.message || 'Failed to delete seller', {
-        position: 'top-right',
-        autoClose: 3000,
-        theme: 'light',
-      });
+      toast.error(error?.message || 'Failed to delete seller');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
