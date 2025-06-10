@@ -47,26 +47,28 @@ const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave,
                 placeholder="Enter name"
                 value={formData.name || ''}
                 onChange={e => onChange('name', e.target.value)}
-                className="w-full mt-1 px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#7b4f28]"
+                className="w-full mt-1 px-3 py-1.5 text-sm border rounded focus:outline-none bg-white focus:ring-2 focus:ring-[#7b4f28]"
               />
             </div>
 
             <div>
               <label className="text-sm font-medium text-gray-700">Priority</label>
-              <div className="mt-1 flex border rounded overflow-hidden w-fit">
+              <div className="mt-1 flex  rounded overflow-hidden w-fit">
                 {['Low', 'Medium', 'High'].map((level, idx) => (
-                  <button
-                    key={level}
-                    type="button"
-                    className={`px-3 sm:px-4 py-1 text-xs border-r last:border-r-0 transition-colors cursor-pointer ${
-                      formData.priority === level
+                  <div className='flex space-x-2 bg-[#E9D8CB] p-1 '>
+
+                    <button
+                      key={level}
+                      type="button"
+                      className={`px-1 sm:px-4 py-0.5 text-xs rounded font-medium   transition-all cursor-pointer ${formData.priority === level
                         ? 'bg-[#7b4f28] text-white'
                         : 'bg-white text-gray-800 hover:bg-gray-50'
-                    } ${idx === 0 ? 'rounded-l' : ''} ${idx === 2 ? 'rounded-r' : ''}`}
-                    onClick={() => onChange('priority', level)}
-                  >
-                    {level}
-                  </button>
+                        } ${idx === 0 ? 'rounded-l' : ''} ${idx === 2 ? 'rounded-r' : ''}`}
+                      onClick={() => onChange('priority', level)}
+                    >
+                      {level}
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -105,7 +107,7 @@ const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave,
                   key={`${key}-${tile.id}`}
                   value={formData[key] || ''}
                   onChange={e => onChange(key, e.target.value)}
-                  className="cursor-pointer w-full mt-1 px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#7b4f28]"
+                  className="cursor-pointer w-full mt-1 px-3 py-1.5 bg-white text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#7b4f28]"
                 >
                   <option value="">Select {label}</option>
                   {options.map(option => (
@@ -565,9 +567,8 @@ const TileManagement = () => {
               e.stopPropagation();
               handleToggleFavorite(tile.id);
             }}
-            className={`cursor-pointer absolute top-2 right-2 p-1.5 rounded-md shadow-md transition-all duration-200 ${
-              tile.isFavorited ? 'bg-white' : 'bg-[#6F4E37] bg-opacity-90 hover:bg-opacity-100'
-            }`}
+            className={`cursor-pointer absolute top-2 right-2 p-1.5 rounded-md shadow-md transition-all duration-200 ${tile.isFavorited ? 'bg-white' : 'bg-[#6F4E37] bg-opacity-90 hover:bg-opacity-100'
+              }`}
           >
             <Heart
               size={16}
@@ -601,11 +602,10 @@ const TileManagement = () => {
                   <button
                     key={p}
                     onClick={() => handlePriorityChange(tile.id, full)}
-                    className={`cursor-pointer px-2 py-0.5 text-xs rounded-full font-medium transition-all ${
-                      isSelected
-                        ? 'bg-white text-gray-800 shadow-sm'
-                        : 'text-gray-700 hover:bg-gray-200'
-                    }`}
+                    className={`cursor-pointer px-2 py-0.5 text-xs rounded-full font-medium transition-all ${isSelected
+                      ? 'bg-white text-gray-800 shadow-sm'
+                      : 'text-gray-700 hover:bg-gray-200'
+                      }`}
                   >
                     {p}
                   </button>
@@ -665,9 +665,8 @@ const TileManagement = () => {
                 <button
                   key={p}
                   onClick={() => handlePriorityChange(tile.id, full)}
-                  className={`px-1 py-0.5 text-xs rounded font-medium transition-all cursor-pointer ${
-                    isSelected ? 'bg-white' : ' text-gray-600 hover:bg-gray-300'
-                  }`}
+                  className={`px-1 py-0.5 text-xs rounded font-medium transition-all cursor-pointer ${isSelected ? 'bg-white' : ' text-gray-600 hover:bg-gray-300'
+                    }`}
                 >
                   {p}
                 </button>
@@ -750,11 +749,10 @@ const TileManagement = () => {
                   <td className="px-2 sm:px-4 py-4 border-r border-gray-200">
                     <button
                       onClick={() => handleToggleActive(tile.id)}
-                      className={`px-2 py-1 cursor-pointer rounded text-xs font-medium transition-all ${
-                        tile.isActive
-                          ? 'bg-[#005E06] text-white hover:bg-[#005e06ea]'
-                          : 'bg-[#DADADA] text-[#6E6E6E] hover:bg-[#dadadaed]'
-                      }`}
+                      className={`px-2 py-1 cursor-pointer rounded text-xs font-medium transition-all ${tile.isActive
+                        ? 'bg-[#005E06] text-white hover:bg-[#005e06ea]'
+                        : 'bg-[#DADADA] text-[#6E6E6E] hover:bg-[#dadadaed]'
+                        }`}
                     >
                       {tile.isActive ? 'Active' : 'Inactive'}
                     </button>
@@ -762,11 +760,10 @@ const TileManagement = () => {
                   <td className="px-2 sm:px-4 py-4 border-r border-gray-200">
                     <button
                       onClick={() => handleToggleFavorite(tile.id)}
-                      className={`p-2 rounded transition-all cursor-pointer ${
-                        tile.isFavorited
-                          ? 'bg-white text-[#6F4E37] border-[#6f4e37] border'
-                          : 'bg-[#6F4E37] text-white'
-                      }`}
+                      className={`p-2 rounded transition-all cursor-pointer ${tile.isFavorited
+                        ? 'bg-white text-[#6F4E37] border-[#6f4e37] border'
+                        : 'bg-[#6F4E37] text-white'
+                        }`}
                     >
                       <Heart
                         size={14}
@@ -888,9 +885,8 @@ const TileManagement = () => {
 
         {/* Sidebar */}
         <div
-          className={`${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } fixed lg:static top-0 left-0 z-40 w-72 sm:w-80 h-full bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transition-none overflow-hidden flex flex-col`}
+          className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            } fixed lg:static top-0 left-0 z-40 w-72 sm:w-80 h-full bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transition-none overflow-hidden flex flex-col`}
         >
           {/* Mobile Close Button */}
           <div className="lg:hidden flex justify-end p-4 border-b border-gray-200">
@@ -1028,7 +1024,7 @@ const TileManagement = () => {
                 {/* View Toggle */}
                 <div className="w-full md:w-auto flex justify-center md:justify-center lg:justify-end gap-2 mt-3 sm:mt-0">
                   {/* Grid View */}
-                  <div className="border border-gray-300 rounded-md overflow-hidden">
+                  <div className="border border-gray-300 rounded-md ">
                     <button
                       onClick={() => setViewMode('grid')}
                       className={`p-2 transition-all rounded ${viewMode === 'grid' ? 'bg-[#6f4e37]' : 'bg-white'} cursor-pointer`}
@@ -1046,7 +1042,7 @@ const TileManagement = () => {
                   </div>
 
                   {/* Table View */}
-                  <div className="border border-gray-300 rounded-md overflow-hidden">
+                  <div className="border border-gray-300 rounded-md ">
                     <button
                       onClick={() => setViewMode('table')}
                       className={`p-2 transition-all rounded ${viewMode === 'table' ? 'bg-[#6f4e37]' : 'bg-white'} cursor-pointer`}
