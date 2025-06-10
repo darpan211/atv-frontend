@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, memo } from 'react';
 import {
   Heart,
   Trash2,
@@ -12,8 +12,236 @@ import {
   Edit,
 } from 'lucide-react';
 import img from '../../assets/image (2).png';
-import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 import { Icon } from '../common/icons';
+
+
+// Move EditFormPopup outside and memoize it
+const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave, onDelete }) => {
+  if (!isOpen || !tile) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+      <div className="bg-[#fdf0e6] rounded-md shadow-lg w-full max-w-2xl p-4 sm:p-6 relative max-h-[90vh] overflow-y-auto">
+        <button
+          className="absolute top-0 right-0 text-gray-600 hover:text-black z-10 cursor-pointer"
+          onClick={onClose}
+          aria-label="Close edit form"
+        >
+          <X size={30} className="bg-[#6F4E37] text-white rounded-bl-sm p-1" />
+        </button>
+
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+          <div className="aspect-square border w-full max-w-[262px] h-[300px] sm:h-[369px] rounded-lg p-2 mx-auto md:mx-0">
+            <img
+              src={img || '/placeholder.svg'}
+              alt={tile.name}
+              className="w-full h-full object-cover rounded"
+            />
+          </div>
+          <div className="w-full lg:w-1/2 space-y-3">
+            <div>
+              <label className="text-sm font-medium text-gray-700">Name</label>
+              <input
+                key={`name-${tile.id}`}
+                type="text"
+                placeholder="Enter name"
+                value={formData.name || ''}
+                onChange={e => onChange('name', e.target.value)}
+                className="w-full mt-1 px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#7b4f28]"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700">Priority</label>
+              <div className="mt-1 flex border rounded overflow-hidden w-fit">
+                {['Low', 'Medium', 'High'].map((level, idx) => (
+                  <button
+                    key={level}
+                    type="button"
+                    className={`px-3 sm:px-4 py-1 text-xs border-r last:border-r-0 transition-colors cursor-pointer ${
+                      formData.priority === level
+                        ? 'bg-[#7b4f28] text-white'
+                        : 'bg-white text-gray-800 hover:bg-gray-50'
+                    } ${idx === 0 ? 'rounded-l' : ''} ${idx === 2 ? 'rounded-r' : ''}`}
+                    onClick={() => onChange('priority', level)}
+                  >
+                    {level}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Dropdown Fields */}
+            {[
+              {
+                label: 'Sizes',
+                key: 'size',
+                options: ['300 x 300', '400 x 400', '600 x 600', '800 x 800'],
+              },
+              {
+                label: 'Materials',
+                key: 'material',
+                options: ['Porcelain', 'Ceramic', 'Natural Stone', 'Glass', 'Marble'],
+              },
+              {
+                label: 'Finishes',
+                key: 'finish',
+                options: ['Glossy', 'Matte', 'Textured', 'Polished', 'Natural'],
+              },
+              {
+                label: 'Series',
+                key: 'series',
+                options: ['Wooden', 'Modern', 'Classic', 'Luxury', 'Rustic'],
+              },
+              {
+                label: 'Color',
+                key: 'color',
+                options: ['Gainsboro', 'White', 'Gray', 'Beige', 'Brown', 'Black'],
+              },
+            ].map(({ label, key, options }) => (
+              <div key={key}>
+                <label className="text-sm font-medium text-gray-700">{label}</label>
+                <select
+                  key={`${key}-${tile.id}`}
+                  value={formData[key] || ''}
+                  onChange={e => onChange(key, e.target.value)}
+                  className="cursor-pointer w-full mt-1 px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#7b4f28]"
+                >
+                  <option value="">Select {label}</option>
+                  {options.map(option => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom Buttons */}
+        <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+          <button
+            type="button"
+            onClick={() => onDelete(tile.id)}
+            className="cursor-pointer bg-white border border-gray-300 text-gray-700 py-2 px-6 rounded hover:bg-gray-100 text-sm font-medium transition-colors"
+          >
+            Delete
+          </button>
+          <button
+            type="button"
+            onClick={onSave}
+            className="cursor-pointer bg-[#6F4E37] text-white py-2 px-6 rounded hover:bg-[#6F4E37] text-sm font-medium transition-colors"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+EditFormPopup.displayName = 'EditFormPopup';
+
+const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
+  const getPriorityColor = useCallback(priority => {
+    switch (priority) {
+      case 'Low Priority':
+        return 'bg-[#2CC29A]';
+      case 'Medium Priority':
+        return 'bg-[#EA9A3E]';
+      case 'High Priority':
+        return 'bg-[#EA3E3E]';
+      default:
+        return 'bg-gray-500';
+    }
+  }, []);
+
+  if (!isOpen || !tile) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+      <div className="relative bg-[#FFF5EE] rounded-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <button
+          onClick={onClose}
+          className="absolute top-0 right-0 z-10 cursor-pointer"
+          aria-label="Close popup"
+        >
+          <X size={30} className="bg-[#6F4E37] text-white rounded-bl-sm p-1" />
+        </button>
+
+        {/* Content */}
+        <div className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Image Section */}
+            <div className="aspect-square border w-full max-w-[262px] h-[300px] sm:h-[369px] rounded-lg p-2 mx-auto md:mx-0">
+              <img
+                src={img || '/placeholder.svg'}
+                alt={tile.name}
+                className="w-full h-full object-cover rounded"
+              />
+            </div>
+
+            {/* Details Section */}
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">{tile.name}</h3>
+                <p className="text-sm text-gray-600">{tile.code}</p>
+              </div>
+
+              {/* Priority */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700">Priority</label>
+                <div className="flex items-center">
+                  <span
+                    className={`px-3 py-1 rounded-full text-white text-sm font-medium ${getPriorityColor(tile.priority)}`}
+                  >
+                    {tile.priority}
+                  </span>
+                </div>
+              </div>
+
+              {/* Other Details */}
+              {[
+                { label: 'Sizes', value: tile.size },
+                { label: 'Materials', value: tile.material },
+                { label: 'Finishes', value: tile.finish },
+                { label: 'Series', value: tile.series },
+                { label: 'Color', value: tile.color },
+              ].map(({ label, value }) => (
+                <div key={label} className="space-y-1">
+                  <label className="text-sm font-semibold text-gray-700">{label}</label>
+                  <p className="text-sm text-gray-900">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6 pt-4">
+            <button
+              onClick={() => onDelete(tile.id)}
+              className="cursor-pointer px-4 py-2 bg-white text-black rounded-md font-medium transition-colors border border-gray-300 hover:bg-gray-50"
+              style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)' }}
+            >
+              Delete
+            </button>
+
+            <button
+              onClick={() => onEdit(tile)}
+              className="cursor-pointer px-4 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5a3d2b] transition-colors font-medium flex items-center justify-center gap-2"
+            >
+              <Edit size={16} />
+              Edit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+TilePopup.displayName = 'TilePopup';
 
 const TileManagement = () => {
   const [viewMode, setViewMode] = useState('grid');
@@ -124,52 +352,82 @@ const TileManagement = () => {
     colors: false,
   });
 
-  const handlePriorityChange = (id, newPriority) => {
-    setTiles(tiles.map(tile => (tile.id === id ? { ...tile, priority: newPriority } : tile)));
-    if (selectedTile && selectedTile.id === id) {
-      setSelectedTile({ ...selectedTile, priority: newPriority });
+  const getPriorityColor = useCallback(priority => {
+    switch (priority) {
+      case 'Low Priority':
+        return 'bg-[#2CC29A]';
+      case 'Medium Priority':
+        return 'bg-[#EA9A3E]';
+      case 'High Priority':
+        return 'bg-[#EA3E3E]';
+      default:
+        return 'bg-gray-500';
     }
-  };
+  }, []);
 
-  const handleToggleFavorite = id => {
-    setTiles(
-      tiles.map(tile => (tile.id === id ? { ...tile, isFavorited: !tile.isFavorited } : tile))
-    );
-    if (selectedTile && selectedTile.id === id) {
-      setSelectedTile({ ...selectedTile, isFavorited: !selectedTile.isFavorited });
-    }
-  };
+  // Memoized handlers to prevent unnecessary re-renders
+  const handlePriorityChange = useCallback(
+    (id, newPriority) => {
+      setTiles(prevTiles =>
+        prevTiles.map(tile => (tile.id === id ? { ...tile, priority: newPriority } : tile))
+      );
+      if (selectedTile && selectedTile.id === id) {
+        setSelectedTile(prev => ({ ...prev, priority: newPriority }));
+      }
+    },
+    [selectedTile]
+  );
 
-  const handleToggleActive = id => {
-    setTiles(tiles.map(tile => (tile.id === id ? { ...tile, isActive: !tile.isActive } : tile)));
-    if (selectedTile && selectedTile.id === id) {
-      setSelectedTile({ ...selectedTile, isActive: !selectedTile.isActive });
-    }
-  };
+  const handleToggleFavorite = useCallback(
+    id => {
+      setTiles(prevTiles =>
+        prevTiles.map(tile => (tile.id === id ? { ...tile, isFavorited: !tile.isFavorited } : tile))
+      );
+      if (selectedTile && selectedTile.id === id) {
+        setSelectedTile(prev => ({ ...prev, isFavorited: !prev.isFavorited }));
+      }
+    },
+    [selectedTile]
+  );
 
-  const handleDelete = id => {
-    setTiles(tiles.filter(tile => tile.id !== id));
-    if (selectedTile && selectedTile.id === id) {
-      setIsPopupOpen(false);
-      setSelectedTile(null);
-      setIsEditMode(false);
-    }
-  };
+  const handleToggleActive = useCallback(
+    id => {
+      setTiles(prevTiles =>
+        prevTiles.map(tile => (tile.id === id ? { ...tile, isActive: !tile.isActive } : tile))
+      );
+      if (selectedTile && selectedTile.id === id) {
+        setSelectedTile(prev => ({ ...prev, isActive: !prev.isActive }));
+      }
+    },
+    [selectedTile]
+  );
 
-  const openTilePopup = tile => {
+  const handleDelete = useCallback(
+    id => {
+      setTiles(prevTiles => prevTiles.filter(tile => tile.id !== id));
+      if (selectedTile && selectedTile.id === id) {
+        setIsPopupOpen(false);
+        setSelectedTile(null);
+        setIsEditMode(false);
+      }
+    },
+    [selectedTile]
+  );
+
+  const openTilePopup = useCallback(tile => {
     setSelectedTile(tile);
     setIsPopupOpen(true);
     setIsEditMode(false);
-  };
+  }, []);
 
-  const closeTilePopup = () => {
+  const closeTilePopup = useCallback(() => {
     setIsPopupOpen(false);
     setSelectedTile(null);
     setIsEditMode(false);
     setEditFormData({});
-  };
+  }, []);
 
-  const openEditMode = tile => {
+  const openEditMode = useCallback(tile => {
     setEditFormData({
       name: tile.name,
       priority: tile.priority.replace(' Priority', ''),
@@ -180,13 +438,14 @@ const TileManagement = () => {
       color: tile.color,
     });
     setIsEditMode(true);
-  };
+  }, []);
 
-  const handleEditFormChange = (field, value) => {
-    setEditFormData({ ...editFormData, [field]: value });
-  };
+  // Fixed form change handler - this was the main issue
+  const handleEditFormChange = useCallback((field, value) => {
+    setEditFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = useCallback(() => {
     const updatedTile = {
       ...selectedTile,
       name: editFormData.name,
@@ -198,20 +457,22 @@ const TileManagement = () => {
       color: editFormData.color,
     };
 
-    setTiles(tiles.map(tile => (tile.id === selectedTile.id ? updatedTile : tile)));
+    setTiles(prevTiles =>
+      prevTiles.map(tile => (tile.id === selectedTile.id ? updatedTile : tile))
+    );
     setSelectedTile(updatedTile);
     setIsEditMode(false);
     alert('Tile updated successfully!');
-  };
+  }, [selectedTile, editFormData]);
 
-  const toggleSection = section => {
+  const toggleSection = useCallback(section => {
     setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section],
     }));
-  };
+  }, []);
 
-  const handleFilterChange = (category, value) => {
+  const handleFilterChange = useCallback((category, value) => {
     setActiveFilters(prev => ({
       ...prev,
       [category]: prev[category].includes(value)
@@ -219,37 +480,27 @@ const TileManagement = () => {
         : [...prev[category], value],
     }));
     setCurrentPage(1);
-  };
+  }, []);
 
-  const removeFilter = (category, value) => {
+  const removeFilter = useCallback((category, value) => {
     setActiveFilters(prev => ({
       ...prev,
       [category]: prev[category].filter(item => item !== value),
     }));
     setCurrentPage(1);
-  };
+  }, []);
 
-  const clearAllFilters = () => {
+  const clearAllFilters = useCallback(() => {
     const cleared = {};
     Object.keys(activeFilters).forEach(key => (cleared[key] = []));
     setActiveFilters(cleared);
     setCurrentPage(1);
-  };
+  }, [activeFilters]);
 
-  const getTotalFilters = () => Object.values(activeFilters).flat().length;
-
-  const getPriorityColor = priority => {
-    switch (priority) {
-      case 'Low Priority':
-        return 'bg-[#2CC29A]';
-      case 'Medium Priority':
-        return 'bg-[#EA9A3E]';
-      case 'High Priority':
-        return 'bg-[#EA3E3E]';
-      default:
-        return 'bg-gray-500';
-    }
-  };
+  const getTotalFilters = useCallback(
+    () => Object.values(activeFilters).flat().length,
+    [activeFilters]
+  );
 
   const filteredTiles = tiles.filter(tile => {
     const matchesSearch =
@@ -286,219 +537,14 @@ const TileManagement = () => {
   const endIndex = startIndex + rowsPerPage;
   const paginatedTiles = filteredTiles.slice(startIndex, endIndex);
 
-  const handlePageChange = page => {
+  const handlePageChange = useCallback(page => {
     setCurrentPage(page);
-  };
+  }, []);
 
-  const handleRowsPerPageChange = newRowsPerPage => {
+  const handleRowsPerPageChange = useCallback(newRowsPerPage => {
     setRowsPerPage(newRowsPerPage);
     setCurrentPage(1);
-  };
-  const EditFormPopup = ({ tile, isOpen, onClose, formData, onChange, onSave }) => {
-    if (!isOpen || !tile) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-        <div className="bg-[#fdf0e6] rounded-md shadow-lg w-full max-w-2xl p-4 sm:p-6 relative max-h-[90vh] overflow-y-auto">
-          <button
-            className="absolute top-0 right-0 text-gray-600 hover:text-black z-10 cursor-pointer"
-            onClick={onClose}
-            aria-label="Close edit form"
-          >
-            <X size={30} className="bg-[#6F4E37] text-white rounded-bl-sm p-1" />
-          </button>
-
-          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-            <div className="w-full lg:w-1/2">
-              <img
-                src={img || '/placeholder.svg?height=400&width=400'}
-                alt="Tile"
-                className="rounded-md w-full h-48 sm:h-64 lg:h-full object-cover border"
-              />
-            </div>
-            <div className="w-full lg:w-1/2 space-y-3">
-              <div>
-                <label className="text-sm font-medium text-gray-700">Name</label>
-                <input
-                  type="text"
-                  placeholder="Enter name"
-                  value={formData.name || ''}
-                  onChange={e => onChange('name', e.target.value)}
-                  className="w-full mt-1 px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#7b4f28]"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-700">Priority</label>
-                <div className="mt-1 flex border rounded overflow-hidden w-fit ">
-                  {['Low', 'Medium', 'High'].map((level, idx) => (
-                    <button
-                      key={level}
-                      className={`px-3 sm:px-4 py-1 text-xs border-r last:border-r-0 transition-colors cursor-pointer ${
-                        formData.priority === level
-                          ? 'bg-[#7b4f28] text-white'
-                          : 'bg-white text-gray-800 hover:bg-gray-50'
-                      } ${idx === 0 ? 'rounded-l' : ''} ${idx === 2 ? 'rounded-r' : ''}`}
-                      onClick={() => onChange('priority', level)}
-                    >
-                      {level}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Dropdown Fields */}
-              {[
-                {
-                  label: 'Sizes',
-                  key: 'size',
-                  options: ['300 x 300', '400 x 400', '600 x 600', '800 x 800'],
-                },
-                {
-                  label: 'Materials',
-                  key: 'material',
-                  options: ['Porcelain', 'Ceramic', 'Natural Stone', 'Glass', 'Marble'],
-                },
-                {
-                  label: 'Finishes',
-                  key: 'finish',
-                  options: ['Glossy', 'Matte', 'Textured', 'Polished', 'Natural'],
-                },
-                {
-                  label: 'Series',
-                  key: 'series',
-                  options: ['Wooden', 'Modern', 'Classic', 'Luxury', 'Rustic'],
-                },
-                {
-                  label: 'Color',
-                  key: 'color',
-                  options: ['Gainsboro', 'White', 'Gray', 'Beige', 'Brown', 'Black'],
-                },
-              ].map(({ label, key, options }) => (
-                <div key={key}>
-                  <label className="text-sm font-medium text-gray-700">{label}</label>
-                  <select
-                    value={formData[key] || ''}
-                    onChange={e => onChange(key, e.target.value)}
-                    className="cursor-pointer w-full mt-1 px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#7b4f28]"
-                  >
-                    <option value="">Select {label}</option>
-                    {options.map(option => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Bottom Buttons */}
-          <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-            <button
-              onClick={() => handleDelete(tile.id)}
-              className="cursor-pointer bg-white border border-gray-300 text-gray-700 py-2 px-6 rounded hover:bg-gray-100 text-sm font-medium transition-colors"
-            >
-              Delete
-            </button>
-            <button
-              onClick={onSave}
-              className="cursor-pointer bg-[#6F4E37] text-white py-2 px-6 rounded hover:bg-[#6F4E37] text-sm font-medium transition-colors"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // View Popup Component
-  const TilePopup = ({ tile, isOpen, onClose, onEdit }) => {
-    if (!isOpen || !tile) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-        <div className="relative bg-[#FFF5EE] rounded-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <button
-            onClick={onClose}
-            className="absolute top-0 right-0 z-10 cursor-pointer"
-            aria-label="Close popup"
-          >
-            <X size={30} className="bg-[#6F4E37] text-white rounded-bl-sm p-1" />
-          </button>
-
-          {/* Content */}
-          <div className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Image Section */}
-              <div className="aspect-square border w-full max-w-[262px] h-[300px] sm:h-[369px] rounded-lg p-2 mx-auto md:mx-0">
-                <img
-                  src={img || '/placeholder.svg?height=400&width=400'}
-                  alt={tile.name}
-                  className="w-full h-full object-cover rounded"
-                />
-              </div>
-
-              {/* Details Section */}
-              <div className="space-y-3">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{tile.name}</h3>
-                  <p className="text-sm text-gray-600">{tile.code}</p>
-                </div>
-
-                {/* Priority */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-gray-700">Priority</label>
-                  <div className="flex items-center">
-                    <span
-                      className={`px-3 py-1 rounded-full text-white text-sm font-medium ${getPriorityColor(tile.priority)}`}
-                    >
-                      {tile.priority}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Other Details */}
-                {[
-                  { label: 'Sizes', value: tile.size },
-                  { label: 'Materials', value: tile.material },
-                  { label: 'Finishes', value: tile.finish },
-                  { label: 'Series', value: tile.series },
-                  { label: 'Color', value: tile.color },
-                ].map(({ label, value }) => (
-                  <div key={label} className="space-y-1">
-                    <label className="text-sm font-semibold text-gray-700">{label}</label>
-                    <p className="text-sm text-gray-900">{value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6 pt-4">
-              <button
-                onClick={() => handleDelete(tile.id)}
-                className="cursor-pointer px-4 py-2 bg-white text-black rounded-md font-medium transition-colors border border-gray-300 hover:bg-gray-50"
-                style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)' }}
-              >
-                Delete
-              </button>
-
-              <button
-                onClick={() => onEdit(tile)}
-                className="cursor-pointer px-4 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5a3d2b] transition-colors font-medium flex items-center justify-center gap-2"
-              >
-                <Edit size={16} />
-                Edit
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  }, []);
 
   const TileCard = ({ tile }) => {
     const priorities = ['Low', 'Medium', 'High'];
@@ -679,7 +725,7 @@ const TileManagement = () => {
                   >
                     <img
                       src={img || '/placeholder.svg'}
-                      alt={name}
+                      alt={tile.name}
                       className="max-h-55 object-contain rounded-lg cursor-pointer"
                     />
                   </td>
@@ -946,7 +992,7 @@ const TileManagement = () => {
                       placeholder="Search tiles..."
                       value={searchTerm}
                       onChange={e => setSearchTerm(e.target.value)}
-                      className="pr-8 pl-4 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6f4e37]"
+                      className="w-full pr-8 pl-4 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6f4e37]"
                       aria-label="Search tiles"
                     />
                     <Search
@@ -994,7 +1040,7 @@ const TileManagement = () => {
                         name={viewMode === 'grid' ? 'Grid' : 'Grid1'}
                         height="20"
                         width="20"
-                        color={viewMode === 'grid' ? '#6f4e37' : 'white'}
+                        color={viewMode === 'grid' ? 'white' : '#6f4e37'}
                       />
                     </button>
                   </div>
@@ -1055,16 +1101,19 @@ const TileManagement = () => {
           isOpen={isPopupOpen}
           onClose={closeTilePopup}
           onEdit={openEditMode}
+          onDelete={handleDelete}
         />
       )}
 
       <EditFormPopup
+        key={selectedTile?.id || 'edit-popup'}
         tile={selectedTile}
         isOpen={isEditMode}
         onClose={closeTilePopup}
         formData={editFormData}
         onChange={handleEditFormChange}
         onSave={handleSaveEdit}
+        onDelete={handleDelete}
       />
     </div>
   );
