@@ -31,7 +31,7 @@ const suitablePlaceSlice = createSlice({
       })
       .addCase(fetchSuitablePlaces.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload;
+        state.list = action.payload.data;
       })
       .addCase(fetchSuitablePlaces.rejected, (state, action) => {
         state.loading = false;

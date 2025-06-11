@@ -32,7 +32,7 @@ const seriesSlice = createSlice({
       })
       .addCase(fetchSeries.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload;
+        state.list = action.payload.data;
       })
       .addCase(fetchSeries.rejected, (state, action) => {
         state.loading = false;

@@ -9,6 +9,7 @@ import {
   fetchMaterialById,
   addMaterial,
   updateMaterial,
+  fetchMaterials,
 } from '@/redux/slice/material/materialThunks';
 import { clearSelectedMaterial } from '@/redux/slice/material/materialSlice';
 import { toast } from 'react-toastify';
@@ -37,10 +38,10 @@ const AddMaterialPage = () => {
     try {
       if (isEdit) {
         await dispatch(updateMaterial({ id, data: payload })).unwrap();
-        toast.success('Material updated successfully!');
+        await dispatch(fetchMaterials());
       } else {
         await dispatch(addMaterial(payload)).unwrap();
-        toast.success('Material added successfully!');
+        await dispatch(fetchMaterials());
       }
 
       navigate('/admin/materials', {

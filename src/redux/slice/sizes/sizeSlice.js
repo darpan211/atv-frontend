@@ -35,7 +35,7 @@ const sizeSlice = createSlice({
       })
       .addCase(fetchSizes.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload;
+        state.list = action.payload.data;
         state.success = true;
       })
       .addCase(fetchSizes.rejected, (state, action) => {

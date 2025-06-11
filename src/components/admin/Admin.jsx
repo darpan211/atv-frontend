@@ -1,57 +1,91 @@
-import React, { useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import React, { useMemo, useState, useEffect } from 'react';
 import DataTable from '../common/DataTable';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { EditIcon } from '../common/icons/svgs/EditIcon';
 import { DeleteIcon } from '../common/icons/svgs/DeleteIcon';
+import { toast } from 'react-toastify';
+import DeleteConfirmationModal from '../common/DeleteConfirmationModal';
+import { fetchAdmins, deleteAdmin } from '@/redux/slice/admin/adminThunk';
+import Layout from '@/components/common/Layout';
+import Loader from '../common/Loader';
 
 const Admin = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedAdmin, setSelectedAdmin] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
 
-  // Sample Admin User Data
-  const originalAdmins = [
-    {
-      id: 1,
-      userName: 'vinod.chandra',
-      email: 'vinod@example.com',
-      password: '********',
-    },
-    {
-      id: 2,
-      userName: 'deepa.shah',
-      email: 'deepa@example.com',
-      password: '********',
-    },
-    {
-      id: 3,
-      userName: 'rahul.yadav',
-      email: 'rahul@example.com',
-      password: '********',
-    },
-  ];
+  const { list: admins, loading, error } = useSelector(state => state.admin);
+
+  // Load admins
+  useEffect(() => {
+    dispatch(fetchAdmins())
+      .unwrap()
+      .catch(err => toast.error(err?.message || 'Failed to fetch admins'));
+  }, [dispatch]);
+
+  // Show toast from redirect
+  useEffect(() => {
+    if (location.state?.toastMessage) {
+      toast.success(location.state.toastMessage);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const handleAddAdmin = () => {
     navigate('/admin/dashboard/create');
   };
 
-  const handleSearchInput = query => {
+  const handleEdit = (admin) => {
+    navigate(`/admin/dashboard/edit/${admin._id}`);
+  };
+
+  const handleDeleteClick = (admin) => {
+    setSelectedAdmin(admin);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await dispatch(deleteAdmin(selectedAdmin._id)).unwrap();
+      await dispatch(fetchAdmins());
+      toast.success('Admin deleted successfully!');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to delete admin');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+      setSelectedAdmin(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setSelectedAdmin(null);
+  };
+
+  const handleSearchInput = (query) => {
     setSearchQuery(query);
   };
 
   const filteredAdmins = useMemo(() => {
+    if (!admins) return [];
     const lower = searchQuery.toLowerCase();
-    return originalAdmins.filter(admin =>
-      admin.userName.toLowerCase().includes(lower)
+    return admins.filter(admin =>
+      admin.admin_name?.toLowerCase().includes(lower) ||
+      admin.email?.toLowerCase().includes(lower)
     );
-  }, [searchQuery, originalAdmins]);
+  }, [searchQuery, admins]);
 
   const columns = [
     {
-      header: 'User Name',
-      accessor: 'userName',
+      header: 'Admin Name',
+      accessor: 'admin_name',
     },
     {
       header: 'Email',
@@ -60,17 +94,16 @@ const Admin = () => {
     {
       header: 'Password',
       accessor: 'password',
-      cell: () => '********', // Masked password
     },
     {
       header: 'Actions',
       className: 'w-32 text-center',
       cell: row => (
         <div className="btns flex gap-5 text-xl ml-4">
-          <div className="cursor-pointer">
+          <div className="cursor-pointer" onClick={() => handleEdit(row)}>
             <EditIcon className="text-[#a98f7d] cursor-pointer" />
           </div>
-          <div className="cursor-pointer">
+          <div className="cursor-pointer" onClick={() => handleDeleteClick(row)}>
             <DeleteIcon className="text-[#a98f7d] cursor-pointer" />
           </div>
         </div>
@@ -78,18 +111,28 @@ const Admin = () => {
     },
   ];
 
-  return (
-    <div className="p-6 max-w-full sm:mx-10">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">List of Admin Users</h1>
-        <Button
-          onClick={handleAddAdmin}
-          className="bg-[#6F4E37] cursor-pointer hover:bg-[#a98f7d] text-white"
-        >
-          <Plus className="mr-2 h-4 w-4" /> Add Admin User
-        </Button>
-      </div>
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-64">
+          <Loader/>
+        </div>
+      </Layout>
+    );
+  }
 
+  if (error) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg text-red-600">{error}</div>
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout title="Admins" buttonLabel="Add Admin" onButtonClick={handleAddAdmin}>
       <DataTable
         data={filteredAdmins}
         columns={columns}
@@ -99,7 +142,16 @@ const Admin = () => {
         addButtonText="Add Admin"
         emptyStateMessage="No admins found."
       />
-    </div>
+
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          tile={{ description: 'This action cannot be undone. Do you want to continue?' }}
+          onCancel={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
+          isLoading={isDeleting}
+        />
+      )}
+    </Layout>
   );
 };
 

@@ -32,7 +32,7 @@ const materialSlice = createSlice({
       })
       .addCase(fetchMaterials.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload;
+        state.list = action.payload.data;
       })
       .addCase(fetchMaterials.rejected, (state, action) => {
         state.loading = false;
@@ -59,8 +59,9 @@ const materialSlice = createSlice({
         state.error = null;
       })
       .addCase(addMaterial.fulfilled, (state, action) => {
+        console.log('Material added:', action.payload.data);
         state.loading = false;
-        state.list.push(action.payload.data);
+        state.list = [...state.list, action.payload.data];
       })
       .addCase(addMaterial.rejected, (state, action) => {
         state.loading = false;
@@ -73,11 +74,15 @@ const materialSlice = createSlice({
         state.error = null;
       })
       .addCase(updateMaterial.fulfilled, (state, action) => {
+        console.log('Material updated:', action.payload.data.data);
         state.loading = false;
-        const id = action.meta.arg.id;
+        const id = action.payload.data.data._id;
         const index = state.list.findIndex(mat => mat._id === id);
         if (index !== -1) {
-          state.list[index] = { ...state.list[index], ...action.payload.data.data };
+          state.list[index] = action.payload.data.data;
+        }
+        if (state.selectedMaterial && state.selectedMaterial._id === id) {
+          state.selectedMaterial = action.payload.data.data;
         }
       })
       .addCase(updateMaterial.rejected, (state, action) => {
@@ -92,7 +97,10 @@ const materialSlice = createSlice({
       })
       .addCase(deleteMaterial.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = state.list.filter(item => item._id !== action.meta.arg);
+        state.list = state.list.filter(item => item._id !== action.payload.data._id);
+        if (state.selectedMaterial && state.selectedMaterial._id === action.payload.data._id) {
+          state.selectedMaterial = null;
+        }
       })
       .addCase(deleteMaterial.rejected, (state, action) => {
         state.loading = false;
