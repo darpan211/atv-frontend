@@ -107,7 +107,7 @@ const CommonAddForm = ({
               value={formik.values.name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className="w-2xl px-4 py-2 border bg-white rounded-md focus:outline-none"
+              className="md:w-2xl w-full px-4 py-2 border bg-white rounded-md focus:outline-none"
             />
             {formik.touched.name && formik.errors.name ? (
               <div className="text-red-600 text-sm">{formik.errors.name}</div>
@@ -115,7 +115,7 @@ const CommonAddForm = ({
           </div>
         )}
 
-        <div className="flex justify-center gap-4 items-center mt-6">
+        <div className="flex flex-wrap justify-center gap-4 items-center mt-6">
           <button
             type="button"
             onClick={handleCancel}
