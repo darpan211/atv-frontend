@@ -1,4 +1,4 @@
-import Seller from '@/components/admin/Seller';
+import Seller from '@/components/seller/Seller';
 import React from 'react';
 
 const SellersList = () => {

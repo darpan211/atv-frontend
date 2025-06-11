@@ -14,6 +14,10 @@ import Dashboard from './pages/Admin/Dashboard';
 // Seller Pages
 import AddNewSeller from './pages/Admin/AddNewSeller';
 import SellersList from './pages/Admin/SellerList';
+import SellerProfile from './components/seller/SellerProfile';
+
+// Admin Pages
+import AdminProfile from './components/admin/AdminProfile';
 
 // Tile Visualizer
 import TileVisualizer from './components/visualizer/Visualizer';
@@ -89,6 +93,16 @@ const App = () => {
           }
         />
 
+        {/* Admin */}
+        <Route
+          path="/admin/Profile"
+          element={
+            <AppLayout>
+              <AdminProfile />
+            </AppLayout>
+          }
+        />
+
         {/* Sellers */}
         <Route
           // path="/admin/seller/create"
@@ -104,6 +118,15 @@ const App = () => {
           element={
             <AppLayout>
               <SellersList />
+            </AppLayout>
+          }
+        />
+
+        <Route
+          path="/admin/seller/profile"
+          element={
+            <AppLayout>
+              <SellerProfile />
             </AppLayout>
           }
         />
