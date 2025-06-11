@@ -170,7 +170,7 @@ const TilesPreview = ({ images, setTileImageName, onDelete, setTileImageThicknes
                       className="flex items-center gap-1 text-white text-base bg-[#7b4f28] hover:bg-[#633e1f] transition justify-center cursor-pointer font-semibold w-[114px] h-[36px] rounded-[5px]"
                       onClick={() => onDelete(idx)}
                     >
-                      <Icon name="DeleteIcon" width={22} height={22} className="mr-1" style={{ stroke: 'white' }} />
+                      <Icon name="DeleteIcon" colour='white' width={20} height={20} className="mr-1" style={{ stroke: 'white' }} />
                       Delete
                     </button>
                   </div>
