@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Input } from '../ui/input';
 
-export const MultiSelectDropdown = ({ label, options, selectedValues, onChange }) => {
+export const MultiSelectDropdown = ({ label, options, selectedValues, onChange, heightClass = "h-11 w-full rounded-md" }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const ref = useRef();
 
@@ -36,13 +36,12 @@ export const MultiSelectDropdown = ({ label, options, selectedValues, onChange }
 
   return (
     <div className="relative" ref={ref}>
-      <label className="text-lg font-semibold mb-2 block text-gray-800">{label}</label>
       <div
         role="button"
         tabIndex={0}
         onClick={toggleDropdown}
         onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && toggleDropdown()}
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white cursor-pointer flex justify-between items-center"
+        className={`px-4 border border-gray-300 bg-white cursor-pointer flex justify-between items-center focus:outline-none ${heightClass}`}
       >
         {getDisplayValue()}
 
