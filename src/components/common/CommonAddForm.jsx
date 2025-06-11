@@ -68,7 +68,7 @@ const CommonAddForm = ({
                 value={formik.values.height || ''}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="w-2xl px-4 py-2 border bg-white rounded-md focus:outline-none"
+                className="md:w-2xl w-full px-4 py-2 border bg-white rounded-md focus:outline-none"
               />
               {formik.touched.height && formik.errors.height ? (
                 <div className="text-red-600 text-sm">{formik.errors.height}</div>
@@ -87,7 +87,7 @@ const CommonAddForm = ({
                 value={formik.values.width || ''}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="w-2xl px-4 py-2 border bg-white rounded-md focus:outline-none"
+                className="md:w-2xl w-full px-4 py-2 border bg-white rounded-md focus:outline-none"
               />
               {formik.touched.width && formik.errors.width ? (
                 <div className="text-red-600 text-sm">{formik.errors.width}</div>
