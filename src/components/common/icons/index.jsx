@@ -16,6 +16,7 @@ import { EditIcon } from './svgs/EditIcon';
 import { Arrow } from './svgs/Arrow';
 import { Eye } from './svgs/Eye';
 import { EditPencil } from './svgs/EditPencil';
+import { Plus } from './svgs/Plus';
 
 export const Icon = ({ name, size, height, width, className }) => {
   const icons = {
@@ -37,6 +38,7 @@ export const Icon = ({ name, size, height, width, className }) => {
     Arrow,
     Eye,
     EditPencil,
+    Plus,
   };
 
   const SvgIcon = icons[name];

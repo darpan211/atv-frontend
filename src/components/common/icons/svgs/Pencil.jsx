@@ -15,3 +15,4 @@ export const Pencil = ({ height, width, size, className }) => {
     </svg>
   );
 };
+
