@@ -154,9 +154,9 @@ export default function CommonList({ title, buttonLabel, placeholder, route }) {
         </div>
 
         <div className="flex justify-between items-center mt-4 text-sm">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center  space-x-2">
             <span>Rows per page:</span>
-            <select className="border bg-[#DADADA] border-gray-300 rounded px-2 py-1">
+            <select className="border bg-[#DADADA]  border-gray-300 rounded px-2 py-1">
               <option>10</option>
               <option>20</option>
               <option>50</option>

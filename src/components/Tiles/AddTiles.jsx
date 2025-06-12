@@ -26,9 +26,7 @@ import AddCategoryPage from '../Attributes/addAttribute/AddCategoryPage';
 import AddColorPage from '../Attributes/addAttribute/AddColorPage';
 
 const validationSchema = Yup.object().shape({
-  size: Yup.array()
-    .min(1, 'Please select at least one size')
-    .required('Size is required'),
+  size: Yup.array().min(1, 'Please select at least one size').required('Size is required'),
   material: Yup.array(),
   finish: Yup.array(),
   tileImages: Yup.array()
@@ -42,7 +40,9 @@ const validationSchema = Yup.object().shape({
 
 const AddTiles = () => {
   const dispatch = useDispatch();
-  const { categories, series, sizes, suitablePlace, finishes, materials } = useSelector(state => state);
+  const { categories, series, sizes, suitablePlace, finishes, materials } = useSelector(
+    state => state
+  );
   const [showPreview, setShowPreview] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [tileImages, setTileImages] = useState([]); // [{ file, thickness, name }]
@@ -57,6 +57,8 @@ const AddTiles = () => {
     dispatch(fetchMaterials());
     dispatch(fetchFinishes());
   }, [dispatch]);
+
+  console.log(series);
 
   const formik = useFormik({
     initialValues: {
@@ -84,33 +86,37 @@ const AddTiles = () => {
   });
 
   // Map redux data to dropdown options (using .list.data)
-  const sizeOptions = sizes?.list?.data?.map(size => ({
-    label: size.sizes,
-    value: size.sizes,
-  })) || [];
+  const sizeOptions =
+    sizes?.list?.data?.map(size => ({
+      label: size.sizes,
+      value: size.sizes,
+    })) || [];
 
-  const seriesOptions = series?.list?.data?.map(item => ({
-    label: item.series,
-    value: item.series,
-  })) || [];
+  const seriesOptions =
+    series?.list?.data?.map(item => ({
+      label: item.series,
+      value: item.series,
+    })) || [];
 
-  const materialOptions = materials?.list?.data?.map(cat => ({
-    label: cat.material,
-    value: cat.material,
-  })) || [];
+  const materialOptions =
+    materials?.list?.data?.map(cat => ({
+      label: cat.material,
+      value: cat.material,
+    })) || [];
 
   // Update finishOptions to use Redux data
-  const finishOptions = finishes?.list?.map(f => ({
-    label: f.finish,
-    value: f.finish,
-  })) || [];
+  const finishOptions =
+    finishes?.list?.map(f => ({
+      label: f.finish,
+      value: f.finish,
+    })) || [];
 
-  const suitablePlaceOptions = suitablePlace?.list?.data?.map(place => ({
-    label: place.suitablePlace,
-    value: place.suitablePlace,
-  })) || [];
+  const suitablePlaceOptions =
+    suitablePlace?.list?.data?.map(place => ({
+      label: place.suitablePlace,
+      value: place.suitablePlace,
+    })) || [];
 
-  
   const DropdownWithAdd = ({ label, options, selectedValues, onChange, error }) => (
     <div className="w-full">
       <label className="text-sm font-semibold block text-gray-800 mb-1">{label}</label>
@@ -145,28 +151,31 @@ const AddTiles = () => {
     </div>
   );
 
-  const handleUploadComplete = (newImages) => {
+  const handleUploadComplete = newImages => {
     setTileImages(prevImages => [...prevImages, ...newImages]);
     setShowModal(false);
   };
 
   const setTileImageName = (index, name) => {
-    setTileImages(prev => prev.map((img, i) => i === index ? { ...img, name } : img));
+    setTileImages(prev => prev.map((img, i) => (i === index ? { ...img, name } : img)));
   };
 
   const setTileImageThickness = (index, thickness) => {
-    setTileImages(prev => prev.map((img, i) => i === index ? { ...img, thickness } : img));
+    setTileImages(prev => prev.map((img, i) => (i === index ? { ...img, thickness } : img)));
   };
 
-  const handleDeleteImage = (index) => {
+  const handleDeleteImage = index => {
     setTileImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  const canSubmit = tileImages.length > 0 && 
+  const canSubmit =
+    tileImages.length > 0 &&
     tileImages.every(
       img =>
-        img.name && img.name.trim() !== '' &&
-        img.thickness !== undefined && String(img.thickness).trim() !== ''
+        img.name &&
+        img.name.trim() !== '' &&
+        img.thickness !== undefined &&
+        String(img.thickness).trim() !== ''
     );
 
   // Overlay popup rendering
@@ -197,15 +206,18 @@ const AddTiles = () => {
   };
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
-      <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Add New Tiles</h1>
-        <div className="w-10 h-1 mx-auto bg-[#7b4f28] rounded mt-4" />
+    <div className="w-full  px-4 sm:px-6 lg:px-8 py-6">
+      <div className="text-center  mb-6">
+        <h1 className="text-3xl  font-bold text-gray-900 mb-2">Add New Tiles</h1>
+        <div className="flex justify-center mb-10">
+          <div className="h-[2px] w-[170px] bg-gray-300 relative">
+            <div className="absolute -top-1 left-1/2 w-5 h-5 bg-[#6F4E37] -translate-1/4 "></div>
+          </div>
+        </div>
       </div>
 
       <div className="bg-[#FFF5EE] max-w-7xl mx-auto p-6 rounded-xl shadow-md border border-gray-200">
         <form onSubmit={formik.handleSubmit}>
-          {/* Top Row: 4 columns, responsive */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <DropdownWithAdd
               label="Size"
@@ -237,9 +249,7 @@ const AddTiles = () => {
             />
           </div>
 
-          {/* Second Row: Description (2 cols, 2 rows), Finish, Status, Title Image under Finish */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            {/* Description spans 2 columns and 2 rows */}
             <div className="lg:col-span-2 lg:row-span-2">
               <label className="text-sm font-semibold block text-gray-800 mb-1">Description</label>
               <textarea
@@ -265,7 +275,7 @@ const AddTiles = () => {
                 <label className="text-sm font-semibold mb-1 block text-gray-800">
                   Title Image
                 </label>
-                <label 
+                <label
                   onClick={() => setShowModal(true)}
                   className="font-semibold bg-[#7b4f28] hover:bg-[#633e1f] text-white text-xs px-5 py-2.5 rounded-md cursor-pointer flex items-center gap-2 transition-colors duration-200 h-10"
                 >
@@ -317,7 +327,9 @@ const AddTiles = () => {
               type="button"
               className={`bg-[#633e1f] text-white font-semibold px-6 py-2.5 rounded-md transition-colors duration-200 text-sm shadow-md hover:shadow-lg ${!canSubmit ? 'opacity-50 cursor-not-allowed' : ''}`}
               disabled={!canSubmit}
-              onClick={() => {/* handle submit logic here */}}
+              onClick={() => {
+                /* handle submit logic here */
+              }}
             >
               Submit
             </button>
@@ -330,5 +342,3 @@ const AddTiles = () => {
 };
 
 export default AddTiles;
-
-
