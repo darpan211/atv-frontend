@@ -56,6 +56,7 @@ const AdminHeader = () => {
         { label: 'Manage Sizes', path: '/admin/sizes' },
         { label: 'Manage Colors', path: '/admin/colors' },
         { label: 'Manage Suitable Places', path: '/admin/places' },
+         { label: 'Manage Finish', path: '/admin/finish' },
       ]
     },
   ];
