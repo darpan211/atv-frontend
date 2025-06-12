@@ -37,10 +37,8 @@ const AddMaterialPage = () => {
     try {
       if (isEdit) {
         await dispatch(updateMaterial({ id, data: payload })).unwrap();
-        toast.success('Material updated successfully!');
       } else {
         await dispatch(addMaterial(payload)).unwrap();
-        toast.success('Material added successfully!');
       }
 
       navigate('/admin/materials', {

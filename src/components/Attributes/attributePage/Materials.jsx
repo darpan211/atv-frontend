@@ -9,13 +9,14 @@ import { toast, Bounce } from 'react-toastify';
 import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
 import { DeleteIcon } from '@/components/common/icons/svgs/DeleteIcon';
 import { EditIcon } from '@/components/common/icons/svgs/EditIcon';
+import Loader from '@/components/common/Loader';
 
 const Materials = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { list: materials, loading } = useSelector(state => state.materials);
+  const { list: materials, loading, error } = useSelector(state => state.materials);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState(null);
@@ -26,7 +27,7 @@ const Materials = () => {
   const columns = [
     {
       header: 'Material Name',
-      accessor: 'material', // Adjust this based on your material object structure
+      accessor: 'material',
     },
     {
       header: 'Actions',
@@ -54,8 +55,7 @@ const Materials = () => {
   useEffect(() => {
     if (location.state?.toastMessage) {
       toast.success(location.state.toastMessage);
-
-      window.history.replaceState({}, document.title); // Clear navigation state
+      window.history.replaceState({}, document.title);
     }
   }, [location]);
 
@@ -69,11 +69,11 @@ const Materials = () => {
       if (!selectedMaterial) return;
       setIsDeleting(true);
 
-      dispatch(deleteMaterial(selectedMaterial));
+      dispatch(deleteMaterial(selectedMaterial)).unwrap();
       dispatch(fetchMaterials());
       toast.success('Material deleted successfully!');
     } catch (error) {
-      toast.error('Failed to delete material.');
+      toast.error(error.message || 'Failed to delete material.');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
@@ -93,8 +93,18 @@ const Materials = () => {
   // Filter materials based on search query
   const filteredMaterials = useMemo(() => {
     const lower = searchQuery.toLowerCase();
-    return materials?.filter(material => material?.material?.toLowerCase().includes(lower));
+    return materials?.data?.filter(material => material?.material?.toLowerCase().includes(lower));
   }, [searchQuery, materials]);
+
+    if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-64">
+          <Loader/>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout

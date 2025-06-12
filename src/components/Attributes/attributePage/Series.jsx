@@ -9,6 +9,7 @@ import { fetchSeries, deleteSeries } from '@/redux/slice/series/seriesThunks';
 import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
 import { DeleteIcon } from '@/components/common/icons/svgs/DeleteIcon';
 import { EditIcon } from '@/components/common/icons/svgs/EditIcon';
+import Loader from '@/components/common/Loader';
 
 const Series = () => {
   const dispatch = useDispatch();
@@ -68,8 +69,8 @@ const Series = () => {
       dispatch(deleteSeries(selectedSeries));
       dispatch(fetchSeries());
       toast.success('Series deleted successfully!');
-    } catch (error) {
-      toast.error('Failed to delete series.');
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete series.');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
@@ -93,8 +94,19 @@ const Series = () => {
   // Filter series based on search query
   const filteredSeries = useMemo(() => {
     const lower = searchQuery.toLowerCase();
-    return seriesData?.filter(series => series?.series?.toLowerCase().includes(lower));
+    return seriesData?.data?.filter(series => series?.series?.toLowerCase().includes(lower));
   }, [searchQuery, seriesData]);
+
+    if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-64">
+          <Loader/>
+        </div>
+      </Layout>
+    );
+  }
+
 
   return (
     <Layout

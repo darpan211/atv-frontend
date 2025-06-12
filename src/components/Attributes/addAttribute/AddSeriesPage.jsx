@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
@@ -26,10 +26,8 @@ const AddSeriesPage = () => {
     try {
       if (isEdit) {
         await dispatch(updateSeries({ id, data: payload })).unwrap();
-        toast.success('Series updated successfully!');
       } else {
         await dispatch(addSeries(payload)).unwrap();
-        toast.success('Series added successfully!');
       }
 
       navigate('/admin/series', {

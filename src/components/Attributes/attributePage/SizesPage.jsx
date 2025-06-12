@@ -8,19 +8,19 @@ import { toast, Bounce } from 'react-toastify';
 import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
 import { DeleteIcon } from '@/components/common/icons/svgs/DeleteIcon';
 import { EditIcon } from '@/components/common/icons/svgs/EditIcon';
+import Loader from '@/components/common/Loader';
 
 const SizesPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { list: sizesData, loading, success } = useSelector(state => state.sizes);
+  const { list: sizesData, loading, error } = useSelector(state => state.sizes);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedSize, setSelectedSize] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  // console.log(success, 'success');
 
   const columns = [
     {
@@ -68,8 +68,7 @@ const SizesPage = () => {
       dispatch(fetchSizes());
       toast.success('Size deleted successfully!');
     } catch (err) {
-      console.error('Error deleting size:', err);
-      toast.error('Failed to delete size');
+      toast.error(err.message ||'Failed to delete size');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
@@ -93,8 +92,19 @@ const SizesPage = () => {
   // Filter sizes based on search query
   const filteredSizes = useMemo(() => {
     const lower = searchQuery.toLowerCase();
-    return sizesData?.filter(size => size?.sizes?.toLowerCase().includes(lower));
+    return sizesData?.data.filter(size => size?.sizes?.toLowerCase().includes(lower));
   }, [searchQuery, sizesData]);
+
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-64">
+          <Loader/>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout

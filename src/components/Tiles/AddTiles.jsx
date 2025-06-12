@@ -58,8 +58,6 @@ const AddTiles = () => {
     dispatch(fetchFinishes());
   }, [dispatch]);
 
-  console.log(series);
-
   const formik = useFormik({
     initialValues: {
       name: '',

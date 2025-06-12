@@ -60,7 +60,7 @@ const seriesSlice = createSlice({
       })
       .addCase(addSeries.fulfilled, (state, action) => {
         state.loading = false;
-        state.list.push(action.payload.data);
+        state.list.data.push(action.payload.data);
       })
       .addCase(addSeries.rejected, (state, action) => {
         state.loading = false;
@@ -74,7 +74,7 @@ const seriesSlice = createSlice({
       })
       .addCase(deleteSeries.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = state.list.filter(item => item._id !== action.meta.arg);
+        state.list.data = state.list.data.filter(item => item._id !== action.payload.id);
       })
       .addCase(deleteSeries.rejected, (state, action) => {
         state.loading = false;
@@ -88,9 +88,9 @@ const seriesSlice = createSlice({
       })
       .addCase(updateSeries.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.list.findIndex(series => series._id === action.meta.arg.id);
+        const index = state.list.data.findIndex(series => series._id === action.payload.id);
         if (index !== -1) {
-          state.list[index] = { ...state.list[index], ...action.payload.data };
+          state.list.data[index] = { ...state.list.data[index], ...action.payload.data.data };
         }
       })
       .addCase(updateSeries.rejected, (state, action) => {

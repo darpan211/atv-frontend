@@ -60,7 +60,7 @@ const materialSlice = createSlice({
       })
       .addCase(addMaterial.fulfilled, (state, action) => {
         state.loading = false;
-        state.list.push(action.payload.data);
+        state.list.data.push(action.payload.data);
       })
       .addCase(addMaterial.rejected, (state, action) => {
         state.loading = false;
@@ -74,10 +74,16 @@ const materialSlice = createSlice({
       })
       .addCase(updateMaterial.fulfilled, (state, action) => {
         state.loading = false;
-        const id = action.meta.arg.id;
-        const index = state.list.findIndex(mat => mat._id === id);
+        const id = action.payload.id;
+        const index = state.list.data.findIndex(mat => mat._id === id);
         if (index !== -1) {
-          state.list[index] = { ...state.list[index], ...action.payload.data.data };
+          state.list.data[index] =  {
+            ...state.list.data[index],
+            ...action.payload.data.data,
+          };
+        }
+        if (state.selectedMaterial && state.selectedMaterial._id === id) {
+          state.selectedMaterial = action.payload.data.data;
         }
       })
       .addCase(updateMaterial.rejected, (state, action) => {
@@ -92,7 +98,10 @@ const materialSlice = createSlice({
       })
       .addCase(deleteMaterial.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = state.list.filter(item => item._id !== action.meta.arg);
+        state.list.data = state.list.data.filter(item => item._id !== action.payload.id);
+        if (state.selectedMaterial && state.selectedMaterial._id === action.payload.id) {
+          state.selectedMaterial = null;
+        }
       })
       .addCase(deleteMaterial.rejected, (state, action) => {
         state.loading = false;

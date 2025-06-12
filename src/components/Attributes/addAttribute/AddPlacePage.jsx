@@ -42,10 +42,8 @@ const AddPlacePage = () => {
     try {
       if (isEdit) {
         await dispatch(updateSuitablePlace({ id, data: payload })).unwrap();
-        toast.success('Place updated successfully!');
       } else {
         await dispatch(addSuitablePlace(payload)).unwrap();
-        toast.success('Place added successfully!');
       }
 
       navigate('/admin/places', {

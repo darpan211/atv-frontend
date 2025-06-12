@@ -34,10 +34,8 @@ const AddColorPage = () => {
     try {
       if (isEdit) {
         await dispatch(updateColor({ id, data: payload })).unwrap();
-        toast.success('Color updated successfully!');
       } else {
         await dispatch(addColor(payload)).unwrap();
-        toast.success('Color added successfully!');
       }
 
       navigate('/admin/colors', {

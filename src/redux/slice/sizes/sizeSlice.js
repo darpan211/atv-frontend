@@ -65,7 +65,7 @@ const sizeSlice = createSlice({
       })
       .addCase(addSize.fulfilled, (state, action) => {
         state.loading = false;
-        state.list.push(action.payload.data);
+        state.list.data.push(action.payload.data);
       })
       .addCase(addSize.rejected, (state, action) => {
         state.loading = false;
@@ -79,7 +79,10 @@ const sizeSlice = createSlice({
       })
       .addCase(deleteSize.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = state.list.filter(item => item._id !== action.payload.id);
+        state.list.data = state.list.data.filter(item => item._id !== action.payload.id);
+        if (state.selectedSize && state.selectedSize._id === action.payload.id) {
+          state.selectedSize = null;
+        }
       })
       .addCase(deleteSize.rejected, (state, action) => {
         state.loading = false;
@@ -93,14 +96,21 @@ const sizeSlice = createSlice({
       })
       .addCase(updateSize.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.list.findIndex(size => size._id === action.payload.id);
+        const index = state.list.data.findIndex(size => size._id === action.payload.id);
         if (index !== -1) {
-          state.list[index] = {
-            ...state.list[index],
+          state.list.data[index] = {
+            ...state.list.data[index],
             ...action.payload.data.data,
           };
         }
+        if (state.selectedSize && state.selectedSize._id === action.payload.id) {
+          state.selectedSize = {
+            ...state.selectedSize,
+            ...action.payload.data.data,
+          }
+        }
       })
+      
       .addCase(updateSize.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to update size.';

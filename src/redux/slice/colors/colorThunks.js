@@ -8,13 +8,16 @@ const getErrorMessage = error =>
 
 export const fetchColors = createAsyncThunk('colors/fetchColors', async (_, thunkAPI) => {
   try {
-    const state = thunkAPI.getState();
-    const existingList = state?.colors?.list;
-    if (!existingList || existingList?.length === 0) {
-      const response = await axiosHandler.get(`${BASE_URL}/api/v1/colors/getcolors`);
-      return response.data.data;
-    }
-    return existingList;
+    // const state = thunkAPI.getState();
+    // const existingList = state?.colors?.list;
+    // if (!existingList || existingList?.length === 0) {
+    //   const response = await axiosHandler.get(`${BASE_URL}/api/v1/colors/getcolors`);
+    //   return response.data.data;
+    // }
+    // return existingList;
+
+    const response = await axiosHandler.get(`${BASE_URL}/api/v1/colors/getcolors`);
+    return response.data.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(getErrorMessage(error));
   }
@@ -31,8 +34,8 @@ export const addColor = createAsyncThunk('colors/addColor', async (data, thunkAP
 
 export const deleteColor = createAsyncThunk('colors/deleteColor', async (id, thunkAPI) => {
   try {
-    await axiosHandler.delete(`${BASE_URL}/api/v1/colors/deletecolors/${id}`);
-    return id; // ✅ Return just the ID
+    const response = await axiosHandler.delete(`${BASE_URL}/api/v1/colors/deletecolors/${id}`);
+    return {id, ...response.data}
   } catch (error) {
     return thunkAPI.rejectWithValue(getErrorMessage(error));
   }

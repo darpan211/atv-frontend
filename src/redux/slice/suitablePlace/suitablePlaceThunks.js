@@ -3,19 +3,13 @@ import axiosHandler from '../../../services/axiosHandler';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+// Fetch all suitable places
 export const fetchSuitablePlaces = createAsyncThunk(
   'suitablePlace/fetchSuitablePlaces',
   async (_, thunkAPI) => {
     try {
-      const state = thunkAPI.getState();
-      const existingList = state?.suitablePlace?.list;
-      if (!existingList || existingList?.length === 0) {
-        const response = await axiosHandler.get(
-          `${BASE_URL}/api/v1/suitablePlace/getsuitablePlace`
-        );
-        return response.data.data;
-      }
-      return existingList;
+      const response = await axiosHandler.get(`${BASE_URL}/api/v1/suitablePlace/getsuitablePlace`);
+      return response.data.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
@@ -46,7 +40,7 @@ export const deleteSuitablePlace = createAsyncThunk(
       const response = await axiosHandler.delete(
         `${BASE_URL}/api/v1/suitablePlace/deletesuitablePlace/${id}`
       );
-      return response.data;
+      return {id, ...response.data};
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
@@ -77,7 +71,7 @@ export const updateSuitablePlace = createAsyncThunk(
         `${BASE_URL}/api/v1/suitablePlace/updatesuitablePlace/${id}`,
         data
       );
-      return response.data;
+      return {id, data: response.data};
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }

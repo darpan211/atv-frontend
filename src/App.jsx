@@ -1,8 +1,9 @@
 import React from 'react';
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './hooks/AuthContext';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Layout
 import Header from './components/common/Header';
@@ -47,8 +48,13 @@ import HeaderTilesCart from './components/Tiles/HeaderTilesCart';
 import AddTiles from './components/Tiles/AddTiles';
 import AppLayout from './hooks/AppLayout';
 import AuthSync from './hooks/AuthSync';
+
+import AddNewAdmin from './pages/Admin/AddNewAdmin';
+import AdminList from './pages/Admin/AdminList';
+
 import FinishPage from './components/Attributes/attributePage/FinishPage';
 import AddFinishPage from './components/Attributes/addAttribute/AddFinishPage';
+
 
 // ================== App Routes ==================
 const App = () => {
@@ -95,6 +101,32 @@ const App = () => {
           }
         />
 
+        <Route
+          path="/admin/dashboard/create"
+          element={
+            <AppLayout>
+              <AddNewAdmin/>
+            </AppLayout>
+          }
+        />
+
+        <Route
+          path="/admin/dashboard/:mode/:id?"
+          element={
+            <AppLayout>
+              <AddNewAdmin/>
+            </AppLayout>
+          }
+        />
+
+        <Route
+          path="/admin/dashboard/list"
+          element={
+            <AppLayout>
+              <AdminList/>
+            </AppLayout>
+          }
+        />
         {/* Admin */}
         <Route
           path="/admin/Profile"

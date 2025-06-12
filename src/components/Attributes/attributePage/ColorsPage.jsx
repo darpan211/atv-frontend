@@ -9,13 +9,13 @@ import { deleteColor } from '@/redux/slice/colors/colorThunks';
 import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
 import { DeleteIcon } from '@/components/common/icons/svgs/DeleteIcon';
 import { EditIcon } from '@/components/common/icons/svgs/EditIcon';
+import Loader from '@/components/common/Loader';
 
 const ColorsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Access colors list and loading/error from redux store
   const { list: colors, loading, error } = useSelector(state => state.colors);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -23,7 +23,6 @@ const ColorsPage = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Define columns for DataTable
   const columns = [
     {
       header: 'Color Name',
@@ -51,13 +50,11 @@ const ColorsPage = () => {
   // Fetch colors on mount
   useEffect(() => {
     dispatch(fetchColors());
-  }, [dispatch, colors]);
+  }, [dispatch]);
 
   // Show toast from location state
   useEffect(() => {
     if (location.state?.toastMessage) {
-      console.log('Colour Page', location);
-
       toast.success(location.state.toastMessage);
       window.history.replaceState({}, document.title);
     }
@@ -71,17 +68,13 @@ const ColorsPage = () => {
   const handleConfirmDelete = async () => {
     try {
       if (!selectedColor) return;
-
       setIsDeleting(true);
 
       dispatch(deleteColor(selectedColor));
       dispatch(fetchColors());
-
-      // console.log('Colour Success Delete');
-
       toast.success('Color deleted successfully!');
-    } catch {
-      toast.error('Failed to delete color.');
+    } catch(err) {
+      toast.error(err.message || 'Failed to delete color.');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
@@ -101,8 +94,18 @@ const ColorsPage = () => {
   // Filter colors based on search query
   const filteredColors = useMemo(() => {
     const lower = searchQuery.toLowerCase();
-    return colors?.filter(color => color?.colors?.toLowerCase().includes(lower));
+    return colors?.data.filter(color => color?.colors?.toLowerCase().includes(lower));
   }, [searchQuery, colors]);
+
+    if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-64">
+          <Loader/>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout

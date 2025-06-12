@@ -8,6 +8,7 @@ import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal
 import DataTable from '@/components/common/DataTable';
 import { DeleteIcon } from '@/components/common/icons/svgs/DeleteIcon';
 import { EditIcon } from '@/components/common/icons/svgs/EditIcon';
+import Loader from '@/components/common/Loader';
 
 const CategoriesPage = () => {
   const navigate = useNavigate();
@@ -85,8 +86,18 @@ const CategoriesPage = () => {
 
   const filteredCategories = useMemo(() => {
     const lower = searchQuery.toLowerCase();
-    return list?.filter(category => category?.category.toLowerCase().includes(lower));
+    return list?.data?.filter(category => category?.category.toLowerCase().includes(lower));
   }, [searchQuery, list]);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-64">
+          <Loader/>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout
