@@ -7,7 +7,7 @@ import { fetchSizes } from '@/redux/slice/sizes/sizeThunks';
 import { fetchColors } from '@/redux/slice/colors/colorThunks';
 import { fetchMaterials } from '@/redux/slice/material/materialThunks';
 import { fetchSeries } from '@/redux/slice/series/seriesThunks';
-import { fetchSuitablePlaces } from '@/redux/slice/suitablePlace/suitablePlaceThunks';
+import { fetchFinishes } from '@/redux/slice/finish/finishThunks';
 
 const labelToThunkMap = {
   categories: fetchCategories,
@@ -15,7 +15,7 @@ const labelToThunkMap = {
   colors: fetchColors,
   materials: fetchMaterials,
   series: fetchSeries,
-  places: fetchSuitablePlaces,
+  finishes: fetchFinishes
 };
 
 const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested = false }) => {
@@ -25,6 +25,7 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested 
   const colors = useSelector(state => state.colors.list?.data ?? null);
   const materials = useSelector(state => state.materials.list?.data ?? null);
   const series = useSelector(state => state.series.list?.data ?? null);
+  const finishes = useSelector(state => state.finishes.list?.data ?? null);
 
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -55,7 +56,8 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested 
     colors,
     materials,
     series,
-  }), [categories, sizes, colors, materials, series]);
+    finishes
+  }), [categories, sizes, colors, materials, series, finishes]);
 
   useEffect(() => {
     if (!enableDynamicNested || !activeMainKey) return;

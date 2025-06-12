@@ -58,6 +58,9 @@ const AddTiles = () => {
     dispatch(fetchFinishes());
   }, [dispatch]);
 
+  console.log(series, sizes, suitablePlace, finishes, materials);
+  
+
   const formik = useFormik({
     initialValues: {
       name: '',

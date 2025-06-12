@@ -48,15 +48,16 @@ const Materials = () => {
     },
   ];
 
-useEffect(() => {
-  if (location.state?.toastMessage) {
-    toast.success(location.state.toastMessage);
+  useEffect(() => {
     dispatch(fetchMaterials());
+  }, [dispatch]);
 
-    // Properly clear navigation state
-    navigate(location.pathname, { replace: true });
-  }
-}, [location.state, location.pathname, dispatch, navigate]);
+  useEffect(() => {
+    if (location.state?.toastMessage) {
+      toast.success(location.state.toastMessage);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const handleDeleteClick = id => {
     setSelectedMaterial(id);
@@ -69,6 +70,7 @@ useEffect(() => {
       setIsDeleting(true);
 
       dispatch(deleteMaterial(selectedMaterial)).unwrap();
+      dispatch(fetchMaterials());
       toast.success('Material deleted successfully!');
     } catch (error) {
       toast.error(error.message || 'Failed to delete material.');
@@ -91,7 +93,7 @@ useEffect(() => {
   // Filter materials based on search query
   const filteredMaterials = useMemo(() => {
     const lower = searchQuery.toLowerCase();
-    return materials?.filter(material => material?.material?.toLowerCase().includes(lower));
+    return materials?.data?.filter(material => material?.material?.toLowerCase().includes(lower));
   }, [searchQuery, materials]);
 
     if (loading) {
@@ -99,16 +101,6 @@ useEffect(() => {
       <Layout>
         <div className="flex justify-center items-center h-64">
           <Loader/>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (error) {
-    return (
-      <Layout>
-        <div className="flex justify-center items-center h-64">
-          <div className="text-lg text-red-600">{error}</div>
         </div>
       </Layout>
     );

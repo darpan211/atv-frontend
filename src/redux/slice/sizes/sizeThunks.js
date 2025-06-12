@@ -5,13 +5,17 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const fetchSizes = createAsyncThunk('sizes/fetchSizes', async (_, thunkAPI) => {
   try {
-    const state = thunkAPI.getState();
-    const existingList = state?.sizes?.list;
-    if (!existingList || existingList?.length === 0) {
-      const response = await axiosHandler.get(`${BASE_URL}/api/v1/sizes/getsizes`);
-      return response.data.data;
-    }
-    return existingList;
+    // const state = thunkAPI.getState();
+    // const existingList = state?.sizes?.list;
+    // if (!existingList || existingList?.length === 0) {
+    //   const response = await axiosHandler.get(`${BASE_URL}/api/v1/sizes/getsizes`);
+    //   return response.data.data;
+    // }
+    // return existingList;
+    
+    const response = await axiosHandler.get(`${BASE_URL}/api/v1/sizes/getsizes`);
+    return response.data.data;
+
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || error.message);
   }

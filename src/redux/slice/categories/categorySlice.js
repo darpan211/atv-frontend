@@ -32,7 +32,7 @@ const categorySlice = createSlice({
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload.data;
+        state.list = action.payload;
       })
       .addCase(fetchCategories.rejected, (state, action) => {
         state.loading = false;
@@ -60,7 +60,7 @@ const categorySlice = createSlice({
       })
       .addCase(addCategory.fulfilled, (state, action) => {
         state.loading = false;
-        state.list.push(action.payload.data);
+        state.list.data.push(action.payload.data);
       })
       .addCase(addCategory.rejected, (state, action) => {
         state.loading = false;
@@ -74,9 +74,18 @@ const categorySlice = createSlice({
       })
       .addCase(updateCategory.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.list.findIndex(cat => cat._id === action.meta.arg.id);
+        const index = state.list.data.findIndex(cat => cat._id === action.payload.id);
         if (index !== -1) {
-          state.list[index] = { ...state.list[index], ...action.payload.data };
+          state.list.data[index] = { 
+            ...state.list.data[index],
+            ...action.payload.data.data 
+          };
+        }
+        if (state.selectedCategory && state.selectedCategory._id === action.payload.id) {
+          state.selectedCategory = { 
+            ...state.selectedCategory,
+            ...action.payload.data.data 
+          };
         }
       })
       .addCase(updateCategory.rejected, (state, action) => {
@@ -91,7 +100,10 @@ const categorySlice = createSlice({
       })
       .addCase(deleteCategory.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = state.list.filter(item => item._id !== action.meta.arg);
+        state.list.data = state.list.data.filter(item => item._id !== action.payload.id);
+        if (state.selectedCategory && state.selectedCategory._id === action.payload.id) {
+          state.selectedCategory = null;
+        }
       })
       .addCase(deleteCategory.rejected, (state, action) => {
         state.loading = false;

@@ -8,13 +8,16 @@ export const fetchCategories = createAsyncThunk(
   'categories/fetchCategories',
   async (_, thunkAPI) => {
     try {
-      const state = thunkAPI.getState();
-      const existingList = state?.categories?.list;
-      if (!existingList || existingList?.length === 0) {
-        const response = await axiosHandler.get(`${BASE_URL}/api/v1/attributes/getcategory`);
-        return response.data.data;
-      }
-      return existingList;
+      // const state = thunkAPI.getState();
+      // const existingList = state?.categories?.list;
+      // if (!existingList || existingList?.length === 0) {
+      //   const response = await axiosHandler.get(`${BASE_URL}/api/v1/attributes/getcategory`);
+      //   return response.data.data;
+      // }
+      // return existingList;
+
+      const response = await axiosHandler.get(`${BASE_URL}/api/v1/attributes/getcategory`);
+      return response.data.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
@@ -39,7 +42,7 @@ export const deleteCategory = createAsyncThunk(
       const response = await axiosHandler.delete(
         `${BASE_URL}/api/v1/attributes/deletecategory/${id}`
       );
-      return response.data;
+      return {id, ...response.data}
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
@@ -68,7 +71,7 @@ export const updateCategory = createAsyncThunk(
         `${BASE_URL}/api/v1/attributes/updatecategory/${id}`,
         data
       );
-      return response.data;
+      return {id, data:response.data};
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }

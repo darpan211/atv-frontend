@@ -31,7 +31,7 @@ const suitablePlaceSlice = createSlice({
       })
       .addCase(fetchSuitablePlaces.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload.data;
+        state.list = action.payload;
       })
       .addCase(fetchSuitablePlaces.rejected, (state, action) => {
         state.loading = false;
@@ -59,7 +59,7 @@ const suitablePlaceSlice = createSlice({
       })
       .addCase(addSuitablePlace.fulfilled, (state, action) => {
         state.loading = false;
-        state.list.push(action.payload.data);
+        state.list.data.push(action.payload.data);
       })
       .addCase(addSuitablePlace.rejected, (state, action) => {
         state.loading = false;
@@ -73,9 +73,18 @@ const suitablePlaceSlice = createSlice({
       })
       .addCase(updateSuitablePlace.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.list.findIndex(place => place._id === action.meta.arg.id);
+        const index = state.list.data.findIndex(place => place._id === action.payload.id);
         if (index !== -1) {
-          state.list[index] = { ...state.list[index], ...action.payload.data };
+          state.list.data[index] = { 
+            ...state.list.data[index], 
+            ...action.payload.data.data 
+          };
+        }
+        if (state.selectedPlace && state.selectedPlace._id === action.payload.id) {
+          state.selectedPlace = {
+            ...state.selectedPlace,
+            ...action.payload.data.data,
+          };
         }
       })
       .addCase(updateSuitablePlace.rejected, (state, action) => {
@@ -90,7 +99,10 @@ const suitablePlaceSlice = createSlice({
       })
       .addCase(deleteSuitablePlace.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = state.list.filter(item => item._id !== action.meta.arg);
+        state.list.data = state.list.data.filter(item => item._id !== action.payload.id);
+        if (state.selectedPlace && state.selectedPlace._id === action.payload.id) {
+          state.selectedPlace = null;
+        }
       })
       .addCase(deleteSuitablePlace.rejected, (state, action) => {
         state.loading = false;

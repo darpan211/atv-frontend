@@ -15,16 +15,14 @@ import DataTable from '@/components/common/DataTable';
 import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
 import { DeleteIcon } from '@/components/common/icons/svgs/DeleteIcon';
 import { EditIcon } from '@/components/common/icons/svgs/EditIcon';
+import Loader from '@/components/common/Loader';
 
 const SuitablePlacePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const suitablePlaceState = useSelector(state => state.suitablePlace);
-  const places = suitablePlaceState?.list || [];
-  const loading = suitablePlaceState?.loading || false;
-  const error = suitablePlaceState?.error || null;
+  const {list: places, loading, error} = useSelector(state => state.suitablePlace);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
@@ -58,7 +56,6 @@ const SuitablePlacePage = () => {
   // Show toast from location state
   useEffect(() => {
     if (location.state?.toastMessage) {
-      // console.log('Suitable Place Location State:', location.state);
       toast.success(location.state.toastMessage);
       window.history.replaceState({}, document.title);
     }
@@ -72,12 +69,12 @@ const SuitablePlacePage = () => {
     };
   }, [dispatch]);
 
-  // Show error toast if loading failed
-  useEffect(() => {
-    if (error) {
-      toast.error('Failed to load suitable places.');
-    }
-  }, [error]);
+  // // Show error toast if loading failed
+  // useEffect(() => {
+  //   if (error) {
+  //     toast.error('Failed to load suitable places.');
+  //   }
+  // }, [error]);
 
   const handleDeleteClick = id => {
     setSelectedPlace(id);
@@ -91,10 +88,9 @@ const SuitablePlacePage = () => {
       setIsDeleting(true);
       dispatch(deleteSuitablePlace(selectedPlace));
       dispatch(fetchSuitablePlaces());
-
       toast.success('Place deleted successfully!');
-    } catch {
-      toast.error('Failed to delete place.');
+    } catch(err) {
+      toast.error(err.message || 'Failed to delete place.');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
@@ -114,10 +110,18 @@ const SuitablePlacePage = () => {
   // Filter places based on search query
   const filteredPlaces = useMemo(() => {
     const lower = searchQuery.toLowerCase();
-    return places?.filter(place => place?.suitablePlace?.toLowerCase().includes(lower));
+    return places?.data.filter(place => place?.suitablePlace?.toLowerCase().includes(lower));
   }, [searchQuery, places]);
 
-  if (loading) return <div className="p-4 text-center">Loading...</div>;
+    if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-64">
+          <Loader/>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout

@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { addSize, updateSize, fetchSizeById } from '@/redux/slice/sizes/sizeThunks';
 import { clearSelectedSize } from '@/redux/slice/sizes/sizeSlice';
-import { toast, Bounce } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 const AddSizePage = () => {
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ const AddSizePage = () => {
   const { mode, id } = useParams();
   const isEdit = mode === 'edit';
 
-  const { selectedSize, loading, error } = useSelector(state => state.sizes);
+  const { selectedSize, loading } = useSelector(state => state.sizes);
 
   useEffect(() => {
     if (isEdit && id) {
@@ -35,10 +35,8 @@ const AddSizePage = () => {
 
       if (isEdit) {
         await dispatch(updateSize({ id, data: payload })).unwrap();
-        toast.success('Size updated successfully!');
       } else {
         await dispatch(addSize(payload)).unwrap();
-        toast.success('Size added successfully!');
       }
 
       navigate('/admin/sizes', {

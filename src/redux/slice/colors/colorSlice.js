@@ -26,7 +26,7 @@ const colorSlice = createSlice({
       })
       .addCase(fetchColors.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload.data;
+        state.list = action.payload;
       })
       .addCase(fetchColors.rejected, (state, action) => {
         state.loading = false;
@@ -54,7 +54,7 @@ const colorSlice = createSlice({
       })
       .addCase(addColor.fulfilled, (state, action) => {
         state.loading = false;
-        state.list.push(action.payload.data);
+        state.list.data.push(action.payload.data);
       })
       .addCase(addColor.rejected, (state, action) => {
         state.loading = false;
@@ -68,9 +68,18 @@ const colorSlice = createSlice({
       })
       .addCase(updateColor.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.list.findIndex(color => color._id === action.payload.id);
+        const index = state.list.data.findIndex(color => color._id === action.payload.id);
         if (index !== -1) {
-          state.list[index] = { ...state.list[index], ...action.payload.data.data };
+          state.list.data[index] = { 
+            ...state.list.data[index], 
+            ...action.payload.data.data 
+          };
+        }
+        if (state.selectedColor && state.selectedColor._id === action.payload.id) {
+          state.selectedColor = { 
+            ...state.selectedColor, 
+            ...action.payload.data.data 
+          };
         }
       })
       .addCase(updateColor.rejected, (state, action) => {
@@ -85,7 +94,10 @@ const colorSlice = createSlice({
       })
       .addCase(deleteColor.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = state.list.filter(item => item._id !== action.payload);
+        state.list.data = state.list.data.filter(item => item._id !== action.payload.id);
+        if (state.selectedColor && state.selectedColor._id === action.payload.id) {
+          state.selectedColor = null;
+        }
       })
       .addCase(deleteColor.rejected, (state, action) => {
         state.loading = false;

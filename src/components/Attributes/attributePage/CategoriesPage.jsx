@@ -86,7 +86,7 @@ const CategoriesPage = () => {
 
   const filteredCategories = useMemo(() => {
     const lower = searchQuery.toLowerCase();
-    return list?.filter(category => category?.category.toLowerCase().includes(lower));
+    return list?.data?.filter(category => category?.category.toLowerCase().includes(lower));
   }, [searchQuery, list]);
 
   if (loading) {
@@ -94,16 +94,6 @@ const CategoriesPage = () => {
       <Layout>
         <div className="flex justify-center items-center h-64">
           <Loader/>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (error) {
-    return (
-      <Layout>
-        <div className="flex justify-center items-center h-64">
-          <div className="text-lg text-red-600">{error}</div>
         </div>
       </Layout>
     );
