@@ -48,8 +48,13 @@ import HeaderTilesCart from './components/Tiles/HeaderTilesCart';
 import AddTiles from './components/Tiles/AddTiles';
 import AppLayout from './hooks/AppLayout';
 import AuthSync from './hooks/AuthSync';
+
 import AddNewAdmin from './pages/Admin/AddNewAdmin';
 import AdminList from './pages/Admin/AdminList';
+
+import FinishPage from './components/Attributes/attributePage/FinishPage';
+import AddFinishPage from './components/Attributes/addAttribute/AddFinishPage';
+
 
 // ================== App Routes ==================
 const App = () => {
@@ -230,6 +235,14 @@ const App = () => {
             </AppLayout>
           }
         />
+        <Route
+          path="/admin/finish"
+          element={
+            <AppLayout>
+              <FinishPage />
+            </AppLayout>
+          }
+        />
 
         {/* Attribute Pages (Add Form) */}
         <Route
@@ -252,6 +265,10 @@ const App = () => {
         <Route
           path="/admin/places/:mode/:id?"
           element={<AppLayout>{<AddPlacePage />}</AppLayout>}
+        />
+        <Route
+          path="/admin/finish/:mode/:id?"
+          element={<AppLayout>{<AddFinishPage />}</AppLayout>}
         />
 
         {/* Add Tiles */}

@@ -37,8 +37,8 @@ const rootReducer = combineReducers({
   suitablePlace: suitablePlaceReducer,
   tiles: tileReducer,
   seller: sellerReducer,
-  finishes: finishReducer,
   admin: adminReducer,
+  finish: finishReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
