@@ -15,7 +15,7 @@ const labelToThunkMap = {
   colors: fetchColors,
   materials: fetchMaterials,
   series: fetchSeries,
-  finishes: fetchFinishes
+  finish: fetchFinishes
 };
 
 const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested = false }) => {
@@ -25,7 +25,7 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested 
   const colors = useSelector(state => state.colors.list?.data ?? null);
   const materials = useSelector(state => state.materials.list?.data ?? null);
   const series = useSelector(state => state.series.list?.data ?? null);
-  const finishes = useSelector(state => state.finishes.list?.data ?? null);
+  const finish = useSelector(state => state.finish.list?.data ?? null);
 
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -56,8 +56,8 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested 
     colors,
     materials,
     series,
-    finishes
-  }), [categories, sizes, colors, materials, series, finishes]);
+    finish
+  }), [categories, sizes, colors, materials, series, finish]);
 
   useEffect(() => {
     if (!enableDynamicNested || !activeMainKey) return;

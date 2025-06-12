@@ -40,7 +40,7 @@ const validationSchema = Yup.object().shape({
 
 const AddTiles = () => {
   const dispatch = useDispatch();
-  const { categories, series, sizes, suitablePlace, finishes, materials } = useSelector(
+  const { categories, series, sizes, suitablePlace, finish, materials } = useSelector(
     state => state
   );
   const [showPreview, setShowPreview] = useState(false);
@@ -104,7 +104,7 @@ const AddTiles = () => {
 
   // Update finishOptions to use Redux data
   const finishOptions =
-    finishes?.list?.map(f => ({
+    finish?.list?.map(f => ({
       label: f.finish,
       value: f.finish,
     })) || [];
