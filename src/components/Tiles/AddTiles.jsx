@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { Icon } from '../common/icons';
 import TilesPreview from './TilesPreview';
@@ -47,6 +47,12 @@ const validationSchema = Yup.object().shape({
 const AddTiles = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Get category from URL query param
+  const searchParams = new URLSearchParams(location.search);
+  const categoryFromUrl = searchParams.get('category') || 'wall';
+  console.log('categoryFromUrl', categoryFromUrl);
+  
   const { categories, series, sizes, suitablePlace, finish, materials, tiles } = useSelector(
     state => state
   );
@@ -68,8 +74,6 @@ const AddTiles = () => {
     dispatch(fetchTiles());
   }, [dispatch]);
 
-  console.log("Anurag Yadav 1", tiles);
-
   const formik = useFormik({
     initialValues: {
       name: '',
@@ -82,7 +86,7 @@ const AddTiles = () => {
       description: '',
       status: 'active',
       tiles_color: '',
-      category: 'tiles',
+      category: categoryFromUrl,
     },
     validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
@@ -108,7 +112,7 @@ const AddTiles = () => {
         const formData = new FormData();
         formData.append('description', values.description || '');
         formData.append('status', values.status);
-        formData.append('category', values.category);
+        formData.append('category', categoryFromUrl);
         // Add arrays as comma-separated strings (only value, not label)
         formData.append('size', values.size.map(item => item.value).join(', '));
         formData.append('suitable_place', values.suitablePlace.map(item => item.value).join(', '));
@@ -398,11 +402,11 @@ const AddTiles = () => {
           <div className="flex justify-center mt-6">
             <button
               type="button"
-              className={`bg-[#633e1f] text-white font-semibold px-6 py-2.5 rounded-md transition-colors duration-200 text-sm shadow-md hover:shadow-lg ${!canSubmit ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={!canSubmit}
+              className={`bg-[#633e1f] text-white font-semibold px-6 py-2.5 rounded-md transition-colors duration-200 text-sm shadow-md hover:shadow-lg ${!canSubmit || formik.isSubmitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              disabled={!canSubmit || formik.isSubmitting}
               onClick={formik.handleSubmit}
             >
-              Submit
+              {formik.isSubmitting ? 'Saving...' : 'Add Tile'}
             </button>
           </div>
         </>

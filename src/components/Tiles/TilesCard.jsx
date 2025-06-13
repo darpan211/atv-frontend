@@ -1,4 +1,4 @@
-import { useState, useCallback, memo, useEffect } from 'react';
+import { useState, useCallback, memo, useEffect, useRef } from 'react';
 import {
   Heart,
   Trash2,
@@ -24,6 +24,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './TilesSidebar';
 import Header from './TilesHeader';
 import { updateTile } from '@/redux/slice/tiles/tileThunks';
+import { toast, Bounce } from 'react-toastify';
 
 // Move EditFormPopup outside and memoize it
 const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave, onDelete }) => {
@@ -272,6 +273,7 @@ const TileManagement = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editFormData, setEditFormData] = useState({});
+  const toastShownRef = useRef(false);
 
   const [tiles, setTiles] = useState([
     {
@@ -1024,6 +1026,16 @@ const TileManagement = () => {
       </div>
     );
   };
+
+  // Toast message handling for navigation
+  useEffect(() => {
+    console.log('TileManagement location.state:', location.state);
+    if (location.state?.toastMessage && !toastShownRef.current) {
+      toast.success(location.state.toastMessage);
+      toastShownRef.current = true;
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   return (
     <div className="min-h-screen bg-white w-full">
