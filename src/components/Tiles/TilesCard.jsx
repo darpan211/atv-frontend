@@ -27,8 +27,6 @@ import { updateTile } from '@/redux/slice/tiles/tileThunks';
 
 // Move EditFormPopup outside and memoize it
 const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave, onDelete }) => {
-
-
   if (!isOpen || !tile) return null;
 
   return (
@@ -84,34 +82,6 @@ const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave,
                 ))}
               </div>
             </div>
-
-            {/* {[
-              {
-                label: 'Sizes',
-                key: 'size',
-                options: sizes.map(item => item.name),
-              },
-              {
-                label: 'Materials',
-                key: 'material',
-                options: materials.map(item => item.name),
-              },
-              {
-                label: 'Finishes',
-                key: 'finish',
-                options: finish.map(item => item.name),
-              },
-              {
-                label: 'Series',
-                key: 'series',
-                options: series.map(item => item.name),
-              },
-              {
-                label: 'Color',
-                key: 'color',
-                options: colors.map(item => item.name),
-              },
-            ].map(({ label, key, options }) => ( */}
 
             {[
               {
@@ -290,7 +260,7 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
 TilePopup.displayName = 'TilePopup';
 
 const TileManagement = () => {
-  const  dispatch = useDispatch();
+  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('grid');
@@ -308,7 +278,7 @@ const TileManagement = () => {
       id: 1,
       name: 'MONALISA ONYX AQUA GMYK',
       code: '(S232DA83) copy',
-      size: '600 x 600',
+      size: ['600 x 600', '800 x 800', '300 x 300'],
       series: 'Wooden',
       category: 'Floor Tiles',
       priority: 'High Priority',
@@ -322,7 +292,7 @@ const TileManagement = () => {
       id: 2,
       name: 'Name two',
       code: '(S232DA84)',
-      size: '400 x 400',
+      size: ['400 x 400', '300 x 600'],
       series: 'Modern',
       category: 'Wall Tiles',
       priority: 'High Priority',
@@ -336,7 +306,7 @@ const TileManagement = () => {
       id: 3,
       name: 'Name three',
       code: '(S232DA85)',
-      size: '300 x 300',
+      size: ['300 x 300', '600 x 1200'],
       series: 'Classic',
       category: 'Bathroom Tiles',
       priority: 'Low Priority',
@@ -350,7 +320,7 @@ const TileManagement = () => {
       id: 4,
       name: 'Tile name',
       code: '(S232DA86)',
-      size: '800 x 800',
+      size: ['800 x 800', '600 x 600'],
       series: 'Luxury',
       category: 'Kitchen Tiles',
       priority: 'Medium Priority',
@@ -398,18 +368,17 @@ const TileManagement = () => {
   const series = useSelector(state => state.series.list?.data ?? []);
   const colors = useSelector(state => state.colors.list?.data ?? []);
 
+  const filterOptions = {
+    collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
+    categories: categories.map(item => item.category),
+    series: series.map(item => item.series),
+    finishes: finish.map(item => item.finish),
+    sizes: sizes.map(item => item.sizes),
+    materials: materials.map(item => item.material),
+    colors: colors.map(item => item.color),
+  };
 
-const filterOptions = {
-  collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
-  categories: categories.map(item => item.category),
-  series: series.map(item => item.series),
-  finishes: finish.map(item => item.finish),
-  sizes: sizes.map(item => item.sizes),
-  materials: materials.map(item => item.material),
-  colors: colors.map(item => item.color),
-};
-
-// fetch filter option data on page load
+  // fetch filter option data on page load
   useEffect(() => {
     dispatch(fetchCategories());
     dispatch(fetchSeries());
@@ -417,7 +386,7 @@ const filterOptions = {
     dispatch(fetchSizes());
     dispatch(fetchMaterials());
     dispatch(fetchColors());
-}, [dispatch]);
+  }, [dispatch]);
 
   // On mount, set filters from URL ---
   useEffect(() => {
@@ -434,7 +403,6 @@ const filterOptions = {
     // eslint-disable-next-line
   }, [location.search]);
 
-
   // Whenever filters change, update URL ---
   useEffect(() => {
     const params = new URLSearchParams();
@@ -450,8 +418,6 @@ const filterOptions = {
     }
     // eslint-disable-next-line
   }, [activeFilters]);
-
-
 
   const [expandedSections, setExpandedSections] = useState({
     collections: true,
@@ -651,42 +617,30 @@ const filterOptions = {
       // }
 
       switch (key) {
-      case 'series':
-        return values.some(
-          v => v.trim().toLowerCase() === tile.series.trim().toLowerCase()
-        );
-      case 'categories':
-        return values.some(
-          v => v.trim().toLowerCase() === tile.category.trim().toLowerCase()
-        );
-      case 'materials':
-        return values.some(
-          v => v.trim().toLowerCase() === tile.material.trim().toLowerCase()
-        );
-      case 'finishes':
-        return values.some(
-          v => v.trim().toLowerCase() === tile.finish.trim().toLowerCase()
-        );
-      case 'sizes':
-        return values.some(
-          v => v.trim().toLowerCase().replace(/x/g, '') === tile.size.trim().toLowerCase().replace(/x/g, '')
-        );
-      case 'colors':
-        return values.some(
-          v => v.trim().toLowerCase() === tile.color.trim().toLowerCase()
-        );
-      case 'priority':
-        return values.some(
-          v => v.trim().toLowerCase() === tile.priority.trim().toLowerCase()
-        );
-      
-      case 'name':
-        return values.some(
-          v => v.trim().toLowerCase() === tile.name.trim().toLowerCase()
-        );
-      default:
-        return true;
-    }
+        case 'series':
+          return values.some(v => v.trim().toLowerCase() === tile.series.trim().toLowerCase());
+        case 'categories':
+          return values.some(v => v.trim().toLowerCase() === tile.category.trim().toLowerCase());
+        case 'materials':
+          return values.some(v => v.trim().toLowerCase() === tile.material.trim().toLowerCase());
+        case 'finishes':
+          return values.some(v => v.trim().toLowerCase() === tile.finish.trim().toLowerCase());
+        case 'sizes':
+          return values.some(
+            v =>
+              v.trim().toLowerCase().replace(/x/g, '') ===
+              tile.size.trim().toLowerCase().replace(/x/g, '')
+          );
+        case 'colors':
+          return values.some(v => v.trim().toLowerCase() === tile.color.trim().toLowerCase());
+        case 'priority':
+          return values.some(v => v.trim().toLowerCase() === tile.priority.trim().toLowerCase());
+
+        case 'name':
+          return values.some(v => v.trim().toLowerCase() === tile.name.trim().toLowerCase());
+        default:
+          return true;
+      }
     });
 
     return matchesSearch && matchesFilters;
@@ -745,7 +699,21 @@ const filterOptions = {
 
           <div className="space-y-1 text-sm">
             {[
-              { label: 'Size', value: tile.size },
+              {
+                label: 'Size',
+                value: (
+                  <div className="flex flex-wrap gap-1">
+                    {tile.size.map((sz, i) => (
+                      <span
+                        key={i}
+                        className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700"
+                      >
+                        {sz}
+                      </span>
+                    ))}
+                  </div>
+                ),
+              },
               { label: 'Series', value: tile.series },
               { label: 'Category', value: tile.category },
             ].map((item, index) => (
@@ -1018,8 +986,6 @@ const filterOptions = {
   const FilterSection = ({ title, filterKey, options }) => {
     const isExpanded = expandedSections[filterKey];
     const activeItems = activeFilters[filterKey];
-
-    
 
     return (
       <div className="border-b border-gray-200">

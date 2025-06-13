@@ -16,6 +16,7 @@ const labelToThunkMap = {
   materials: fetchMaterials,
   series: fetchSeries,
   finish: fetchFinishes,
+  addtiles : fetchCategories
 };
 
 const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested = false }) => {
@@ -56,7 +57,8 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested 
     colors,
     materials,
     series,
-    finish
+    finish,
+    addtiles: categories // Assuming 'addtiles' refers to categories for adding tiles
   }), [categories, sizes, colors, materials, series, finish]);
 
   useEffect(() => {
@@ -72,12 +74,13 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested 
           item.sizes ||
           item.color ||
           item.series ||
-          item.finish;
+          item.finish ||
+          item.addtiles;
 
         const paramValue = encodeURIComponent(labelValue);
         return {
           label: labelValue,
-          path: `/tiles/list?${activeMainKey}=${paramValue}`,
+          path: `/tiles/${activeMainKey === 'addtiles' ?'add':'list'}?${activeMainKey ==='addtiles' ? 'category': activeMainKey}=${paramValue}`,
         };
       });
 
