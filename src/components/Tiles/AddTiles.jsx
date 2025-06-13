@@ -3,6 +3,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 import { Icon } from '../common/icons';
 import TilesPreview from './TilesPreview';
@@ -24,9 +25,13 @@ import AddMaterialPage from '../Attributes/addAttribute/AddMaterialPage';
 import AddPlacePage from '../Attributes/addAttribute/AddPlacePage';
 import AddCategoryPage from '../Attributes/addAttribute/AddCategoryPage';
 import AddColorPage from '../Attributes/addAttribute/AddColorPage';
+import { fetchTiles, addTile, updateTile } from '@/redux/slice/tiles/tileThunks';
+
 
 const validationSchema = Yup.object().shape({
-  size: Yup.array().min(1, 'Please select at least one size').required('Size is required'),
+  size: Yup.array()
+    .min(1, 'Please select at least one size')
+    .required('Size is required'),
   material: Yup.array(),
   finish: Yup.array(),
   tileImages: Yup.array()
@@ -36,16 +41,20 @@ const validationSchema = Yup.object().shape({
   suitablePlace: Yup.array(),
   description: Yup.string(),
   status: Yup.string().oneOf(['active', 'inactive']).default('active'),
+  category: Yup.string().default('tiles'),
 });
 
 const AddTiles = () => {
   const dispatch = useDispatch();
-  const { categories, series, sizes, suitablePlace, finish, materials } = useSelector(
+  const navigate = useNavigate();
+  const { categories, series, sizes, suitablePlace, finish, materials, tiles } = useSelector(
     state => state
   );
+
+  
   const [showPreview, setShowPreview] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [tileImages, setTileImages] = useState([]); // [{ file, thickness, name }]
+  const [tileImages, setTileImages] = useState([]); // [{ file, thickness, name, favorite }]
   const [errors, setErrors] = useState({});
   const [openPopup, setOpenPopup] = useState(null); // null or 'size' | 'series' | 'material' | 'finish' | 'suitablePlace' | etc.
 
@@ -56,7 +65,10 @@ const AddTiles = () => {
     dispatch(fetchCategories());
     dispatch(fetchMaterials());
     dispatch(fetchFinishes());
+    dispatch(fetchTiles());
   }, [dispatch]);
+
+  console.log("Anurag Yadav 1", tiles);
 
   const formik = useFormik({
     initialValues: {
@@ -69,12 +81,66 @@ const AddTiles = () => {
       size: [],
       description: '',
       status: 'active',
+      tiles_color: '',
+      category: 'tiles',
     },
     validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        setShowPreview(true);
-        toast.success('Tile added successfully!');
+        // Validate that we have images
+        if (tileImages.length === 0) {
+          toast.error('At least one tile image is required');
+          return;
+        }
+        // Validate that names and thicknesses are present for each image
+        const missingName = tileImages.some(img => !img.name || img.name.trim() === '');
+        const missingThickness = tileImages.some(img => !img.thickness || String(img.thickness).trim() === '');
+        if (missingName || missingThickness) {
+          toast.error('Each image must have a name and thickness.');
+          return;
+        }
+        // Validate that size is selected
+        if (!values.size || values.size.length === 0) {
+          toast.error('Please select at least one size');
+          return;
+        }
+        // Create FormData object for multipart/form-data
+        const formData = new FormData();
+        formData.append('description', values.description || '');
+        formData.append('status', values.status);
+        formData.append('category', values.category);
+        // Add arrays as comma-separated strings (only value, not label)
+        formData.append('size', values.size.map(item => item.value).join(', '));
+        formData.append('suitable_place', values.suitablePlace.map(item => item.value).join(', '));
+        formData.append('series', values.series.map(item => item.value).join(', '));
+        formData.append('material', values.material.map(item => item.value).join(', '));
+        formData.append('finish', values.finish.map(item => item.value).join(', '));
+        // Add tile names, thicknesses, colors, and favorites as comma-separated strings
+        const tileNames = tileImages.map(img => img.name).join(',');
+        const tileThicknesses = tileImages.map(img => img.thickness).join(',');
+        const tileColors = tileImages.map(img => img.color).join(',');
+        const tileFavorites = tileImages.map(img => img.favorite ? 'true' : 'false').join(',');
+        formData.append('tiles_name', tileNames);
+        formData.append('thickness', tileThicknesses);
+        formData.append('tiles_color', tileColors);
+        formData.append('favorite', tileFavorites);
+        // Add all tile images as files only (not as string or name)
+        tileImages.forEach((image) => {
+          formData.append('tiles_image', image.file);
+        });
+        const resultAction = await dispatch(addTile(formData));
+        if (resultAction.error) {
+          toast.error(resultAction.error.message || 'Failed to add tile');
+        } else {
+          setShowPreview(true);
+          // Reset form and images
+          formik.resetForm();
+          setTileImages([]);
+          // Navigate to tiles list with toast message in state
+          navigate('/tiles/list', {
+            state: { toastMessage: 'Tile added successfully!' }
+          });
+        }
       } catch (error) {
         toast.error(error?.message || 'Failed to add tile.');
       } finally {
@@ -104,7 +170,7 @@ const AddTiles = () => {
 
   // Update finishOptions to use Redux data
   const finishOptions =
-    finish?.list?.map(f => ({
+    finish?.list?.data?.map(f => ({
       label: f.finish,
       value: f.finish,
     })) || [];
@@ -150,7 +216,10 @@ const AddTiles = () => {
   );
 
   const handleUploadComplete = newImages => {
-    setTileImages(prevImages => [...prevImages, ...newImages]);
+    // Add favorite: false by default
+    const imagesWithFavorite = newImages.map(img => ({ ...img, favorite: false }));
+    setTileImages(prevImages => [...prevImages, ...imagesWithFavorite]);
+    formik.setFieldValue('tileImages', [...tileImages, ...imagesWithFavorite]);
     setShowModal(false);
   };
 
@@ -162,8 +231,13 @@ const AddTiles = () => {
     setTileImages(prev => prev.map((img, i) => (i === index ? { ...img, thickness } : img)));
   };
 
+  const setTileImageFavorite = (index, favorite) => {
+    setTileImages(prev => prev.map((img, i) => (i === index ? { ...img, favorite } : img)));
+  };
+
   const handleDeleteImage = index => {
     setTileImages(prev => prev.filter((_, i) => i !== index));
+    formik.setFieldValue('tileImages', tileImages.filter((_, i) => i !== index));
   };
 
   const canSubmit =
@@ -318,6 +392,7 @@ const AddTiles = () => {
             images={tileImages}
             setTileImageName={setTileImageName}
             setTileImageThickness={setTileImageThickness}
+            setTileImageFavorite={setTileImageFavorite}
             onDelete={handleDeleteImage}
           />
           <div className="flex justify-center mt-6">
@@ -325,9 +400,7 @@ const AddTiles = () => {
               type="button"
               className={`bg-[#633e1f] text-white font-semibold px-6 py-2.5 rounded-md transition-colors duration-200 text-sm shadow-md hover:shadow-lg ${!canSubmit ? 'opacity-50 cursor-not-allowed' : ''}`}
               disabled={!canSubmit}
-              onClick={() => {
-                /* handle submit logic here */
-              }}
+              onClick={formik.handleSubmit}
             >
               Submit
             </button>

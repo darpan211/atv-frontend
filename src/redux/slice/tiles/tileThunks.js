@@ -3,17 +3,29 @@ import axiosHandler from '@/services/axiosHandler';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+// Get tile colors
+export const getTileColors = createAsyncThunk(
+  'tiles/getTileColors',
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axiosHandler.post(`${BASE_URL}/api/v1/tiles/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: 'Failed to process images' });
+    }
+  }
+);
+
 // Fetch all tiles
 export const fetchTiles = createAsyncThunk('tiles/fetchTiles', async (_, thunkAPI) => {
   try {
-    // const state = thunkAPI.getState();
-    // const existingList = state?.tiles?.tiles;
-    // if (!existingList || existingList?.length === 0) {
-    //   const response = await axiosHandler.get(`${BASE_URL}/api/v1/tiles/gettiles`);
-    //   return response.data.data;
-    // }
-    // return existingList;
     const response = await axiosHandler.get(`${BASE_URL}/api/v1/tiles/gettiles`);
+
+    
     return response.data.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -21,10 +33,14 @@ export const fetchTiles = createAsyncThunk('tiles/fetchTiles', async (_, thunkAP
 });
 
 // Add tile
-export const addTile = createAsyncThunk('tiles/addTile', async (data, thunkAPI) => {
+export const addTile = createAsyncThunk('tiles/addTile', async (formData, thunkAPI) => {
   try {
-    const response = await axiosHandler.post(`${BASE_URL}/api/v1/tiles/addtiles`, data);
-    return response.data;
+    const response = await axiosHandler.post(`${BASE_URL}/api/v1/tiles/addtiles`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || error.message);
   }
