@@ -1,16 +1,5 @@
-import { useState, useCallback, memo, useEffect } from 'react';
-import {
-  Heart,
-  Trash2,
-  ChevronDown,
-  ChevronUp,
-  X,
-  Search,
-  Menu,
-  ChevronLeft,
-  ChevronRight,
-  Edit,
-} from 'lucide-react';
+import { useState, useCallback, useEffect } from 'react';
+import { Heart, ChevronDown, ChevronUp, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import img from '../../assets/image (2).png';
 import { Icon } from '../common/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,241 +12,8 @@ import { fetchColors } from '@/redux/slice/colors/colorThunks';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './TilesSidebar';
 import Header from './TilesHeader';
-import { updateTile } from '@/redux/slice/tiles/tileThunks';
-
-// Move EditFormPopup outside and memoize it
-const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave, onDelete }) => {
-  if (!isOpen || !tile) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-      <div className="bg-[#fdf0e6] rounded-md shadow-lg w-full max-w-2xl p-4 sm:p-6 relative max-h-[90vh] overflow-y-auto">
-        <button
-          className="absolute top-0 right-0 text-gray-600 hover:text-black z-10 cursor-pointer"
-          onClick={onClose}
-          aria-label="Close edit form"
-        >
-          <X size={30} className="bg-[#6F4E37] text-white rounded-bl-sm p-1" />
-        </button>
-
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-          <div className="aspect-square border w-full max-w-[262px] h-[300px] sm:h-[369px] rounded-lg p-2 mx-auto md:mx-0">
-            <img
-              src={img || '/placeholder.svg'}
-              alt={tile.name}
-              className="w-full h-full object-cover rounded"
-            />
-          </div>
-          <div className="w-full lg:w-1/2 space-y-3">
-            <div>
-              <label className="text-sm font-medium text-gray-700">Name</label>
-              <input
-                key={`name-${tile.id}`}
-                type="text"
-                placeholder="Enter name"
-                value={formData.name || ''}
-                onChange={e => onChange('name', e.target.value)}
-                className="w-full mt-1 px-3 py-1.5 text-sm rounded focus:outline-none bg-white focus:ring-2 focus:ring-[#7b4f28]"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700">Priority</label>
-              <div className="mt-1 flex rounded overflow-hidden w-fit">
-                {['Low', 'Medium', 'High'].map((level, idx) => (
-                  <div key={level} className="flex space-x-2 bg-[#E9D8CB] p-1">
-                    <button
-                      key={level}
-                      type="button"
-                      className={`px-1 sm:px-4 py-0.5 text-xs rounded font-medium transition-all cursor-pointer ${
-                        formData.priority === level
-                          ? 'bg-[#7b4f28] text-white'
-                          : 'bg-white text-gray-800 hover:bg-gray-50'
-                      } ${idx === 0 ? 'rounded-l' : ''} ${idx === 2 ? 'rounded-r' : ''}`}
-                      onClick={() => onChange('priority', level)}
-                    >
-                      {level}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {[
-              {
-                label: 'Sizes',
-                key: 'size',
-                options: ['300 x 300', '400 x 400', '600 x 600', '800 x 800'],
-              },
-              {
-                label: 'Materials',
-                key: 'material',
-                options: ['Porcelain', 'Ceramic', 'Natural Stone', 'Glass', 'Marble'],
-              },
-              {
-                label: 'Finishes',
-                key: 'finish',
-                options: ['Glossy', 'Matte', 'Textured', 'Polished', 'Natural'],
-              },
-              {
-                label: 'Series',
-                key: 'series',
-                options: ['Wooden', 'Modern', 'Classic', 'Luxury', 'Rustic'],
-              },
-              {
-                label: 'Color',
-                key: 'color',
-                options: ['Gainsboro', 'White', 'Gray', 'Beige', 'Brown', 'Black'],
-              },
-            ].map(({ label, key, options }) => (
-              <div key={key}>
-                <label className="text-sm font-medium text-gray-700">{label}</label>
-                <div className="relative">
-                  <select
-                    key={`${key}-${tile.id}`}
-                    value={formData[key] || ''}
-                    onChange={e => onChange(key, e.target.value)}
-                    className="cursor-pointer w-full mt-1 px-3 py-1.5 bg-white text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#7b4f28] appearance-none"
-                  >
-                    <option value="">Select {label}</option>
-                    {options.map(option => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-gray-500">
-                    <Icon name="Arrow" width={11} />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Bottom Buttons */}
-        <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-          <button
-            type="button"
-            onClick={() => onDelete(tile.id)}
-            className="cursor-pointer bg-white border border-gray-300 text-gray-700 py-2 px-6 rounded hover:bg-gray-100 text-sm font-medium transition-colors"
-          >
-            Delete
-          </button>
-          <button
-            type="button"
-            onClick={onSave}
-            className="cursor-pointer bg-[#6F4E37] text-white py-2 px-6 rounded hover:bg-[#6F4E37] text-sm font-medium transition-colors"
-          >
-            Save
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-});
-
-EditFormPopup.displayName = 'EditFormPopup';
-
-const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
-  const getPriorityColor = useCallback(priority => {
-    switch (priority) {
-      case 'Low Priority':
-        return 'bg-[#2CC29A]';
-      case 'Medium Priority':
-        return 'bg-[#EA9A3E]';
-      case 'High Priority':
-        return 'bg-[#EA3E3E]';
-      default:
-        return 'bg-gray-500';
-    }
-  }, []);
-
-  if (!isOpen || !tile) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-      <div className="relative bg-[#FFF5EE] rounded-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <button
-          onClick={onClose}
-          className="absolute top-0 right-0 z-10 cursor-pointer"
-          aria-label="Close popup"
-        >
-          <X size={30} className="bg-[#6F4E37] text-white rounded-bl-sm p-1" />
-        </button>
-
-        {/* Content */}
-        <div className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Image Section */}
-            <div className="aspect-square border w-full max-w-[262px] h-[300px] sm:h-[369px] rounded-lg p-2 mx-auto md:mx-0">
-              <img
-                src={img || '/placeholder.svg'}
-                alt={tile.name}
-                className="w-full h-full object-cover rounded"
-              />
-            </div>
-
-            {/* Details Section */}
-            <div className="space-y-3">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">{tile.name}</h3>
-                <p className="text-sm text-gray-600">{tile.code}</p>
-              </div>
-
-              {/* Priority */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">Priority</label>
-                <div className="flex items-center">
-                  <span
-                    className={`px-3 py-1 rounded-full text-white text-sm font-medium ${getPriorityColor(tile.priority)}`}
-                  >
-                    {tile.priority}
-                  </span>
-                </div>
-              </div>
-
-              {/* Other Details */}
-              {[
-                { label: 'Sizes', value: tile.size },
-                { label: 'Materials', value: tile.material },
-                { label: 'Finishes', value: tile.finish },
-                { label: 'Series', value: tile.series },
-                { label: 'Color', value: tile.color },
-              ].map(({ label, value }) => (
-                <div key={label} className="space-y-1">
-                  <label className="text-sm font-semibold text-gray-700">{label}</label>
-                  <p className="text-sm text-gray-900">{value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6 pt-4">
-            <button
-              onClick={() => onDelete(tile.id)}
-              className="cursor-pointer px-4 py-2 bg-white text-black rounded-md font-medium transition-colors border border-gray-300 hover:bg-gray-50"
-              style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)' }}
-            >
-              Delete
-            </button>
-
-            <button
-              onClick={() => onEdit(tile)}
-              className="cursor-pointer px-4 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5a3d2b] transition-colors font-medium flex items-center justify-center gap-2"
-            >
-              <Edit size={16} />
-              Edit
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-});
-
-TilePopup.displayName = 'TilePopup';
+import { EditFormPopup, TilePopup } from './TilesPopups';
+import { Checkbox } from '../ui/checkbox';
 
 const TileManagement = () => {
   const dispatch = useDispatch();
@@ -458,9 +214,7 @@ const TileManagement = () => {
   const handleToggleFavorite = useCallback(
     id => {
       setTiles(prevTiles =>
-        prevTiles.map(tile =>
-          tile.id === id ? { ...tile, isFavorited: !tile.isFavorited } : tile
-        )
+        prevTiles.map(tile => (tile.id === id ? { ...tile, isFavorited: !tile.isFavorited } : tile))
       );
       if (selectedTile && selectedTile.id === id) {
         setSelectedTile(prev => ({ ...prev, isFavorited: !prev.isFavorited }));
@@ -468,6 +222,7 @@ const TileManagement = () => {
       // Update backend
       const tile = tiles.find(t => t.id === id);
       if (tile) {
+        // eslint-disable-next-line no-undef
         dispatch(updateTile({ id, data: { favorite: !tile.isFavorited } }));
       }
     },
@@ -685,7 +440,8 @@ const TileManagement = () => {
               tile.isFavorited ? 'bg-white' : 'bg-[#6F4E37] bg-opacity-90 hover:bg-opacity-100'
             }`}
           >
-            <Heart
+            <Icon
+              name="Heart"
               size={16}
               className={`transition-all duration-300 ${
                 tile.isFavorited ? 'text-[#6F4E37] fill-[#6F4E37]' : 'text-white fill-white'
@@ -714,8 +470,22 @@ const TileManagement = () => {
                   </div>
                 ),
               },
-              { label: 'Series', value: tile.series },
-              { label: 'Category', value: tile.category },
+              {
+                label: 'Series',
+                value: (
+                  <span className="px-2  text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">
+                    {tile.series}
+                  </span>
+                ),
+              },
+              {
+                label: 'Category',
+                value: (
+                  <span className="px-2  text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">
+                    {tile.category}
+                  </span>
+                ),
+              },
             ].map((item, index) => (
               <div key={index} className="flex justify-between gap-2">
                 <span className="font-semibold text-gray-700 whitespace-nowrap">{item.label}:</span>
@@ -756,11 +526,9 @@ const TileManagement = () => {
 
         <div className="bg-[#FFF5EE] px-4 py-2 flex flex-col sm:flex-row sm:justify-between items-center gap-2 sm:gap-0 w-full mt-1 border-t border-gray-200">
           <label className="inline-flex items-center gap-2 text-[#5C4033] text-sm font-semibold cursor-pointer hover:scale-105 transition-all duration-300">
-            <input
-              type="checkbox"
-              checked={tile.isActive}
+            <Checkbox
               onChange={() => handleToggleActive(tile.id)}
-              className="w-4 h-4 cursor-pointer accent-[#6F4E37] transition-transform duration-300 hover:scale-125"
+              className="w-4 h-4 cursor-pointer accent-[#6F4E37] transition-transform duration-300 hover:scale-125 bg-white border-[#6F4E37]"
             />
             <span
               className={`transition-all duration-300 ${tile.isActive ? 'text-[#5C4033]' : 'text-gray-400'}`}
@@ -773,7 +541,13 @@ const TileManagement = () => {
             onClick={() => handleDelete(tile.id)}
             className="flex items-center gap-2 mt-2 sm:mt-0 px-4 py-1.5 bg-[#5C4033] text-white rounded-lg text-sm font-semibold hover:bg-[#4a3529] hover:scale-105 transition-all duration-300 shadow-md transform"
           >
-            <Trash2 size={14} />
+            <Icon
+              name="DeleteIcon"
+              width={18}
+              height={18}
+              colour="white"
+              className="sm:mr-1 text-white flex-shrink-0"
+            />
             Delete
           </button>
         </div>
@@ -902,31 +676,41 @@ const TileManagement = () => {
                           : 'bg-[#6F4E37] text-white'
                       }`}
                     >
-                      <Heart
-                        size={14}
-                        className={tile.isFavorited ? 'fill-red-500' : 'fill-white'}
+                      <Icon
+                        name="Heart"
+                        size={16}
+                        className={`transition-all duration-300 ${
+                          tile.isFavorited
+                            ? 'text-[#6F4E37] fill-[#6F4E37]'
+                            : 'text-white fill-white'
+                        }`}
                       />
                     </button>
                   </td>
 
                   <td className="px-2 sm:px-4 py-4 flex items-center gap-1">
                     <button
-                      onClick={() => handleDelete(tile.id)}
-                      className="p-2 text-[#6F4E37] rounded"
-                    >
-                      <Trash2 width={22} height={25} />
-                    </button>
-                    <button
                       onClick={() => openTilePopup(tile)}
-                      className="p-2 text-[#6F4E37] rounded"
+                      className="p-2 text-[#6F4E37] rounded cursor-pointer"
                     >
                       <Icon name="Eye" width={25} height={22} />
                     </button>
                     <button
                       onClick={() => openEditMode(tile)}
-                      className="p-2 text-[#6F4E37] rounded"
+                      className="p-2 text-[#6F4E37] rounded cursor-pointer"
                     >
                       <Icon name="EditPencil" width={25} height={22} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(tile.id)}
+                      className="p-2 text-[#6F4E37] rounded cursor-pointer"
+                    >
+                      <Icon
+                        name="DeleteIcon"
+                        width={23}
+                        height={25}
+                        className="sm:mr-1 flex-shrink-0"
+                      />
                     </button>
                   </td>
                 </tr>
@@ -1083,10 +867,10 @@ const TileManagement = () => {
               {/* Grid View */}
               <div
                 className={`
-          ${viewMode === 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
-          transition-opacity duration-500 ease-in-out
-          grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full h-fit absolute inset-0
-        `}
+            ${viewMode === 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+            transition-opacity duration-500 ease-in-out
+            grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full h-fit absolute inset-0
+          `}
               >
                 {paginatedTiles.map(tile => (
                   <TileCard key={tile.id} tile={tile} />
@@ -1096,10 +880,10 @@ const TileManagement = () => {
               {/* Table View */}
               <div
                 className={`
-          ${viewMode !== 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
-          transition-opacity duration-500 ease-in-out
-          w-full absolute inset-0
-        `}
+            ${viewMode !== 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+            transition-opacity duration-500 ease-in-out
+            w-full absolute inset-0
+          `}
               >
                 <TableView />
               </div>

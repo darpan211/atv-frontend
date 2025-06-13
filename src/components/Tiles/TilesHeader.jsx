@@ -24,7 +24,7 @@ const FilterDropdowns = () => {
   return (
     <div className="animate-fade-in">
       {/* Mobile layout: 2 columns */}
-      <div className="grid grid-cols-2 gap-2 w-fit sm:hidden">
+      <div className="grid grid-cols-2 gap-2 w-[95vw] sm:hidden">
         {filterOptions.map((filter, index) => (
           <div
             key={index}
