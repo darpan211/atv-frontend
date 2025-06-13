@@ -15,7 +15,7 @@ const labelToThunkMap = {
   colors: fetchColors,
   materials: fetchMaterials,
   series: fetchSeries,
-  finish: fetchFinishes
+  finish: fetchFinishes,
 };
 
 const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested = false }) => {
@@ -64,11 +64,23 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested 
 
     const list = sourceMap[activeMainKey];
     if (list && list.length > 0) {
-      console.log(`Formatting items for key: ${activeMainKey}`, list);
-      const formatted = list.map((item) => ({
-        label: item.name || item.category || item.material || item.sizes || item.color || item.series,
-        path: `/tiles/${activeMainKey}/${item.slug || (item.name || item.category || item.material || item.sizes || item.color || item.series)?.toLowerCase().replace(/\s+/g, '-')}`,
-      }));
+      const formatted = list.map((item) => {
+        const labelValue =
+          item.name ||
+          item.category ||
+          item.material ||
+          item.sizes ||
+          item.color ||
+          item.series ||
+          item.finish;
+
+        const paramValue = encodeURIComponent(labelValue);
+        return {
+          label: labelValue,
+          path: `/tiles/list?${activeMainKey}=${paramValue}`,
+        };
+      });
+
       setNestedItems(formatted);
     }
   }, [categories, sizes, colors, materials, series, activeMainKey, enableDynamicNested, sourceMap]);

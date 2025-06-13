@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from 'react';
+import { useState, useCallback, memo, useEffect } from 'react';
 import {
   Heart,
   Trash2,
@@ -13,9 +13,19 @@ import {
 } from 'lucide-react';
 import img from '../../assets/image (2).png';
 import { Icon } from '../common/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
+import { fetchSeries } from '@/redux/slice/series/seriesThunks';
+import { fetchFinishes } from '@/redux/slice/finish/finishThunks';
+import { fetchSizes } from '@/redux/slice/sizes/sizeThunks';
+import { fetchMaterials } from '@/redux/slice/material/materialThunks';
+import { fetchColors } from '@/redux/slice/colors/colorThunks';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // Move EditFormPopup outside and memoize it
 const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave, onDelete }) => {
+
+
   if (!isOpen || !tile) return null;
 
   return (
@@ -71,6 +81,34 @@ const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave,
                 ))}
               </div>
             </div>
+
+            {/* {[
+              {
+                label: 'Sizes',
+                key: 'size',
+                options: sizes.map(item => item.name),
+              },
+              {
+                label: 'Materials',
+                key: 'material',
+                options: materials.map(item => item.name),
+              },
+              {
+                label: 'Finishes',
+                key: 'finish',
+                options: finish.map(item => item.name),
+              },
+              {
+                label: 'Series',
+                key: 'series',
+                options: series.map(item => item.name),
+              },
+              {
+                label: 'Color',
+                key: 'color',
+                options: colors.map(item => item.name),
+              },
+            ].map(({ label, key, options }) => ( */}
 
             {[
               {
@@ -249,6 +287,9 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
 TilePopup.displayName = 'TilePopup';
 
 const TileManagement = () => {
+  const  dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('grid');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -328,24 +369,86 @@ const TileManagement = () => {
     colors: [],
   });
 
-  const filterOptions = {
-    collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
-    categories: ['Wall Tiles', 'Floor Tiles', 'Bathroom Tiles', 'Kitchen Tiles', 'Outdoor Tiles'],
-    series: [
-      'Modern',
-      'Classic',
-      'Mosaic',
-      'Luxury',
-      'Wooden',
-      'Rustic',
-      'Contemporary',
-      'Minimalist',
-    ],
-    finishes: ['Glossy', 'Matte', 'Textured', 'Polished', 'Natural'],
-    sizes: ['200 x 1200', '300 x 300', '400 x 400', '600 x 600', '800 x 800', '1200 x 600'],
-    materials: ['Ceramic', 'Porcelain', 'Natural Stone', 'Glass', 'Marble'],
-    colors: ['White', 'Black', 'Gray', 'Beige', 'Brown', 'Blue', 'Green', 'Gainsboro'],
-  };
+  // const filterOptions = {
+  //   collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
+  //   categories: ['Wall Tiles', 'Floor Tiles', 'Bathroom Tiles', 'Kitchen Tiles', 'Outdoor Tiles'],
+  //   series: [
+  //     'Modern',
+  //     'Classic',
+  //     'Mosaic',
+  //     'Luxury',
+  //     'Wooden',
+  //     'Rustic',
+  //     'Contemporary',
+  //     'Minimalist',
+  //   ],
+  //   finishes: ['Glossy', 'Matte', 'Textured', 'Polished', 'Natural'],
+  //   sizes: ['200 x 1200', '300 x 300', '400 x 400', '600 x 600', '800 x 800', '1200 x 600'],
+  //   materials: ['Ceramic', 'Porcelain', 'Natural Stone', 'Glass', 'Marble'],
+  //   colors: ['White', 'Black', 'Gray', 'Beige', 'Brown', 'Blue', 'Green', 'Gainsboro'],
+  // };
+
+  const categories = useSelector(state => state.categories.list?.data ?? null);
+  const sizes = useSelector(state => state.sizes.list?.data ?? []);
+  const materials = useSelector(state => state.materials.list?.data ?? []);
+  const finish = useSelector(state => state.finish.list?.data ?? []);
+  const series = useSelector(state => state.series.list?.data ?? []);
+  const colors = useSelector(state => state.colors.list?.data ?? []);
+
+
+const filterOptions = {
+  collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
+  categories: categories.map(item => item.category),
+  series: series.map(item => item.series),
+  finishes: finish.map(item => item.finish),
+  sizes: sizes.map(item => item.sizes),
+  materials: materials.map(item => item.material),
+  colors: colors.map(item => item.color),
+};
+
+// fetch filter option data on page load
+  useEffect(() => {
+    dispatch(fetchCategories());
+    dispatch(fetchSeries());
+    dispatch(fetchFinishes());
+    dispatch(fetchSizes());
+    dispatch(fetchMaterials());
+    dispatch(fetchColors());
+}, [dispatch]);
+
+  // On mount, set filters from URL ---
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const newFilters = { ...activeFilters };
+    Object.keys(newFilters).forEach(key => {
+      const value = params.get(key);
+      if (value) {
+        // For multi-select, support comma separated values
+        newFilters[key] = value.split(',');
+      }
+    });
+    setActiveFilters(newFilters);
+    // eslint-disable-next-line
+  }, [location.search]);
+
+
+  // Whenever filters change, update URL ---
+  useEffect(() => {
+    const params = new URLSearchParams();
+    Object.entries(activeFilters).forEach(([key, values]) => {
+      if (values.length > 0) {
+        params.set(key, values.join(','));
+      }
+    });
+
+    // Only push if params changed
+    if (params.toString() !== location.search.replace(/^\?/, '')) {
+      navigate({ search: params.toString() }, { replace: true });
+    }
+    // eslint-disable-next-line
+  }, [activeFilters]);
+
+
 
   const [expandedSections, setExpandedSections] = useState({
     collections: true,
@@ -518,22 +621,60 @@ const TileManagement = () => {
     const matchesFilters = Object.entries(activeFilters).every(([key, values]) => {
       if (values.length === 0) return true;
 
+      // switch (key) {
+      //   case 'series':
+      //     return values.includes(tile.series);
+      //   case 'categories':
+      //     return values.includes(tile.category);
+      //   case 'materials':
+      //     return values.includes(tile.material);
+      //   case 'finishes':
+      //     return values.includes(tile.finish);
+      //   case 'sizes':
+      //     return values.includes(tile.size);
+      //   case 'colors':
+      //     return values.includes(tile.color);
+      //   default:
+      //     return true;
+      // }
+
       switch (key) {
-        case 'series':
-          return values.includes(tile.series);
-        case 'categories':
-          return values.includes(tile.category);
-        case 'materials':
-          return values.includes(tile.material);
-        case 'finishes':
-          return values.includes(tile.finish);
-        case 'sizes':
-          return values.includes(tile.size);
-        case 'colors':
-          return values.includes(tile.color);
-        default:
-          return true;
-      }
+      case 'series':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.series.trim().toLowerCase()
+        );
+      case 'categories':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.category.trim().toLowerCase()
+        );
+      case 'materials':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.material.trim().toLowerCase()
+        );
+      case 'finishes':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.finish.trim().toLowerCase()
+        );
+      case 'sizes':
+        return values.some(
+          v => v.trim().toLowerCase().replace(/x/g, '') === tile.size.trim().toLowerCase().replace(/x/g, '')
+        );
+      case 'colors':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.color.trim().toLowerCase()
+        );
+      case 'priority':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.priority.trim().toLowerCase()
+        );
+      
+      case 'name':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.name.trim().toLowerCase()
+        );
+      default:
+        return true;
+    }
     });
 
     return matchesSearch && matchesFilters;
@@ -855,6 +996,8 @@ const TileManagement = () => {
   const FilterSection = ({ title, filterKey, options }) => {
     const isExpanded = expandedSections[filterKey];
     const activeItems = activeFilters[filterKey];
+
+    
 
     return (
       <div className="border-b border-gray-200">
