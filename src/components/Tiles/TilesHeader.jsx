@@ -2,7 +2,13 @@ import { useState } from 'react';
 import { Search, Menu } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Icon } from '../common/icons';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
 
 const FilterDropdowns = () => {
   const [selectedValues] = useState({});
@@ -16,39 +22,65 @@ const FilterDropdowns = () => {
   ];
 
   return (
-    <div className="flex flex-wrap gap-4 animate-fade-in">
-      {filterOptions.map((filter, index) => (
-        <div
-          key={index}
-          className={`
-           relative
-        w-full
-        sm:w-auto
-        flex-shrink-0
-        ${filter.width}
-        transition-transform
-        duration-300
-        ease-in-out
-        transform
-        hover:scale-[1.02]
-        text-lg
-        font-medium
-        `}
-        >
-          <Select>
-            <SelectTrigger className="w-full h-10 mr-5">
-              <SelectValue placeholder={selectedValues[filter.label] || filter.options[0]} />
-            </SelectTrigger>
-            <SelectContent>
-              {filter.options.map(opt => (
-                <SelectItem key={opt} value={opt}>
-                  {opt}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      ))}
+    <div className="animate-fade-in">
+      {/* Mobile layout: 2 columns */}
+      <div className="grid grid-cols-2 gap-2 w-fit sm:hidden">
+        {filterOptions.map((filter, index) => (
+          <div
+            key={index}
+            className="relative transition-transform duration-300 ease-in-out transform hover:scale-[1.02] text-lg font-medium"
+          >
+            <Select>
+              <SelectTrigger className="w-full h-10">
+                <SelectValue placeholder={selectedValues[filter.label] || filter.options[0]} />
+              </SelectTrigger>
+              <SelectContent>
+                {filter.options.map(opt => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop layout: horizontal flex */}
+      <div className="hidden sm:flex flex-wrap gap-4">
+        {filterOptions.map((filter, index) => (
+          <div
+            key={index}
+            className={`
+              relative
+              w-full
+              sm:w-auto
+              flex-shrink-0
+              ${filter.width}
+              transition-transform
+              duration-300
+              ease-in-out
+              transform
+              hover:scale-[1.02]
+              text-lg
+              font-medium
+            `}
+          >
+            <Select>
+              <SelectTrigger className="w-full h-10 mr-5">
+                <SelectValue placeholder={selectedValues[filter.label] || filter.options[0]} />
+              </SelectTrigger>
+              <SelectContent>
+                {filter.options.map(opt => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

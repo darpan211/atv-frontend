@@ -18,6 +18,7 @@ import { Eye } from './svgs/Eye';
 import { EditPencil } from './svgs/EditPencil';
 import { Plus } from './svgs/Plus';
 import { Logout } from './svgs/Logout';
+import { Filter } from './svgs/Filter';
 
 export const Icon = ({ name, size, height, width, className, colour }) => {
   const icons = {
@@ -41,6 +42,7 @@ export const Icon = ({ name, size, height, width, className, colour }) => {
     EditPencil,
     Plus,
     Logout,
+    Filter
   };
 
   const SvgIcon = icons[name];
