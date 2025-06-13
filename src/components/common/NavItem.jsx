@@ -8,6 +8,7 @@ import { fetchColors } from '@/redux/slice/colors/colorThunks';
 import { fetchMaterials } from '@/redux/slice/material/materialThunks';
 import { fetchSeries } from '@/redux/slice/series/seriesThunks';
 import { fetchFinishes } from '@/redux/slice/finish/finishThunks';
+import { toCapitalize } from '../../helpers';
 
 const labelToThunkMap = {
   categories: fetchCategories,
@@ -79,7 +80,7 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested 
 
         const paramValue = encodeURIComponent(labelValue);
         return {
-          label: labelValue,
+          label: toCapitalize(labelValue),
           path: `/tiles/${activeMainKey === 'addtiles' ?'add':'list'}?${activeMainKey ==='addtiles' ? 'category': activeMainKey}=${paramValue}`,
         };
       });
