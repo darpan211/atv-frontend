@@ -1,12 +1,297 @@
-import { useState, useCallback } from 'react';
-import { Heart, Trash2, ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { useState, useCallback, memo, useEffect } from 'react';
+import {
+  Heart,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  X,
+  Search,
+  Menu,
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+} from 'lucide-react';
 import img from '../../assets/image (2).png';
 import { Icon } from '../common/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
+import { fetchSeries } from '@/redux/slice/series/seriesThunks';
+import { fetchFinishes } from '@/redux/slice/finish/finishThunks';
+import { fetchSizes } from '@/redux/slice/sizes/sizeThunks';
+import { fetchMaterials } from '@/redux/slice/material/materialThunks';
+import { fetchColors } from '@/redux/slice/colors/colorThunks';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './TilesSidebar';
 import Header from './TilesHeader';
-import { EditFormPopup, TilePopup } from './TilesPopups';
+
+// Move EditFormPopup outside and memoize it
+const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave, onDelete }) => {
+
+
+  if (!isOpen || !tile) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+      <div className="bg-[#fdf0e6] rounded-md shadow-lg w-full max-w-2xl p-4 sm:p-6 relative max-h-[90vh] overflow-y-auto">
+        <button
+          className="absolute top-0 right-0 text-gray-600 hover:text-black z-10 cursor-pointer"
+          onClick={onClose}
+          aria-label="Close edit form"
+        >
+          <X size={30} className="bg-[#6F4E37] text-white rounded-bl-sm p-1" />
+        </button>
+
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+          <div className="aspect-square border w-full max-w-[262px] h-[300px] sm:h-[369px] rounded-lg p-2 mx-auto md:mx-0">
+            <img
+              src={img || '/placeholder.svg'}
+              alt={tile.name}
+              className="w-full h-full object-cover rounded"
+            />
+          </div>
+          <div className="w-full lg:w-1/2 space-y-3">
+            <div>
+              <label className="text-sm font-medium text-gray-700">Name</label>
+              <input
+                key={`name-${tile.id}`}
+                type="text"
+                placeholder="Enter name"
+                value={formData.name || ''}
+                onChange={e => onChange('name', e.target.value)}
+                className="w-full mt-1 px-3 py-1.5 text-sm rounded focus:outline-none bg-white focus:ring-2 focus:ring-[#7b4f28]"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700">Priority</label>
+              <div className="mt-1 flex rounded overflow-hidden w-fit">
+                {['Low', 'Medium', 'High'].map((level, idx) => (
+                  <div key={level} className="flex space-x-2 bg-[#E9D8CB] p-1">
+                    <button
+                      key={level}
+                      type="button"
+                      className={`px-1 sm:px-4 py-0.5 text-xs rounded font-medium transition-all cursor-pointer ${
+                        formData.priority === level
+                          ? 'bg-[#7b4f28] text-white'
+                          : 'bg-white text-gray-800 hover:bg-gray-50'
+                      } ${idx === 0 ? 'rounded-l' : ''} ${idx === 2 ? 'rounded-r' : ''}`}
+                      onClick={() => onChange('priority', level)}
+                    >
+                      {level}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* {[
+              {
+                label: 'Sizes',
+                key: 'size',
+                options: sizes.map(item => item.name),
+              },
+              {
+                label: 'Materials',
+                key: 'material',
+                options: materials.map(item => item.name),
+              },
+              {
+                label: 'Finishes',
+                key: 'finish',
+                options: finish.map(item => item.name),
+              },
+              {
+                label: 'Series',
+                key: 'series',
+                options: series.map(item => item.name),
+              },
+              {
+                label: 'Color',
+                key: 'color',
+                options: colors.map(item => item.name),
+              },
+            ].map(({ label, key, options }) => ( */}
+
+            {[
+              {
+                label: 'Sizes',
+                key: 'size',
+                options: ['300 x 300', '400 x 400', '600 x 600', '800 x 800'],
+              },
+              {
+                label: 'Materials',
+                key: 'material',
+                options: ['Porcelain', 'Ceramic', 'Natural Stone', 'Glass', 'Marble'],
+              },
+              {
+                label: 'Finishes',
+                key: 'finish',
+                options: ['Glossy', 'Matte', 'Textured', 'Polished', 'Natural'],
+              },
+              {
+                label: 'Series',
+                key: 'series',
+                options: ['Wooden', 'Modern', 'Classic', 'Luxury', 'Rustic'],
+              },
+              {
+                label: 'Color',
+                key: 'color',
+                options: ['Gainsboro', 'White', 'Gray', 'Beige', 'Brown', 'Black'],
+              },
+            ].map(({ label, key, options }) => (
+              <div key={key}>
+                <label className="text-sm font-medium text-gray-700">{label}</label>
+                <div className="relative">
+                  <select
+                    key={`${key}-${tile.id}`}
+                    value={formData[key] || ''}
+                    onChange={e => onChange(key, e.target.value)}
+                    className="cursor-pointer w-full mt-1 px-3 py-1.5 bg-white text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#7b4f28] appearance-none"
+                  >
+                    <option value="">Select {label}</option>
+                    {options.map(option => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-gray-500">
+                    <Icon name="Arrow" width={11} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom Buttons */}
+        <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+          <button
+            type="button"
+            onClick={() => onDelete(tile.id)}
+            className="cursor-pointer bg-white border border-gray-300 text-gray-700 py-2 px-6 rounded hover:bg-gray-100 text-sm font-medium transition-colors"
+          >
+            Delete
+          </button>
+          <button
+            type="button"
+            onClick={onSave}
+            className="cursor-pointer bg-[#6F4E37] text-white py-2 px-6 rounded hover:bg-[#6F4E37] text-sm font-medium transition-colors"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+EditFormPopup.displayName = 'EditFormPopup';
+
+const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
+  const getPriorityColor = useCallback(priority => {
+    switch (priority) {
+      case 'Low Priority':
+        return 'bg-[#2CC29A]';
+      case 'Medium Priority':
+        return 'bg-[#EA9A3E]';
+      case 'High Priority':
+        return 'bg-[#EA3E3E]';
+      default:
+        return 'bg-gray-500';
+    }
+  }, []);
+
+  if (!isOpen || !tile) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+      <div className="relative bg-[#FFF5EE] rounded-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <button
+          onClick={onClose}
+          className="absolute top-0 right-0 z-10 cursor-pointer"
+          aria-label="Close popup"
+        >
+          <X size={30} className="bg-[#6F4E37] text-white rounded-bl-sm p-1" />
+        </button>
+
+        {/* Content */}
+        <div className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Image Section */}
+            <div className="aspect-square border w-full max-w-[262px] h-[300px] sm:h-[369px] rounded-lg p-2 mx-auto md:mx-0">
+              <img
+                src={img || '/placeholder.svg'}
+                alt={tile.name}
+                className="w-full h-full object-cover rounded"
+              />
+            </div>
+
+            {/* Details Section */}
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">{tile.name}</h3>
+                <p className="text-sm text-gray-600">{tile.code}</p>
+              </div>
+
+              {/* Priority */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700">Priority</label>
+                <div className="flex items-center">
+                  <span
+                    className={`px-3 py-1 rounded-full text-white text-sm font-medium ${getPriorityColor(tile.priority)}`}
+                  >
+                    {tile.priority}
+                  </span>
+                </div>
+              </div>
+
+              {/* Other Details */}
+              {[
+                { label: 'Sizes', value: tile.size },
+                { label: 'Materials', value: tile.material },
+                { label: 'Finishes', value: tile.finish },
+                { label: 'Series', value: tile.series },
+                { label: 'Color', value: tile.color },
+              ].map(({ label, value }) => (
+                <div key={label} className="space-y-1">
+                  <label className="text-sm font-semibold text-gray-700">{label}</label>
+                  <p className="text-sm text-gray-900">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6 pt-4">
+            <button
+              onClick={() => onDelete(tile.id)}
+              className="cursor-pointer px-4 py-2 bg-white text-black rounded-md font-medium transition-colors border border-gray-300 hover:bg-gray-50"
+              style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)' }}
+            >
+              Delete
+            </button>
+
+            <button
+              onClick={() => onEdit(tile)}
+              className="cursor-pointer px-4 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5a3d2b] transition-colors font-medium flex items-center justify-center gap-2"
+            >
+              <Edit size={16} />
+              Edit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+TilePopup.displayName = 'TilePopup';
 
 const TileManagement = () => {
+  const  dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('grid');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -86,24 +371,86 @@ const TileManagement = () => {
     colors: [],
   });
 
-  const filterOptions = {
-    collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
-    categories: ['Wall Tiles', 'Floor Tiles', 'Bathroom Tiles', 'Kitchen Tiles', 'Outdoor Tiles'],
-    series: [
-      'Modern',
-      'Classic',
-      'Mosaic',
-      'Luxury',
-      'Wooden',
-      'Rustic',
-      'Contemporary',
-      'Minimalist',
-    ],
-    finishes: ['Glossy', 'Matte', 'Textured', 'Polished', 'Natural'],
-    sizes: ['200 x 1200', '300 x 300', '400 x 400', '600 x 600', '800 x 800', '1200 x 600'],
-    materials: ['Ceramic', 'Porcelain', 'Natural Stone', 'Glass', 'Marble'],
-    colors: ['White', 'Black', 'Gray', 'Beige', 'Brown', 'Blue', 'Green', 'Gainsboro'],
-  };
+  // const filterOptions = {
+  //   collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
+  //   categories: ['Wall Tiles', 'Floor Tiles', 'Bathroom Tiles', 'Kitchen Tiles', 'Outdoor Tiles'],
+  //   series: [
+  //     'Modern',
+  //     'Classic',
+  //     'Mosaic',
+  //     'Luxury',
+  //     'Wooden',
+  //     'Rustic',
+  //     'Contemporary',
+  //     'Minimalist',
+  //   ],
+  //   finishes: ['Glossy', 'Matte', 'Textured', 'Polished', 'Natural'],
+  //   sizes: ['200 x 1200', '300 x 300', '400 x 400', '600 x 600', '800 x 800', '1200 x 600'],
+  //   materials: ['Ceramic', 'Porcelain', 'Natural Stone', 'Glass', 'Marble'],
+  //   colors: ['White', 'Black', 'Gray', 'Beige', 'Brown', 'Blue', 'Green', 'Gainsboro'],
+  // };
+
+  const categories = useSelector(state => state.categories.list?.data ?? null);
+  const sizes = useSelector(state => state.sizes.list?.data ?? []);
+  const materials = useSelector(state => state.materials.list?.data ?? []);
+  const finish = useSelector(state => state.finish.list?.data ?? []);
+  const series = useSelector(state => state.series.list?.data ?? []);
+  const colors = useSelector(state => state.colors.list?.data ?? []);
+
+
+const filterOptions = {
+  collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
+  categories: categories.map(item => item.category),
+  series: series.map(item => item.series),
+  finishes: finish.map(item => item.finish),
+  sizes: sizes.map(item => item.sizes),
+  materials: materials.map(item => item.material),
+  colors: colors.map(item => item.color),
+};
+
+// fetch filter option data on page load
+  useEffect(() => {
+    dispatch(fetchCategories());
+    dispatch(fetchSeries());
+    dispatch(fetchFinishes());
+    dispatch(fetchSizes());
+    dispatch(fetchMaterials());
+    dispatch(fetchColors());
+}, [dispatch]);
+
+  // On mount, set filters from URL ---
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const newFilters = { ...activeFilters };
+    Object.keys(newFilters).forEach(key => {
+      const value = params.get(key);
+      if (value) {
+        // For multi-select, support comma separated values
+        newFilters[key] = value.split(',');
+      }
+    });
+    setActiveFilters(newFilters);
+    // eslint-disable-next-line
+  }, [location.search]);
+
+
+  // Whenever filters change, update URL ---
+  useEffect(() => {
+    const params = new URLSearchParams();
+    Object.entries(activeFilters).forEach(([key, values]) => {
+      if (values.length > 0) {
+        params.set(key, values.join(','));
+      }
+    });
+
+    // Only push if params changed
+    if (params.toString() !== location.search.replace(/^\?/, '')) {
+      navigate({ search: params.toString() }, { replace: true });
+    }
+    // eslint-disable-next-line
+  }, [activeFilters]);
+
+
 
   const [expandedSections, setExpandedSections] = useState({
     collections: true,
@@ -278,22 +625,60 @@ const TileManagement = () => {
     const matchesFilters = Object.entries(activeFilters).every(([key, values]) => {
       if (values.length === 0) return true;
 
+      // switch (key) {
+      //   case 'series':
+      //     return values.includes(tile.series);
+      //   case 'categories':
+      //     return values.includes(tile.category);
+      //   case 'materials':
+      //     return values.includes(tile.material);
+      //   case 'finishes':
+      //     return values.includes(tile.finish);
+      //   case 'sizes':
+      //     return values.includes(tile.size);
+      //   case 'colors':
+      //     return values.includes(tile.color);
+      //   default:
+      //     return true;
+      // }
+
       switch (key) {
-        case 'series':
-          return values.includes(tile.series);
-        case 'categories':
-          return values.includes(tile.category);
-        case 'materials':
-          return values.includes(tile.material);
-        case 'finishes':
-          return values.includes(tile.finish);
-        case 'sizes':
-          return values.includes(tile.size);
-        case 'colors':
-          return values.includes(tile.color);
-        default:
-          return true;
-      }
+      case 'series':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.series.trim().toLowerCase()
+        );
+      case 'categories':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.category.trim().toLowerCase()
+        );
+      case 'materials':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.material.trim().toLowerCase()
+        );
+      case 'finishes':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.finish.trim().toLowerCase()
+        );
+      case 'sizes':
+        return values.some(
+          v => v.trim().toLowerCase().replace(/x/g, '') === tile.size.trim().toLowerCase().replace(/x/g, '')
+        );
+      case 'colors':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.color.trim().toLowerCase()
+        );
+      case 'priority':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.priority.trim().toLowerCase()
+        );
+      
+      case 'name':
+        return values.some(
+          v => v.trim().toLowerCase() === tile.name.trim().toLowerCase()
+        );
+      default:
+        return true;
+    }
     });
 
     return matchesSearch && matchesFilters;
@@ -618,6 +1003,50 @@ const TileManagement = () => {
             </div>
           </div>
         </div>
+      </div>
+    );
+  };
+
+  const FilterSection = ({ title, filterKey, options }) => {
+    const isExpanded = expandedSections[filterKey];
+    const activeItems = activeFilters[filterKey];
+
+    
+
+    return (
+      <div className="border-b border-gray-200">
+        <button
+          onClick={() => toggleSection(filterKey)}
+          className="w-full flex items-center justify-between py-3 px-1 text-left font-medium text-gray-900 hover:text-gray-700 transition-colors"
+          aria-expanded={isExpanded}
+          aria-controls={`filter-section-${filterKey}`}
+        >
+          <span className="text-sm sm:text-base">{title}</span>
+          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
+
+        {isExpanded && (
+          <div
+            id={`filter-section-${filterKey}`}
+            className="pb-4 space-y-2 max-h-48 overflow-y-auto"
+          >
+            {options.map(option => (
+              <label
+                key={option}
+                className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"
+              >
+                <input
+                  type="checkbox"
+                  checked={activeItems.includes(option)}
+                  onChange={() => handleFilterChange(filterKey, option)}
+                  className="w-4 h-4 border-gray-300 rounded focus:ring-2 focus:ring-amber-500"
+                  style={{ accentColor: '#6F4E37' }}
+                />
+                <span className="text-xs sm:text-sm text-gray-700">{option}</span>
+              </label>
+            ))}
+          </div>
+        )}
       </div>
     );
   };

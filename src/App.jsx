@@ -282,7 +282,7 @@ const App = () => {
         />
 
         <Route
-          path="/tiles/list"
+          path="/tiles/list/:slug?"
           element={
             <AppLayout>
               <HeaderTilesCart />

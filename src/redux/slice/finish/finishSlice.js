@@ -33,7 +33,7 @@ const finishSlice = createSlice({
       .addCase(fetchFinishes.fulfilled, (state, action) => {
         state.loading = false;
         // state.list = action.payload;
-        state.list = action.payload.data;
+        state.list = action.payload;
       })
       .addCase(fetchFinishes.rejected, (state, action) => {
         state.loading = false;
