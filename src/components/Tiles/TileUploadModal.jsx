@@ -2,6 +2,8 @@ import { X } from 'lucide-react';
 import React, { useRef, useState } from 'react';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
+import { useDispatch, useSelector } from 'react-redux';
+import { getTileColors } from '@/redux/slice/tiles/tileThunks';
 
 const MAX_IMAGES = 10;
 
@@ -13,6 +15,8 @@ const validationSchema = Yup.object().shape({
 });
 
 const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
+  const dispatch = useDispatch();
+  const { colorLoading, colorError } = useSelector(state => state.tiles);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const fileInputRef = useRef();
 
@@ -26,11 +30,58 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
     }
   };
 
-  const handleUpload = (values) => {
-    const filesWithThickness = selectedFiles.map(file => ({ file, thickness: values.thickness, name: '' }));
-    onUploadComplete(filesWithThickness);
-    setSelectedFiles([]);
-    onClose();
+  const getColorName = (hexColor) => {
+    // This is a simple mapping of hex colors to names
+    // You might want to use a more comprehensive color naming library
+    const colorMap = {
+      '#DCDCDC': 'Gainsboro',
+      '#FFFFFF': 'White',
+      '#000000': 'Black',
+      '#808080': 'Gray',
+      '#FF0000': 'Red',
+      '#00FF00': 'Green',
+      '#0000FF': 'Blue',
+      // Add more color mappings as needed
+    };
+    return colorMap[hexColor.toUpperCase()] || 'Unknown';
+  };
+
+  const handleUpload = async (values) => {
+    try {
+      if (selectedFiles.length === 0) {
+        throw new Error('Please select at least one image');
+      }
+
+      const formData = new FormData();
+      selectedFiles.forEach(file => {
+        formData.append('tiles_image', file);
+      });
+
+      // Call the color detection API using Redux thunk
+      const resultAction = await dispatch(getTileColors(formData));
+      
+      if (resultAction.error) {
+        throw new Error(resultAction.error.message || 'Failed to process images');
+      }
+
+      const colors = resultAction.payload.data;
+
+      // Map the colors to the files
+      const filesWithColors = selectedFiles.map((file, index) => ({
+        file,
+        thickness: values.thickness,
+        name: '',
+        color: colors[index]?.color_code || '#DCDCDC',
+        colorName: colors[index]?.color_name || 'Gainsboro'
+      }));
+
+      onUploadComplete(filesWithColors);
+      setSelectedFiles([]);
+      onClose();
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      alert(error.message || 'Failed to process images. Please try again.');
+    }
   };
 
   const handleFileChange = e => {
@@ -44,7 +95,6 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
     const updatedFiles = selectedFiles.filter((_, i) => i !== index);
     setSelectedFiles(updatedFiles);
   };
-
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -85,7 +135,7 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
                 <Field
                   type="number"
                   name="thickness"
-                  min="0"
+                  min="0.1"
                   step="0.1"
                   placeholder="Enter Tile Thickness (mm)"
                   className={`w-full px-3 py-2 border ${errors.thickness && touched.thickness ? 'border-red-500' : 'border-gray-300'} bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#7b4f28]`}
@@ -122,7 +172,7 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
                           <img
                             src={URL.createObjectURL(file)}
                             alt={`Preview ${index}`}
-                            className="mx-auto object-cover h-[70px] w-[70px] rounded  border"
+                            className="mx-auto object-cover h-[70px] w-[70px] rounded border"
                           />
                         </div>
                       ))}
@@ -142,14 +192,17 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
               <div className="text-center">
                 <button
                   type="submit"
-                  disabled={selectedFiles.length === 0}
+                  disabled={selectedFiles.length === 0 || colorLoading}
                   className={`bg-[#7b4f28] hover:bg-[#633e1f] text-white font-semibold px-5 py-2 cursor-pointer rounded-md ${
-                    selectedFiles.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                    selectedFiles.length === 0 || colorLoading ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
-                  Upload & Process
+                  {colorLoading ? 'Processing...' : 'Upload & Process'}
                 </button>
               </div>
+              {colorError && (
+                <p className="text-red-600 text-sm mt-2 text-center">{colorError}</p>
+              )}
             </Form>
           )}
         </Formik>

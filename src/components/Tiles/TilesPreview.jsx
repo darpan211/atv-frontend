@@ -24,6 +24,7 @@ const TilesPreview = ({
   setTileImageName,
   onDelete,
   setTileImageThickness,
+  setTileImageFavorite,
   errors = {},
 }) => {
   const nameRefs = useRef([]);
@@ -153,28 +154,22 @@ const TilesPreview = ({
                         <PencilIcon width={20} height={20} />
                       </button>
                     </div>
-                    {formikErrors.tiles?.[idx]?.thickness && touched.tiles?.[idx]?.thickness && (
-                      <p className="text-red-500 text-xs mb-1 ml-1">
-                        {formikErrors.tiles[idx].thickness}
-                      </p>
-                    )}
                     <div className="flex items-center gap-2 mb-2 mt-1">
-                      <span className="w-[21px] h-[21px] rounded-[130px] bg-gray-300 border border-gray-200 inline-block flex-shrink-0" />
+                      <span 
+                        className="w-[21px] h-[21px] rounded-[130px] border border-gray-200 inline-block flex-shrink-0" 
+                        style={{ backgroundColor: tile.color || '#DCDCDC' }}
+                      />
                       <span className="text-sm sm:text-base font-semibold text-gray-800">
-                        Gainsboro
+                        {tile.colorName || 'Gainsboro'}
                       </span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center bg-[#fceee3] px-3 sm:px-4 w-full h-[55px] rounded-b-[10px]">
+                    {/* Heart icon commented out */}
+                    <div className="flex-1" />
                     <button
                       type="button"
-                      className="flex items-center justify-center text-white bg-[#6F4E37] w-[30px] h-[30px] rounded-[5px] cursor-pointer flex-shrink-0"
-                    >
-                      <HeartIcon width={16} height={14} />
-                    </button>
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 text-white text-sm sm:text-base bg-[#7b4f28] hover:bg-[#633e1f] transition justify-center cursor-pointer font-semibold px-3 py-2 sm:w-[114px] h-[36px] rounded-[5px] min-w-0"
+                      className="flex items-center gap-1 text-white text-sm sm:text-base bg-[#7b4f28] hover:bg-[#633e1f] transition justify-center cursor-pointer font-semibold px-3 py-2 sm:w-[114px] h-[36px] rounded-[5px] min-w-0 ml-auto"
                       onClick={() => onDelete(idx)}
                     >
                       <Icon

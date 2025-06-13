@@ -23,6 +23,7 @@ import { fetchColors } from '@/redux/slice/colors/colorThunks';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './TilesSidebar';
 import Header from './TilesHeader';
+import { updateTile } from '@/redux/slice/tiles/tileThunks';
 
 // Move EditFormPopup outside and memoize it
 const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave, onDelete }) => {
@@ -491,13 +492,20 @@ const filterOptions = {
   const handleToggleFavorite = useCallback(
     id => {
       setTiles(prevTiles =>
-        prevTiles.map(tile => (tile.id === id ? { ...tile, isFavorited: !tile.isFavorited } : tile))
+        prevTiles.map(tile =>
+          tile.id === id ? { ...tile, isFavorited: !tile.isFavorited } : tile
+        )
       );
       if (selectedTile && selectedTile.id === id) {
         setSelectedTile(prev => ({ ...prev, isFavorited: !prev.isFavorited }));
       }
+      // Update backend
+      const tile = tiles.find(t => t.id === id);
+      if (tile) {
+        dispatch(updateTile({ id, data: { favorite: !tile.isFavorited } }));
+      }
     },
-    [selectedTile]
+    [selectedTile, tiles, dispatch]
   );
 
   const handleToggleActive = useCallback(
@@ -928,7 +936,7 @@ const filterOptions = {
                     >
                       <Heart
                         size={14}
-                        className={tile.isFavorited ? 'fill-[#6F4E37]' : 'fill-white'}
+                        className={tile.isFavorited ? 'fill-red-500' : 'fill-white'}
                       />
                     </button>
                   </td>
