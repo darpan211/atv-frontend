@@ -1,9 +1,9 @@
-import AdminHeader from "@/components/common/AdminHeader";
-import Header from "@/components/common/Header";
-import SellerHeader from "@/components/common/SellerHeader";
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import AdminHeader from '@/components/common/AdminHeader';
+import Header from '@/components/common/Header';
+import SellerHeader from '@/components/common/SellerHeader';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const AppLayout = ({ children }) => {
   const location = useLocation();

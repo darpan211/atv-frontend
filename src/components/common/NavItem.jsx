@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
 import { fetchSizes } from '@/redux/slice/sizes/sizeThunks';
 import { fetchColors } from '@/redux/slice/colors/colorThunks';
@@ -15,27 +16,33 @@ const labelToThunkMap = {
   colors: fetchColors,
   materials: fetchMaterials,
   series: fetchSeries,
-  finish: fetchFinishes
+  finish: fetchFinishes,
+  addtiles: fetchCategories, // Map AddTiles to categories thunk
 };
 
 const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested = false }) => {
   const dispatch = useDispatch();
-  const categories = useSelector(state => state.categories.list?.data ?? null);
-  const sizes = useSelector(state => state.sizes.list?.data ?? null);
-  const colors = useSelector(state => state.colors.list?.data ?? null);
-  const materials = useSelector(state => state.materials.list?.data ?? null);
-  const series = useSelector(state => state.series.list?.data ?? null);
-  const finish = useSelector(state => state.finish.list?.data ?? null);
-
   const navigate = useNavigate();
+
+  // Redux selectors
+  const categories = useSelector(state => state.categories.list?.data ?? []);
+  const sizes = useSelector(state => state.sizes.list?.data ?? []);
+  const colors = useSelector(state => state.colors.list?.data ?? []);
+  const materials = useSelector(state => state.materials.list?.data ?? []);
+  const series = useSelector(state => state.series.list?.data ?? []);
+  const finish = useSelector(state => state.finish.list?.data ?? []);
+
   const [isOpen, setIsOpen] = useState(false);
   const [nestedItems, setNestedItems] = useState([]);
   const [activeMainKey, setActiveMainKey] = useState(null);
+
   const dropdownRef = useRef(null);
   const timeoutRef = useRef(null);
 
-  const handleMainHover = async (item) => {
+  // Normalize label and match thunk
+  const handleMainHover = (item) => {
     if (!enableDynamicNested) return;
+
     const normalizedLabel = item.label?.toLowerCase().replace(/\s+/g, '');
     const matchedKey = Object.keys(labelToThunkMap).find(key =>
       normalizedLabel.includes(key)
@@ -56,7 +63,8 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested 
     colors,
     materials,
     series,
-    finish
+    finish,
+    addtiles: categories,
   }), [categories, sizes, colors, materials, series, finish]);
 
   useEffect(() => {
@@ -64,18 +72,17 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested 
 
     const list = sourceMap[activeMainKey];
     if (list && list.length > 0) {
-      console.log(`Formatting items for key: ${activeMainKey}`, list);
-      const formatted = list.map((item) => ({
+      const formatted = list.map(item => ({
         label: item.name || item.category || item.material || item.sizes || item.color || item.series,
-        path: `/tiles/${activeMainKey}/${item.slug || (item.name || item.category || item.material || item.sizes || item.color || item.series)?.toLowerCase().replace(/\s+/g, '-')}`,
+                path: `/tiles/${activeMainKey}/${item.slug || (item.name || item.category || item.material || item.sizes || item.color || item.series)?.toLowerCase().replace(/\s+/g, '-')}`,
       }));
       setNestedItems(formatted);
     }
-  }, [categories, sizes, colors, materials, series, activeMainKey, enableDynamicNested, sourceMap]);
+  }, [activeMainKey, enableDynamicNested, sourceMap]);
 
   const handleClick = () => {
     if (withDropdown) {
-      setIsOpen((prev) => !prev);
+      setIsOpen(prev => !prev);
     }
   };
 
@@ -113,59 +120,62 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested 
       {withDropdown && isOpen && (
         <div className="absolute left-0 top-12 mt-1 w-56 bg-white text-black shadow-lg rounded-lg z-50">
           <ul className="py-2 text-sm">
-            {dropdownItems.map((item, idx) => (
-              <li
-                key={idx}
-                onMouseEnter={() => {
-                  handleMainHover(item);
-                  clearTimeout(timeoutRef.current); // clear any scheduled close
-                }}
-                onMouseLeave={() => {
-                  timeoutRef.current = setTimeout(() => {
-                    setActiveMainKey(null);
-                    setNestedItems([]);
-                  }, 300);
-                }}
-                className="group px-4 py-2 hover:bg-gray-100 border-b last:border-none hover:text-[#6C4A34] transition-all duration-200 ease-in-out cursor-pointer relative"
-                onClick={() => item.path && handleItemClick(item.path)}
-              >
-                <div className="flex justify-between items-center">
-                  {item.label}
-                  {(item.hasDynamicChildren || !item.path) && (
-                    <ChevronRight
-                      className={`w-4 h-4 ml-2 transition-transform duration-200 ease-in-out ${
-                        item.label.toLowerCase().replace(/\s+/g, '').includes(activeMainKey) && nestedItems.length > 0
-                          ? 'rotate-90'
-                          : ''
-                      }`}
-                    />
-                  )}
-                </div>
+            {dropdownItems.map((item, idx) => {
+              const normalized = item.label.toLowerCase().replace(/\s+/g, '');
+              const isActive = normalized === activeMainKey && nestedItems.length > 0;
 
-                {item.label.toLowerCase().replace(/\s+/g, '').includes(activeMainKey) && nestedItems.length > 0 && (
-                  <ul
-                    className="absolute top-0 left-full ml-1 w-56 bg-white text-black shadow-lg rounded-lg py-2 text-sm z-50"
-                    onMouseEnter={() => clearTimeout(timeoutRef.current)}
-                    onMouseLeave={() => {
-                      timeoutRef.current = setTimeout(() => {
-                        setActiveMainKey(null);
-                        setNestedItems([]);
-                      }, 300);
-                    }}
-                  >
-                    {nestedItems.map((subItem, subIdx) => (
-                      <li
-                        key={subIdx}
-                        className="px-4 py-2 hover:bg-gray-100 border-b last:border-none hover:text-[#6C4A34] transition cursor-pointer"
-                        onClick={() => handleItemClick(subItem.path)}
-                      >
-                        {subItem.label}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
+              return (
+                <li
+                  key={idx}
+                  onMouseEnter={() => {
+                    handleMainHover(item);
+                    clearTimeout(timeoutRef.current);
+                  }}
+                  onMouseLeave={() => {
+                    timeoutRef.current = setTimeout(() => {
+                      setActiveMainKey(null);
+                      setNestedItems([]);
+                    }, 300);
+                  }}
+                  className="group px-4 py-2 hover:bg-gray-100 border-b last:border-none hover:text-[#6C4A34] transition-all duration-200 ease-in-out cursor-pointer relative"
+                  onClick={() => item.path && handleItemClick(item.path)}
+                >
+                  <div className="flex justify-between items-center">
+                    {item.label}
+                    {(item.hasDynamicChildren || !item.path) && (
+                      <ChevronRight
+                        className={`w-4 h-4 ml-2 transition-transform duration-200 ease-in-out ${
+                          isActive ? 'rotate-90' : ''
+                        }`}
+                      />
+                    )}
+                  </div>
+
+                  {isActive && (
+                    <ul
+                      className="absolute top-0 left-full ml-1 w-56 bg-white text-black shadow-lg rounded-lg py-2 text-sm z-50"
+                      onMouseEnter={() => clearTimeout(timeoutRef.current)}
+                      onMouseLeave={() => {
+                        timeoutRef.current = setTimeout(() => {
+                          setActiveMainKey(null);
+                          setNestedItems([]);
+                        }, 300);
+                      }}
+                    >
+                      {nestedItems.map((subItem, subIdx) => (
+                        <li
+                          key={subIdx}
+                          className="px-4 py-2 hover:bg-gray-100 border-b last:border-none hover:text-[#6C4A34] transition cursor-pointer"
+                          onClick={() => handleItemClick(subItem.path)}
+                        >
+                          {subItem.label}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

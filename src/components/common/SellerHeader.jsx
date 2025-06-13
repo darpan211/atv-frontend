@@ -32,6 +32,7 @@ const SellerHeader = () => {
         { label: 'Tiles by Finishes', hasDynamicChildren: true },
         { label: 'Tiles by Series', hasDynamicChildren: true },
         { label: 'Tiles by Materials', hasDynamicChildren: true },
+        { label: 'Add Tiles', hasDynamicChildren: true },
       ],
     },
     { label: 'All Tiles Design', withDropdown: true },
