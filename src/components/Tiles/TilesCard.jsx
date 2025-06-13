@@ -21,6 +21,8 @@ import { fetchSizes } from '@/redux/slice/sizes/sizeThunks';
 import { fetchMaterials } from '@/redux/slice/material/materialThunks';
 import { fetchColors } from '@/redux/slice/colors/colorThunks';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Sidebar from './TilesSidebar';
+import Header from './TilesHeader';
 
 // Move EditFormPopup outside and memoize it
 const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave, onDelete }) => {
@@ -583,6 +585,8 @@ const filterOptions = {
   }, []);
 
   const handleFilterChange = useCallback((category, value) => {
+    console.log(value, 'value====>');
+
     setActiveFilters(prev => ({
       ...prev,
       [category]: prev[category].includes(value)
@@ -698,50 +702,55 @@ const filterOptions = {
     const priorities = ['Low', 'Medium', 'High'];
 
     return (
-      <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+      <div className="w-full h-fit bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-200 overflow-hidden">
         <div
-          className="relative bg-gray-200 p-2 sm:p-4 rounded-t-xl flex justify-center items-center h-32 sm:h-40 lg:h-44 cursor-pointer"
+          className="relative bg-[#E0E0E0] rounded-t-xl p-2 overflow-hidden flex justify-center items-center h-[160px] cursor-pointer w-full group"
           onClick={() => openTilePopup(tile)}
         >
-          <img
-            src={img || '/placeholder.svg'}
-            alt=""
-            className="object-contain max-h-full max-w-full"
-          />
+          <div className="overflow-hidden rounded-xl w-full h-full">
+            <img
+              src={img || '/placeholder.svg'}
+              alt=""
+              className="object-cover h-full rounded-xl w-full max-h-[262.34px] overflow-hidden transition-transform duration-300 ease-in-out group-hover:scale-105"
+            />
+          </div>
           <button
             onClick={e => {
               e.stopPropagation();
               handleToggleFavorite(tile.id);
             }}
-            className={`cursor-pointer absolute top-2 right-2 p-1.5 rounded-md shadow-md transition-all duration-200 ${
+            className={`absolute top-3 right-3 p-1.5 rounded-md shadow-md transition-all duration-200 ${
               tile.isFavorited ? 'bg-white' : 'bg-[#6F4E37] bg-opacity-90 hover:bg-opacity-100'
             }`}
           >
             <Heart
               size={16}
-              className={`${tile.isFavorited ? 'text-[#6F4E37] fill-[#6F4E37]' : 'text-white fill-white'}`}
+              className={`transition-all duration-300 ${
+                tile.isFavorited ? 'text-[#6F4E37] fill-[#6F4E37]' : 'text-white fill-white'
+              }`}
             />
           </button>
         </div>
 
-        <div className="p-3 sm:p-4 space-y-3">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{tile.name}</h3>
-          <div className="space-y-1 text-xs sm:text-sm text-gray-600">
+        <div className="p-2 space-y-3">
+          <h3 className="text-base font-semibold truncate">{tile.name}</h3>
+
+          <div className="space-y-1 text-sm">
             {[
               { label: 'Size', value: tile.size },
               { label: 'Series', value: tile.series },
               { label: 'Category', value: tile.category },
-              { label: 'Material', value: tile.material },
             ].map((item, index) => (
               <div key={index} className="flex justify-between gap-2">
-                <span className="font-medium whitespace-nowrap">{item.label}:</span>
-                <span className="text-right truncate flex-1">{item.value}</span>
+                <span className="font-semibold text-gray-700 whitespace-nowrap">{item.label}:</span>
+                <span className="truncate flex-1 text-gray-600">{item.value}</span>
               </div>
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex flex-wrap gap-1 bg-gray-100 rounded-full px-2 py-1 items-center">
+          {/* Priority Buttons */}
+          <div className="flex items-center gap-2 animate-fade-in justify-between">
+            <div className="flex gap-1 bg-[#e9d8cb] rounded-[8px] px-1 py-1 items-center w-fit transition-opacity duration-500">
               {priorities.map(p => {
                 const full = `${p} Priority`;
                 const isSelected = tile.priority === full;
@@ -749,7 +758,7 @@ const filterOptions = {
                   <button
                     key={p}
                     onClick={() => handlePriorityChange(tile.id, full)}
-                    className={`cursor-pointer px-2 py-0.5 text-xs rounded-full font-medium transition-all ${
+                    className={`cursor-pointer px-0.5 py-0.5 text-xs rounded-sm font-medium transition-all duration-300 ease-in-out transform hover:scale-105 ${
                       isSelected
                         ? 'bg-white text-gray-800 shadow-sm'
                         : 'text-gray-700 hover:bg-gray-200'
@@ -762,33 +771,35 @@ const filterOptions = {
             </div>
 
             <span
-              className={`text-xs font-semibold px-2 py-1 rounded-full text-white ${getPriorityColor(tile.priority)}`}
+              className={`text-[11px] font-semibold px-2 py-1 rounded text-white transition-all duration-700 ease-in-out ${getPriorityColor(tile.priority)}`}
             >
               {tile.priority}
             </span>
           </div>
         </div>
-        <div className="mt-3 sm:mt-4">
-          <div className="flex items-center justify-between bg-[#FFF5EE] rounded p-3 gap-3">
-            <label className="inline-flex items-center gap-2 text-[#5C4033] text-sm font-medium">
-              <input
-                type="checkbox"
-                checked={tile.isActive}
-                onChange={() => handleToggleActive(tile.id)}
-                className="accent-[#6F4E37] w-4 h-4 cursor-pointer"
-              />
-              Active
-            </label>
 
-            {/* Delete Button */}
-            <button
-              onClick={() => handleDelete(tile.id)}
-              className="cursor-pointer flex items-center gap-1.5 px-4 py-2 bg-[#5C4033] text-white rounded text-sm font-medium hover:opacity-90 transition-all"
+        <div className="bg-[#FFF5EE] px-4 py-2 flex flex-col sm:flex-row sm:justify-between items-center gap-2 sm:gap-0 w-full mt-1 border-t border-gray-200">
+          <label className="inline-flex items-center gap-2 text-[#5C4033] text-sm font-semibold cursor-pointer hover:scale-105 transition-all duration-300">
+            <input
+              type="checkbox"
+              checked={tile.isActive}
+              onChange={() => handleToggleActive(tile.id)}
+              className="w-4 h-4 cursor-pointer accent-[#6F4E37] transition-transform duration-300 hover:scale-125"
+            />
+            <span
+              className={`transition-all duration-300 ${tile.isActive ? 'text-[#5C4033]' : 'text-gray-400'}`}
             >
-              <Trash2 size={14} />
-              Delete
-            </button>
-          </div>
+              Active
+            </span>
+          </label>
+
+          <button
+            onClick={() => handleDelete(tile.id)}
+            className="flex items-center gap-2 mt-2 sm:mt-0 px-4 py-1.5 bg-[#5C4033] text-white rounded-lg text-sm font-semibold hover:bg-[#4a3529] hover:scale-105 transition-all duration-300 shadow-md transform"
+          >
+            <Trash2 size={14} />
+            Delete
+          </button>
         </div>
       </div>
     );
@@ -799,13 +810,14 @@ const filterOptions = {
       const priorities = ['Low', 'Medium', 'High'];
 
       return (
-        <div className="flex flex-col items-center space-y-2">
+        <div className="flex flex-col items-center gap-2">
           <span
-            className={`px-2 py-1 rounded text-white text-xs font-medium ${getPriorityColor(tile.priority)}`}
+            className={`px-2 py-1 rounded text-white text-[11px] font-semibold transition-all duration-300 ease-in-out ${getPriorityColor(tile.priority)}`}
           >
             {tile.priority}
           </span>
-          <div className="flex space-x-1 bg-[#E9D8CB] p-1 rounded-lg">
+
+          <div className="flex gap-1 bg-[#E9D8CB] p-1 rounded-lg">
             {priorities.map(p => {
               const full = `${p} Priority`;
               const isSelected = tile.priority === full;
@@ -813,8 +825,8 @@ const filterOptions = {
                 <button
                   key={p}
                   onClick={() => handlePriorityChange(tile.id, full)}
-                  className={`px-1 py-0.5 text-xs rounded font-medium transition-all cursor-pointer ${
-                    isSelected ? 'bg-white' : ' text-gray-600 hover:bg-gray-300'
+                  className={`px-2 py-1 text-xs rounded font-medium transition-all duration-300 ease-in-out transform hover:scale-105 ${
+                    isSelected ? 'bg-white text-gray-800 shadow' : 'text-gray-700 hover:bg-gray-300'
                   }`}
                 >
                   {p}
@@ -828,42 +840,34 @@ const filterOptions = {
 
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="w-max-[1176px] overflow-x-auto">
           <table className="w-full min-w-[1000px]">
             <thead className="bg-[#6f4e37] text-white">
               <tr>
-                <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium border-r border-[#6f4e37]">
-                  Image
-                </th>
-                <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium border-r border-[#6f4e37]">
-                  Tile Name
-                </th>
-                <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium border-r border-[#6f4e37]">
-                  Priority
-                </th>
-                <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium border-r border-[#6f4e37]">
-                  Size
-                </th>
-                <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium border-r border-[#6f4e37]">
-                  Material
-                </th>
-                <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium border-r border-[#6f4e37]">
-                  Finish
-                </th>
-                <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium border-r border-[#6f4e37]">
-                  Series
-                </th>
-                <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium border-r border-[#6f4e37]">
-                  Status
-                </th>
-                <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium border-r border-[#6f4e37]">
-                  Favorite
-                </th>
-                <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium">
-                  Actions
-                </th>
+                {[
+                  'Image',
+                  'Tile Name',
+                  'Priority',
+                  'Size',
+                  'Material',
+                  'Finish',
+                  'Series',
+                  'Status',
+                  'Favorite',
+                  'Actions',
+                ].map((title, idx) => (
+                  <th
+                    key={title}
+                    className={`px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium ${
+                      idx !== 9 ? 'border-r border-[#6f4e37]' : ''
+                    }`}
+                  >
+                    {title}
+                  </th>
+                ))}
               </tr>
             </thead>
+
             <tbody className="divide-y divide-gray-200">
               {paginatedTiles.map((tile, index) => (
                 <tr key={tile.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
@@ -874,45 +878,51 @@ const filterOptions = {
                     <img
                       src={img || '/placeholder.svg'}
                       alt={tile.name}
-                      className="max-h-55 object-contain rounded-lg cursor-pointer"
+                      className="max-h-[58px] w-[75px] object-contain rounded-lg cursor-pointer"
                     />
                   </td>
-                  <td className="px-2 sm:px-4 py-4 text-xs sm:text-sm text-gray-900 border-r border-gray-200 font-medium">
+
+                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm font-medium text-gray-900 border-r border-gray-200">
                     {tile.name}
                   </td>
                   <td className="px-2 sm:px-4 py-4 border-r border-gray-200">
                     <PriorityControls tile={tile} />
                   </td>
-                  <td className="px-2 sm:px-4 py-4 text-xs sm:text-sm text-gray-900 border-r border-gray-200">
+
+                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200 w-max-[105px]">
                     {tile.size}
                   </td>
-                  <td className="px-2 sm:px-4 py-4 text-xs sm:text-sm text-gray-900 border-r border-gray-200">
+
+                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200">
                     {tile.material}
                   </td>
-                  <td className="px-2 sm:px-4 py-4 text-xs sm:text-sm text-gray-900 border-r border-gray-200">
+
+                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200">
                     {tile.finish}
                   </td>
-                  <td className="px-2 sm:px-4 py-4 text-xs sm:text-sm text-gray-900 border-r border-gray-200">
+                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200">
                     {tile.series}
                   </td>
+
                   <td className="px-2 sm:px-4 py-4 border-r border-gray-200">
                     <button
                       onClick={() => handleToggleActive(tile.id)}
-                      className={`px-2 py-1 cursor-pointer rounded text-xs font-medium transition-all ${
+                      className={`px-2 py-1 rounded text-xs font-medium transition ${
                         tile.isActive
-                          ? 'bg-[#005E06] text-white hover:bg-[#005e06ea]'
-                          : 'bg-[#DADADA] text-[#6E6E6E] hover:bg-[#dadadaed]'
+                          ? 'bg-[#005E06] text-white hover:bg-[#004d05]'
+                          : 'bg-[#DADADA] text-[#6E6E6E] hover:bg-[#cfcfcf]'
                       }`}
                     >
                       {tile.isActive ? 'Active' : 'Inactive'}
                     </button>
                   </td>
+
                   <td className="px-2 sm:px-4 py-4 border-r border-gray-200">
                     <button
                       onClick={() => handleToggleFavorite(tile.id)}
-                      className={`p-2 rounded transition-all cursor-pointer ${
+                      className={`p-2 rounded transition ${
                         tile.isFavorited
-                          ? 'bg-white text-[#6F4E37] border-[#6f4e37] border'
+                          ? 'bg-white text-[#6F4E37] border border-[#6f4e37]'
                           : 'bg-[#6F4E37] text-white'
                       }`}
                     >
@@ -922,22 +932,23 @@ const filterOptions = {
                       />
                     </button>
                   </td>
-                  <td className="px-2 sm:px-4 py-4 flex">
+
+                  <td className="px-2 sm:px-4 py-4 flex items-center gap-1">
                     <button
                       onClick={() => handleDelete(tile.id)}
-                      className="p-2 text-[#6F4E37] rounded transition-all cursor-pointer"
+                      className="p-2 text-[#6F4E37] rounded"
                     >
-                      <Trash2 width={22.22} height={25} />
+                      <Trash2 width={22} height={25} />
                     </button>
                     <button
                       onClick={() => openTilePopup(tile)}
-                      className="p-2 text-[#6F4E37] rounded transition-all cursor-pointer"
+                      className="p-2 text-[#6F4E37] rounded"
                     >
                       <Icon name="Eye" width={25} height={22} />
                     </button>
                     <button
                       onClick={() => openEditMode(tile)}
-                      className="p-2 text-[#6F4E37] rounded transition-all cursor-pointer"
+                      className="p-2 text-[#6F4E37] rounded"
                     >
                       <Icon name="EditPencil" width={25} height={22} />
                     </button>
@@ -948,7 +959,9 @@ const filterOptions = {
           </table>
         </div>
 
-        <div className="bg-gray-50 px-4 py-3 flex flex-col sm:flex-row items-center justify-between border-t border-gray-200 gap-4">
+        {/* Pagination Controls */}
+        <div className="bg-gray-50 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-200">
+          {/* Rows per page */}
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-700">Rows per page:</span>
             <div className="relative">
@@ -965,6 +978,7 @@ const filterOptions = {
             </div>
           </div>
 
+          {/* Page navigation */}
           <div className="flex items-center space-x-4">
             <span className="text-sm text-gray-700">
               {startIndex + 1}-{Math.min(endIndex, filteredTiles.length)} of {filteredTiles.length}
@@ -1038,7 +1052,7 @@ const filterOptions = {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 w-full">
+    <div className="min-h-screen bg-white w-full">
       <div className="flex w-full relative">
         {/* Sidebar Overlay for Mobile */}
         {sidebarOpen && (
@@ -1049,189 +1063,34 @@ const filterOptions = {
         )}
 
         {/* Sidebar */}
-        <div
-          className={`${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } fixed lg:static top-0 left-0 z-40 w-72 sm:w-80 h-full bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transition-none overflow-hidden flex flex-col`}
-        >
-          {/* Mobile Close Button */}
-          <div className="lg:hidden flex justify-end p-4 border-b border-gray-200">
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-red-800"
-              aria-label="Close sidebar"
-            >
-              <X size={20} />
-            </button>
-          </div>
+        <Sidebar
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          expandedSections={expandedSections}
+          toggleSection={toggleSection}
+          activeFilters={activeFilters}
+          handleFilterChange={handleFilterChange}
+          removeFilter={removeFilter}
+          clearAllFilters={clearAllFilters}
+          getTotalFilters={getTotalFilters}
+          filterOptions={filterOptions}
+          filteredTiles={filteredTiles}
+        />
 
-          <div className="p-4 border-b border-gray-200 flex-shrink-0">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Filter</h2>
-              <button
-                onClick={clearAllFilters}
-                className="cursor-pointer text-[#CA0000] hover:text-[#CA0000] text-sm font-medium underline hover:no-underline transition-all"
-              >
-                Clear All
-              </button>
-            </div>
-            <p className="text-sm text-gray-800 font-medium">
-              Total Designs:{' '}
-              <span className="text-amber-800 font-bold">{filteredTiles.length}</span>
-            </p>
-            {getTotalFilters() > 0 && (
-              <p className="text-xs text-gray-600 mt-1">
-                Active Filters:{' '}
-                <span className="text-amber-800 font-semibold">{getTotalFilters()}</span>
-              </p>
-            )}
-          </div>
+        <div className="flex-1 min-h-[100%] bg-gray-50 flex flex-col w-full lg:ml-0">
+          {/* Header */}
+          <Header
+            setSidebarOpen={setSidebarOpen}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+          />
 
-          {getTotalFilters() > 0 && (
-            <div className="p-4 border-b border-gray-200 flex-shrink-0">
-              <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
-                {Object.entries(activeFilters).map(([category, items]) =>
-                  items.map(item => (
-                    <span
-                      key={`${category}-${item}`}
-                      className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 border border-green-200"
-                    >
-                      <span className="mr-1 capitalize">{category}:</span>
-                      {item}
-                      <button
-                        onClick={() => removeFilter(category, item)}
-                        className="ml-1 hover:bg-green-200 rounded-full p-0.5"
-                        aria-label={`Remove ${category} filter: ${item}`}
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </span>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
-
-          <div className="flex-1 overflow-y-auto p-4">
-            <FilterSection
-              title="Collections"
-              filterKey="collections"
-              options={filterOptions.collections}
-            />
-            <FilterSection
-              title="Categories"
-              filterKey="categories"
-              options={filterOptions.categories}
-            />
-            <FilterSection title="Series" filterKey="series" options={filterOptions.series} />
-            <FilterSection title="Finishes" filterKey="finishes" options={filterOptions.finishes} />
-            <FilterSection title="Sizes" filterKey="sizes" options={filterOptions.sizes} />
-            <FilterSection
-              title="Materials"
-              filterKey="materials"
-              options={filterOptions.materials}
-            />
-            <FilterSection title="Colors" filterKey="colors" options={filterOptions.colors} />
-          </div>
-        </div>
-
-        <div className="flex-1 min-h-screen bg-gray-50 flex flex-col w-full lg:ml-0">
-          <div className="bg-[#E9D8CB] px-4 py-3 border-b border-gray-200 flex-shrink-0 w-full">
-            <div className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:justify-between ">
-              <div className="flex items-start gap-2 sm:gap-4 flex-wrap justify-between w-full">
-                <button
-                  onClick={() => setSidebarOpen(true)}
-                  className="lg:hidden p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-white/50"
-                  aria-label="Open sidebar"
-                >
-                  <Menu size={20} />
-                </button>
-                <div className="flex flex-col md:flex-row gap-3 md:items-start flex-1">
-                  {/* Search Field - fixed width, stacked above on small screens */}
-                  <div className="relative flex-shrink-0 w-52 sm:w-48 md:w-56">
-                    <input
-                      type="text"
-                      placeholder="Search tiles..."
-                      value={searchTerm}
-                      onChange={e => setSearchTerm(e.target.value)}
-                      className="w-full pr-8 pl-4 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6f4e37]"
-                      aria-label="Search tiles"
-                    />
-                    <Search
-                      className="absolute right-2 top-2.5 h-5 w-5 text-[#6f4e37]"
-                      aria-hidden="true"
-                    />
-                  </div>
-
-                  {/* Dropdown Filters */}
-                  <div className="flex flex-wrap gap-2 md:ml-4">
-                    {[
-                      { label: 'Sort by', options: ['Name', 'Priority', 'Size'] },
-                      { label: 'Order', options: ['Ascending', 'Descending'] },
-                      { label: 'Status', options: ['Active', 'Inactive'] },
-                      { label: 'Priority', options: ['Low', 'Medium', 'High'] },
-                      { label: 'Favorites', options: ['Favorited', 'Not Favorited'] },
-                    ].map((filter, index) => (
-                      <div key={index} className="relative w-[135px] sm:w-auto flex-shrink-0">
-                        <select className="w-full appearance-none px-3 pr-7 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6f4e37]">
-                          <option>{filter.label}</option>
-                          {filter.options.map(opt => (
-                            <option key={opt}>{opt}</option>
-                          ))}
-                        </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500">
-                          <Icon name="Arrow" width={8} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* View Toggle */}
-                <div className="w-full md:w-auto flex justify-center md:justify-center lg:justify-end gap-2 mt-3 sm:mt-0">
-                  {/* Grid View */}
-                  <div className="border border-gray-300 rounded-md ">
-                    <button
-                      onClick={() => setViewMode('grid')}
-                      className={`p-2 transition-all rounded ${viewMode === 'grid' ? 'bg-[#6f4e37]' : 'bg-white'} cursor-pointer`}
-                      title="Grid View"
-                      aria-label="Switch to grid view"
-                      aria-pressed={viewMode === 'grid'}
-                    >
-                      <Icon
-                        name={viewMode === 'grid' ? 'Grid' : 'Grid1'}
-                        height="20"
-                        width="20"
-                        color={viewMode === 'grid' ? 'white' : '#6f4e37'}
-                      />
-                    </button>
-                  </div>
-
-                  {/* Table View */}
-                  <div className="border border-gray-300 rounded-md ">
-                    <button
-                      onClick={() => setViewMode('table')}
-                      className={`p-2 transition-all rounded ${viewMode === 'table' ? 'bg-[#6f4e37]' : 'bg-white'} cursor-pointer`}
-                      title="Table View"
-                      aria-label="Switch to table view"
-                      aria-pressed={viewMode === 'table'}
-                    >
-                      <Icon
-                        name={viewMode === 'table' ? 'Main1' : 'Main'}
-                        height="20"
-                        width="20"
-                        color={viewMode === 'table' ? 'white' : '#6f4e37'}
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 p-2 sm:p-4 lg:p-6 overflow-auto w-full">
-            {filteredTiles.length === 0 ? (
+          {/* Main Content */}
+          <div className="flex-1 bg-white p-3 sm:p-4 lg:p-6 w-full relative">
+            {/* Empty state */}
+            {filteredTiles.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-gray-400 mb-4">
                   <Search size={48} className="mx-auto" />
@@ -1243,15 +1102,34 @@ const filterOptions = {
                     : 'Add some tiles to get started'}
                 </p>
               </div>
-            ) : viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 w-full">
+            )}
+
+            {/* Grid & Table View Container */}
+            <div className="relative w-full min-h-[300px]">
+              {/* Grid View */}
+              <div
+                className={`
+          ${viewMode === 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+          transition-opacity duration-500 ease-in-out
+          grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full h-fit absolute inset-0
+        `}
+              >
                 {paginatedTiles.map(tile => (
                   <TileCard key={tile.id} tile={tile} />
                 ))}
               </div>
-            ) : (
-              <TableView />
-            )}
+
+              {/* Table View */}
+              <div
+                className={`
+          ${viewMode !== 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+          transition-opacity duration-500 ease-in-out
+          w-full absolute inset-0
+        `}
+              >
+                <TableView />
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -181,6 +181,7 @@ const TilesPreview = ({
                         name="DeleteIcon"
                         width={18}
                         height={18}
+                        colour="white"
                         className="sm:mr-1 text-white flex-shrink-0"
                       />
                       <span className="hidden xs:inline sm:inline">Delete</span>

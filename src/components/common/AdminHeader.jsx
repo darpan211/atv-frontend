@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { LogOut, Menu } from 'lucide-react';
-import { Icon } from './icons';
+// import { Icon } from './icons';
 import { useNavigate } from 'react-router-dom';
 import NavItem from './NavItem';
 import { useDispatch } from 'react-redux';
 import { logout } from '@/redux/slice/auth/authSlice';
-
+import { Icon } from './icons/index';
 const AdminHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -56,16 +56,16 @@ const AdminHeader = () => {
         { label: 'Manage Sizes', path: '/admin/sizes' },
         { label: 'Manage Colors', path: '/admin/colors' },
         { label: 'Manage Suitable Places', path: '/admin/places' },
+         { label: 'Manage Finish', path: '/admin/finish' },
       ]
     },
   ];
 
   return (
     <header className="bg-[#6C4A34] text-white px-4 md:px-6 py-3 flex justify-between items-center shadow sticky top-0 z-50">
-
       <Icon name="Logo" height="50px" width="55px" className="shrink-0" />
 
-      <nav className="hidden lg:flex items-center space-x-5 text-sm xl:text-base font-medium">
+      <nav className="hidden lg:flex items-center space-x-5 text-[16px] xl:text-base font-normal">
         {navLinks.map((item, idx) => (
           <React.Fragment key={item.label}>
             <NavItem
@@ -90,9 +90,9 @@ const AdminHeader = () => {
 
       <button
         onClick={handleLogout}
-        className="hidden lg:flex items-center space-x-2 bg-white text-black px-3 py-2 rounded-md font-medium hover:bg-gray-100 transition"
+        className="hidden lg:flex items-center space-x-2 gap-3 bg-white text-black px-3 py-2 rounded-md font-semibold hover:bg-gray-100 transition"
       >
-        <LogOut className="w-5 h-5" />
+        <Icon name="Logout" className="w-5 h-5 text-[#6C4A34]" /> Logout
       </button>
 
       {menuOpen && (

@@ -1,4 +1,4 @@
-export const DeleteIcon = ({ height, width, size, className,colour='#6F4E37' }) => {
+export const DeleteIcon = ({ height, width, size, className, colour = '#6F4E37' }) => {
   return (
     <svg
       width={width ?? size ?? 25}
