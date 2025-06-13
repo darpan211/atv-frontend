@@ -17,8 +17,9 @@ import { Arrow } from './svgs/Arrow';
 import { Eye } from './svgs/Eye';
 import { EditPencil } from './svgs/EditPencil';
 import { Plus } from './svgs/Plus';
+import { Logout } from './svgs/Logout';
 
-export const Icon = ({ name, size, height, width, className,colour }) => {
+export const Icon = ({ name, size, height, width, className, colour }) => {
   const icons = {
     Logo,
     Pencil,
@@ -39,6 +40,7 @@ export const Icon = ({ name, size, height, width, className,colour }) => {
     Eye,
     EditPencil,
     Plus,
+    Logout,
   };
 
   const SvgIcon = icons[name];
@@ -46,5 +48,7 @@ export const Icon = ({ name, size, height, width, className,colour }) => {
     return null;
   }
 
-  return <SvgIcon colour={colour} width={width} size={size} height={height} className={className} />;
+  return (
+    <SvgIcon colour={colour} width={width} size={size} height={height} className={className} />
+  );
 };

@@ -228,80 +228,80 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
 TilePopup.displayName = "TilePopup"
 
 const TileManagement = () => {
-  const [viewMode, setViewMode] = useState("grid")
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [rowsPerPage, setRowsPerPage] = useState(10)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [selectedTile, setSelectedTile] = useState(null)
-  const [isPopupOpen, setIsPopupOpen] = useState(false)
-  const [isEditMode, setIsEditMode] = useState(false)
-  const [editFormData, setEditFormData] = useState({})
+  const [viewMode, setViewMode] = useState('grid');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedTile, setSelectedTile] = useState(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
 
   const [tiles, setTiles] = useState([
     {
       id: 1,
-      name: "MONALISA ONYX AQUA GMYK",
-      code: "(S232DA83) copy",
-      size: "600 x 600",
-      series: "Wooden",
-      category: "Floor Tiles",
-      priority: "High Priority",
+      name: 'MONALISA ONYX AQUA GMYK',
+      code: '(S232DA83) copy',
+      size: '600 x 600',
+      series: 'Wooden',
+      category: 'Floor Tiles',
+      priority: 'High Priority',
       isActive: true,
       isFavorited: true,
-      material: "Porcelain",
-      finish: "Glossy",
-      color: "Gainsboro",
+      material: 'Porcelain',
+      finish: 'Glossy',
+      color: 'Gainsboro',
     },
     {
       id: 2,
-      name: "Name two",
-      code: "(S232DA84)",
-      size: "400 x 400",
-      series: "Modern",
-      category: "Wall Tiles",
-      priority: "High Priority",
+      name: 'Name two',
+      code: '(S232DA84)',
+      size: '400 x 400',
+      series: 'Modern',
+      category: 'Wall Tiles',
+      priority: 'High Priority',
       isActive: false,
       isFavorited: false,
-      material: "Ceramic",
-      finish: "Matte",
-      color: "White",
+      material: 'Ceramic',
+      finish: 'Matte',
+      color: 'White',
     },
     {
       id: 3,
-      name: "Name three",
-      code: "(S232DA85)",
-      size: "300 x 300",
-      series: "Classic",
-      category: "Bathroom Tiles",
-      priority: "Low Priority",
+      name: 'Name three',
+      code: '(S232DA85)',
+      size: '300 x 300',
+      series: 'Classic',
+      category: 'Bathroom Tiles',
+      priority: 'Low Priority',
       isActive: true,
       isFavorited: true,
-      material: "Natural Stone",
-      finish: "Textured",
-      color: "Gray",
+      material: 'Natural Stone',
+      finish: 'Textured',
+      color: 'Gray',
     },
     {
       id: 4,
-      name: "Tile name",
-      code: "(S232DA86)",
-      size: "800 x 800",
-      series: "Luxury",
-      category: "Kitchen Tiles",
-      priority: "Medium Priority",
+      name: 'Tile name',
+      code: '(S232DA86)',
+      size: '800 x 800',
+      series: 'Luxury',
+      category: 'Kitchen Tiles',
+      priority: 'Medium Priority',
       isActive: true,
       isFavorited: false,
-      material: "Marble",
-      finish: "Polished",
-      color: "Beige",
+      material: 'Marble',
+      finish: 'Polished',
+      color: 'Beige',
     },
-  ])
+  ]);
 
-  const [sortBy, setSortBy] = useState("")
-  const [sortOrder, setSortOrder] = useState("")
-  const [statusFilter, setStatusFilter] = useState("")
-  const [priorityFilter, setPriorityFilter] = useState("")
-  const [favoritesFilter, setFavoritesFilter] = useState("")
+  const [sortBy, setSortBy] = useState('');
+  const [sortOrder, setSortOrder] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [favoritesFilter, setFavoritesFilter] = useState('');
 
   const [activeFilters, setActiveFilters] = useState({
     series: [],
@@ -311,17 +311,26 @@ const TileManagement = () => {
     sizes: [],
     materials: [],
     colors: [],
-  })
+  });
 
   const filterOptions = {
-    collections: ["Modern", "Contemporary", "Traditional", "Vintage", "Minimalist"],
-    categories: ["Wall Tiles", "Floor Tiles", "Bathroom Tiles", "Kitchen Tiles", "Outdoor Tiles"],
-    series: ["Modern", "Classic", "Mosaic", "Luxury", "Wooden", "Rustic", "Contemporary", "Minimalist"],
-    finishes: ["Glossy", "Matte", "Textured", "Polished", "Natural"],
-    sizes: ["200 x 1200", "300 x 300", "400 x 400", "600 x 600", "800 x 800", "1200 x 600"],
-    materials: ["Ceramic", "Porcelain", "Natural Stone", "Glass", "Marble"],
-    colors: ["White", "Black", "Gray", "Beige", "Brown", "Blue", "Green", "Gainsboro"],
-  }
+    collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
+    categories: ['Wall Tiles', 'Floor Tiles', 'Bathroom Tiles', 'Kitchen Tiles', 'Outdoor Tiles'],
+    series: [
+      'Modern',
+      'Classic',
+      'Mosaic',
+      'Luxury',
+      'Wooden',
+      'Rustic',
+      'Contemporary',
+      'Minimalist',
+    ],
+    finishes: ['Glossy', 'Matte', 'Textured', 'Polished', 'Natural'],
+    sizes: ['200 x 1200', '300 x 300', '400 x 400', '600 x 600', '800 x 800', '1200 x 600'],
+    materials: ['Ceramic', 'Porcelain', 'Natural Stone', 'Glass', 'Marble'],
+    colors: ['White', 'Black', 'Gray', 'Beige', 'Brown', 'Blue', 'Green', 'Gainsboro'],
+  };
 
   const [expandedSections, setExpandedSections] = useState({
     collections: true,
@@ -331,98 +340,102 @@ const TileManagement = () => {
     sizes: false,
     materials: false,
     colors: false,
-  })
+  });
 
-  const getPriorityColor = useCallback((priority) => {
+  const getPriorityColor = useCallback(priority => {
     switch (priority) {
-      case "Low Priority":
-        return "bg-[#2CC29A]"
-      case "Medium Priority":
-        return "bg-[#EA9A3E]"
-      case "High Priority":
-        return "bg-[#EA3E3E]"
+      case 'Low Priority':
+        return 'bg-[#2CC29A]';
+      case 'Medium Priority':
+        return 'bg-[#EA9A3E]';
+      case 'High Priority':
+        return 'bg-[#EA3E3E]';
       default:
-        return "bg-gray-500"
+        return 'bg-gray-500';
     }
-  }, [])
+  }, []);
 
   // Memoized handlers to prevent unnecessary re-renders
   const handlePriorityChange = useCallback(
     (id, newPriority) => {
-      setTiles((prevTiles) => prevTiles.map((tile) => (tile.id === id ? { ...tile, priority: newPriority } : tile)))
+      setTiles(prevTiles =>
+        prevTiles.map(tile => (tile.id === id ? { ...tile, priority: newPriority } : tile))
+      );
       if (selectedTile && selectedTile.id === id) {
-        setSelectedTile((prev) => ({ ...prev, priority: newPriority }))
+        setSelectedTile(prev => ({ ...prev, priority: newPriority }));
       }
     },
-    [selectedTile],
-  )
+    [selectedTile]
+  );
 
   const handleToggleFavorite = useCallback(
-    (id) => {
-      setTiles((prevTiles) =>
-        prevTiles.map((tile) => (tile.id === id ? { ...tile, isFavorited: !tile.isFavorited } : tile)),
-      )
+    id => {
+      setTiles(prevTiles =>
+        prevTiles.map(tile => (tile.id === id ? { ...tile, isFavorited: !tile.isFavorited } : tile))
+      );
       if (selectedTile && selectedTile.id === id) {
-        setSelectedTile((prev) => ({ ...prev, isFavorited: !prev.isFavorited }))
+        setSelectedTile(prev => ({ ...prev, isFavorited: !prev.isFavorited }));
       }
     },
-    [selectedTile],
-  )
+    [selectedTile]
+  );
 
   const handleToggleActive = useCallback(
-    (id) => {
-      setTiles((prevTiles) => prevTiles.map((tile) => (tile.id === id ? { ...tile, isActive: !tile.isActive } : tile)))
+    id => {
+      setTiles(prevTiles =>
+        prevTiles.map(tile => (tile.id === id ? { ...tile, isActive: !tile.isActive } : tile))
+      );
       if (selectedTile && selectedTile.id === id) {
-        setSelectedTile((prev) => ({ ...prev, isActive: !prev.isActive }))
+        setSelectedTile(prev => ({ ...prev, isActive: !prev.isActive }));
       }
     },
-    [selectedTile],
-  )
+    [selectedTile]
+  );
 
   const handleDelete = useCallback(
-    (id) => {
-      setTiles((prevTiles) => prevTiles.filter((tile) => tile.id !== id))
+    id => {
+      setTiles(prevTiles => prevTiles.filter(tile => tile.id !== id));
       if (selectedTile && selectedTile.id === id) {
-        setIsPopupOpen(false)
-        setSelectedTile(null)
-        setIsEditMode(false)
+        setIsPopupOpen(false);
+        setSelectedTile(null);
+        setIsEditMode(false);
       }
     },
-    [selectedTile],
-  )
+    [selectedTile]
+  );
 
-  const openTilePopup = useCallback((tile) => {
-    setSelectedTile(tile)
-    setIsPopupOpen(true)
-    setIsEditMode(false)
-  }, [])
+  const openTilePopup = useCallback(tile => {
+    setSelectedTile(tile);
+    setIsPopupOpen(true);
+    setIsEditMode(false);
+  }, []);
 
   const closeTilePopup = useCallback(() => {
-    setIsPopupOpen(false)
-    setSelectedTile(null)
-    setIsEditMode(false)
-    setEditFormData({})
-  }, [])
+    setIsPopupOpen(false);
+    setSelectedTile(null);
+    setIsEditMode(false);
+    setEditFormData({});
+  }, []);
 
-  const openEditMode = useCallback((tile) => {
-    setSelectedTile(tile)
+  const openEditMode = useCallback(tile => {
+    setSelectedTile(tile);
     setEditFormData({
       name: tile.name,
-      priority: tile.priority.replace(" Priority", ""),
+      priority: tile.priority.replace(' Priority', ''),
       size: tile.size,
       material: tile.material,
       finish: tile.finish,
       series: tile.series,
       color: tile.color,
-    })
-    setIsEditMode(true)
-    setIsPopupOpen(false) // Close the view popup when opening edit mode
-  }, [])
+    });
+    setIsEditMode(true);
+    setIsPopupOpen(false); // Close the view popup when opening edit mode
+  }, []);
 
   // Fixed form change handler - this was the main issue
   const handleEditFormChange = useCallback((field, value) => {
-    setEditFormData((prev) => ({ ...prev, [field]: value }))
-  }, [])
+    setEditFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
 
   const handleSaveEdit = useCallback(() => {
     const updatedTile = {
@@ -434,137 +447,146 @@ const TileManagement = () => {
       finish: editFormData.finish,
       series: editFormData.series,
       color: editFormData.color,
-    }
+    };
 
-    setTiles((prevTiles) => prevTiles.map((tile) => (tile.id === selectedTile.id ? updatedTile : tile)))
-    setSelectedTile(updatedTile)
-    setIsEditMode(false)
-    alert("Tile updated successfully!")
-  }, [selectedTile, editFormData])
+    setTiles(prevTiles =>
+      prevTiles.map(tile => (tile.id === selectedTile.id ? updatedTile : tile))
+    );
+    setSelectedTile(updatedTile);
+    setIsEditMode(false);
+    alert('Tile updated successfully!');
+  }, [selectedTile, editFormData]);
 
-  const toggleSection = useCallback((section) => {
-    setExpandedSections((prev) => ({
+  const toggleSection = useCallback(section => {
+    setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section],
-    }))
-  }, [])
+    }));
+  }, []);
 
   const handleFilterChange = useCallback((category, value) => {
-    setActiveFilters((prev) => ({
+    setActiveFilters(prev => ({
       ...prev,
       [category]: prev[category].includes(value)
-        ? prev[category].filter((item) => item !== value)
+        ? prev[category].filter(item => item !== value)
         : [...prev[category], value],
-    }))
-    setCurrentPage(1)
-  }, [])
+    }));
+    setCurrentPage(1);
+  }, []);
 
   const removeFilter = useCallback((category, value) => {
-    setActiveFilters((prev) => ({
+    setActiveFilters(prev => ({
       ...prev,
-      [category]: prev[category].filter((item) => item !== value),
-    }))
-    setCurrentPage(1)
-  }, [])
+      [category]: prev[category].filter(item => item !== value),
+    }));
+    setCurrentPage(1);
+  }, []);
 
   const clearAllFilters = useCallback(() => {
-    const cleared = {}
-    Object.keys(activeFilters).forEach((key) => (cleared[key] = []))
-    setActiveFilters(cleared)
-    setSortBy("")
-    setSortOrder("")
-    setStatusFilter("")
-    setPriorityFilter("")
-    setFavoritesFilter("")
-    setCurrentPage(1)
-  }, [activeFilters])
+    const cleared = {};
+    Object.keys(activeFilters).forEach(key => (cleared[key] = []));
+    setActiveFilters(cleared);
+    setSortBy('');
+    setSortOrder('');
+    setStatusFilter('');
+    setPriorityFilter('');
+    setFavoritesFilter('');
+    setCurrentPage(1);
+  }, [activeFilters]);
 
-  const getTotalFilters = useCallback(() => Object.values(activeFilters).flat().length, [activeFilters])
+  const getTotalFilters = useCallback(
+    () => Object.values(activeFilters).flat().length,
+    [activeFilters]
+  );
 
   const filteredTiles = tiles
-    .filter((tile) => {
+    .filter(tile => {
       const matchesSearch =
         tile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         tile.series.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        tile.category.toLowerCase().includes(searchTerm.toLowerCase())
+        tile.category.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesFilters = Object.entries(activeFilters).every(([key, values]) => {
-        if (values.length === 0) return true
+        if (values.length === 0) return true;
 
         switch (key) {
-          case "series":
-            return values.includes(tile.series)
-          case "categories":
-            return values.includes(tile.category)
-          case "materials":
-            return values.includes(tile.material)
-          case "finishes":
-            return values.includes(tile.finish)
-          case "sizes":
-            return values.includes(tile.size)
-          case "colors":
-            return values.includes(tile.color)
+          case 'series':
+            return values.includes(tile.series);
+          case 'categories':
+            return values.includes(tile.category);
+          case 'materials':
+            return values.includes(tile.material);
+          case 'finishes':
+            return values.includes(tile.finish);
+          case 'sizes':
+            return values.includes(tile.size);
+          case 'colors':
+            return values.includes(tile.color);
           default:
-            return true
+            return true;
         }
-      })
+      });
 
       // Dropdown filters
       const matchesStatus =
-        !statusFilter || (statusFilter === "Active" && tile.isActive) || (statusFilter === "Inactive" && !tile.isActive)
+        !statusFilter ||
+        (statusFilter === 'Active' && tile.isActive) ||
+        (statusFilter === 'Inactive' && !tile.isActive);
 
-      const matchesPriority = !priorityFilter || tile.priority === `${priorityFilter} Priority`
+      const matchesPriority = !priorityFilter || tile.priority === `${priorityFilter} Priority`;
 
       const matchesFavorites =
         !favoritesFilter ||
-        (favoritesFilter === "Favorited" && tile.isFavorited) ||
-        (favoritesFilter === "Not Favorited" && !tile.isFavorited)
+        (favoritesFilter === 'Favorited' && tile.isFavorited) ||
+        (favoritesFilter === 'Not Favorited' && !tile.isFavorited);
 
-      return matchesSearch && matchesFilters && matchesStatus && matchesPriority && matchesFavorites
+      return (
+        matchesSearch && matchesFilters && matchesStatus && matchesPriority && matchesFavorites
+      );
     })
     .sort((a, b) => {
-      if (!sortBy) return 0
+      if (!sortBy) return 0;
 
-      let comparison = 0
+      let comparison = 0;
 
       switch (sortBy) {
-        case "Name":
-          comparison = a.name.localeCompare(b.name)
-          break
-        case "Priority":
-          const priorityOrder = { "Low Priority": 1, "Medium Priority": 2, "High Priority": 3 }
-          comparison = priorityOrder[a.priority] - priorityOrder[b.priority]
-          break
-        case "Size":
-          const getSizeValue = (size) => {
-            const [width, height] = size.split(" x ").map(Number)
-            return width * height
-          }
-          comparison = getSizeValue(a.size) - getSizeValue(b.size)
-          break
+        case 'Name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'Priority':
+          const priorityOrder = { 'Low Priority': 1, 'Medium Priority': 2, 'High Priority': 3 };
+          comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
+          break;
+        case 'Size':
+          const getSizeValue = size => {
+            const [width, height] = size.split(' x ').map(Number);
+            return width * height;
+          };
+          comparison = getSizeValue(a.size) - getSizeValue(b.size);
+          break;
         default:
-          return 0
+          return 0;
       }
 
-      return sortOrder === "Descending" ? -comparison : comparison
-    })
+      return sortOrder === 'Descending' ? -comparison : comparison;
+    });
 
-  const totalPages = Math.ceil(filteredTiles.length / rowsPerPage)
-  const startIndex = (currentPage - 1) * rowsPerPage
-  const endIndex = startIndex + rowsPerPage
-  const paginatedTiles = filteredTiles.slice(startIndex, endIndex)
+  const totalPages = Math.ceil(filteredTiles.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const paginatedTiles = filteredTiles.slice(startIndex, endIndex);
 
-  const handlePageChange = useCallback((page) => {
-    setCurrentPage(page)
-  }, [])
+  const handlePageChange = useCallback(page => {
+    setCurrentPage(page);
+  }, []);
 
-  const handleRowsPerPageChange = useCallback((newRowsPerPage) => {
-    setRowsPerPage(newRowsPerPage)
-    setCurrentPage(1)
-  }, [])
+  const handleRowsPerPageChange = useCallback(newRowsPerPage => {
+    setRowsPerPage(newRowsPerPage);
+    setCurrentPage(1);
+  }, []);
 
   const TileCard = ({ tile }) => {
-    const priorities = ["Low", "Medium", "High"]
+    const priorities = ['Low', 'Medium', 'High'];
 
     return (
       <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
@@ -572,19 +594,23 @@ const TileManagement = () => {
           className="relative bg-gray-200 p-2 sm:p-4 rounded-t-xl flex justify-center items-center h-32 sm:h-40 lg:h-44 cursor-pointer"
           onClick={() => openTilePopup(tile)}
         >
-          <img src={img || "/placeholder.svg"} alt="" className="object-contain max-h-full max-w-full" />
+          <img
+            src={img || '/placeholder.svg'}
+            alt=""
+            className="object-contain max-h-full max-w-full"
+          />
           <button
-            onClick={(e) => {
-              e.stopPropagation()
-              handleToggleFavorite(tile.id)
+            onClick={e => {
+              e.stopPropagation();
+              handleToggleFavorite(tile.id);
             }}
             className={`cursor-pointer absolute top-2 right-2 p-1.5 rounded-md shadow-md transition-all duration-200 ${
-              tile.isFavorited ? "bg-white" : "bg-[#6F4E37] bg-opacity-90 hover:bg-opacity-100"
+              tile.isFavorited ? 'bg-white' : 'bg-[#6F4E37] bg-opacity-90 hover:bg-opacity-100'
             }`}
           >
             <Heart
               size={16}
-              className={`${tile.isFavorited ? "text-[#6F4E37] fill-[#6F4E37]" : "text-white fill-white"}`}
+              className={`${tile.isFavorited ? 'text-[#6F4E37] fill-[#6F4E37]' : 'text-white fill-white'}`}
             />
           </button>
         </div>
@@ -593,10 +619,10 @@ const TileManagement = () => {
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{tile.name}</h3>
           <div className="space-y-1 text-xs sm:text-sm text-gray-600">
             {[
-              { label: "Size", value: tile.size },
-              { label: "Series", value: tile.series },
-              { label: "Category", value: tile.category },
-              { label: "Material", value: tile.material },
+              { label: 'Size', value: tile.size },
+              { label: 'Series', value: tile.series },
+              { label: 'Category', value: tile.category },
+              { label: 'Material', value: tile.material },
             ].map((item, index) => (
               <div key={index} className="flex justify-between gap-2">
                 <span className="font-medium whitespace-nowrap">{item.label}:</span>
@@ -607,20 +633,22 @@ const TileManagement = () => {
 
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex flex-wrap gap-1 bg-gray-100 rounded-full px-2 py-1 items-center">
-              {priorities.map((p) => {
-                const full = `${p} Priority`
-                const isSelected = tile.priority === full
+              {priorities.map(p => {
+                const full = `${p} Priority`;
+                const isSelected = tile.priority === full;
                 return (
                   <button
                     key={p}
                     onClick={() => handlePriorityChange(tile.id, full)}
                     className={`cursor-pointer px-2 py-0.5 text-xs rounded-full font-medium transition-all ${
-                      isSelected ? "bg-white text-gray-800 shadow-sm" : "text-gray-700 hover:bg-gray-200"
+                      isSelected
+                        ? 'bg-white text-gray-800 shadow-sm'
+                        : 'text-gray-700 hover:bg-gray-200'
                     }`}
                   >
                     {p}
                   </button>
-                )
+                );
               })}
             </div>
 
@@ -654,38 +682,40 @@ const TileManagement = () => {
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const TableView = () => {
     const PriorityControls = ({ tile }) => {
-      const priorities = ["Low", "Medium", "High"]
+      const priorities = ['Low', 'Medium', 'High'];
 
       return (
         <div className="flex flex-col items-center space-y-2">
-          <span className={`px-2 py-1 rounded text-white text-xs font-medium ${getPriorityColor(tile.priority)}`}>
+          <span
+            className={`px-2 py-1 rounded text-white text-xs font-medium ${getPriorityColor(tile.priority)}`}
+          >
             {tile.priority}
           </span>
           <div className="flex space-x-1 bg-[#E9D8CB] p-1 rounded-lg">
-            {priorities.map((p) => {
-              const full = `${p} Priority`
-              const isSelected = tile.priority === full
+            {priorities.map(p => {
+              const full = `${p} Priority`;
+              const isSelected = tile.priority === full;
               return (
                 <button
                   key={p}
                   onClick={() => handlePriorityChange(tile.id, full)}
                   className={`px-1 py-0.5 text-xs rounded font-medium transition-all cursor-pointer ${
-                    isSelected ? "bg-white" : " text-gray-600 hover:bg-gray-300"
+                    isSelected ? 'bg-white' : ' text-gray-600 hover:bg-gray-300'
                   }`}
                 >
                   {p}
                 </button>
-              )
+              );
             })}
           </div>
         </div>
-      )
-    }
+      );
+    };
 
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -720,15 +750,20 @@ const TileManagement = () => {
                 <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium border-r border-[#6f4e37]">
                   Favorite
                 </th>
-                <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium">Actions</th>
+                <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {paginatedTiles.map((tile, index) => (
-                <tr key={tile.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                  <td className="px-2 sm:px-4 py-4 border-r border-gray-200" onClick={() => openTilePopup(tile)}>
+                <tr key={tile.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                  <td
+                    className="px-2 sm:px-4 py-4 border-r border-gray-200"
+                    onClick={() => openTilePopup(tile)}
+                  >
                     <img
-                      src={img || "/placeholder.svg"}
+                      src={img || '/placeholder.svg'}
                       alt={tile.name}
                       className="max-h-55 object-contain rounded-lg cursor-pointer"
                     />
@@ -756,21 +791,26 @@ const TileManagement = () => {
                       onClick={() => handleToggleActive(tile.id)}
                       className={`px-2 py-1 cursor-pointer rounded text-xs font-medium transition-all ${
                         tile.isActive
-                          ? "bg-[#005E06] text-white hover:bg-[#005e06ea]"
-                          : "bg-[#DADADA] text-[#6E6E6E] hover:bg-[#dadadaed]"
+                          ? 'bg-[#005E06] text-white hover:bg-[#005e06ea]'
+                          : 'bg-[#DADADA] text-[#6E6E6E] hover:bg-[#dadadaed]'
                       }`}
                     >
-                      {tile.isActive ? "Active" : "Inactive"}
+                      {tile.isActive ? 'Active' : 'Inactive'}
                     </button>
                   </td>
                   <td className="px-2 sm:px-4 py-4 border-r border-gray-200">
                     <button
                       onClick={() => handleToggleFavorite(tile.id)}
                       className={`p-2 rounded transition-all cursor-pointer ${
-                        tile.isFavorited ? "bg-white text-[#6F4E37] border-[#6f4e37] border" : "bg-[#6F4E37] text-white"
+                        tile.isFavorited
+                          ? 'bg-white text-[#6F4E37] border-[#6f4e37] border'
+                          : 'bg-[#6F4E37] text-white'
                       }`}
                     >
-                      <Heart size={14} className={tile.isFavorited ? "fill-[#6F4E37]" : "fill-white"} />
+                      <Heart
+                        size={14}
+                        className={tile.isFavorited ? 'fill-[#6F4E37]' : 'fill-white'}
+                      />
                     </button>
                   </td>
                   <td className="px-2 sm:px-4 py-4 flex">
@@ -805,7 +845,7 @@ const TileManagement = () => {
             <div className="relative">
               <select
                 value={rowsPerPage}
-                onChange={(e) => handleRowsPerPageChange(Number(e.target.value))}
+                onChange={e => handleRowsPerPageChange(Number(e.target.value))}
                 className="appearance-none bg-white border border-gray-300 rounded px-3 py-1 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
               >
                 <option value={10}>10</option>
@@ -841,12 +881,12 @@ const TileManagement = () => {
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const FilterSection = ({ title, filterKey, options }) => {
-    const isExpanded = expandedSections[filterKey]
-    const activeItems = activeFilters[filterKey]
+    const isExpanded = expandedSections[filterKey];
+    const activeItems = activeFilters[filterKey];
 
     return (
       <div className="border-b border-gray-200">
@@ -861,15 +901,21 @@ const TileManagement = () => {
         </button>
 
         {isExpanded && (
-          <div id={`filter-section-${filterKey}`} className="pb-4 space-y-2 max-h-48 overflow-y-auto">
-            {options.map((option) => (
-              <label key={option} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+          <div
+            id={`filter-section-${filterKey}`}
+            className="pb-4 space-y-2 max-h-48 overflow-y-auto"
+          >
+            {options.map(option => (
+              <label
+                key={option}
+                className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"
+              >
                 <input
                   type="checkbox"
                   checked={activeItems.includes(option)}
                   onChange={() => handleFilterChange(filterKey, option)}
                   className="w-4 h-4  rounded focus:ring-2 focus:ring-amber-500"
-                  style={{ accentColor: "#6F4E37" }}
+                  style={{ accentColor: '#6F4E37' }}
                 />
                 <span className="text-xs sm:text-sm text-gray-700">{option}</span>
               </label>
@@ -877,21 +923,24 @@ const TileManagement = () => {
           </div>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 w-full">
       <div className="flex w-full relative">
         {/* Sidebar Overlay for Mobile */}
         {sidebarOpen && (
-          <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
+          <div
+            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
         )}
 
         {/* Sidebar */}
         <div
           className={`${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } fixed lg:static top-0 left-0 z-40 w-72 sm:w-80 h-full bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transition-none overflow-hidden flex flex-col`}
         >
           {/* Mobile Close Button */}
@@ -916,11 +965,13 @@ const TileManagement = () => {
               </button>
             </div>
             <p className="text-sm text-gray-800 font-medium">
-              Total Designs: <span className="text-amber-800 font-bold">{filteredTiles.length}</span>
+              Total Designs:{' '}
+              <span className="text-amber-800 font-bold">{filteredTiles.length}</span>
             </p>
             {getTotalFilters() > 0 && (
               <p className="text-xs text-gray-600 mt-1">
-                Active Filters: <span className="text-amber-800 font-semibold">{getTotalFilters()}</span>
+                Active Filters:{' '}
+                <span className="text-amber-800 font-semibold">{getTotalFilters()}</span>
               </p>
             )}
           </div>
@@ -929,7 +980,7 @@ const TileManagement = () => {
             <div className="p-4 border-b border-gray-200 flex-shrink-0">
               <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
                 {Object.entries(activeFilters).map(([category, items]) =>
-                  items.map((item) => (
+                  items.map(item => (
                     <span
                       key={`${category}-${item}`}
                       className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 border border-green-200"
@@ -944,19 +995,31 @@ const TileManagement = () => {
                         <X className="w-3 h-3" />
                       </button>
                     </span>
-                  )),
+                  ))
                 )}
               </div>
             </div>
           )}
 
           <div className="flex-1 overflow-y-auto p-4">
-            <FilterSection title="Collections" filterKey="collections" options={filterOptions.collections} />
-            <FilterSection title="Categories" filterKey="categories" options={filterOptions.categories} />
+            <FilterSection
+              title="Collections"
+              filterKey="collections"
+              options={filterOptions.collections}
+            />
+            <FilterSection
+              title="Categories"
+              filterKey="categories"
+              options={filterOptions.categories}
+            />
             <FilterSection title="Series" filterKey="series" options={filterOptions.series} />
             <FilterSection title="Finishes" filterKey="finishes" options={filterOptions.finishes} />
             <FilterSection title="Sizes" filterKey="sizes" options={filterOptions.sizes} />
-            <FilterSection title="Materials" filterKey="materials" options={filterOptions.materials} />
+            <FilterSection
+              title="Materials"
+              filterKey="materials"
+              options={filterOptions.materials}
+            />
             <FilterSection title="Colors" filterKey="colors" options={filterOptions.colors} />
           </div>
         </div>
@@ -979,11 +1042,14 @@ const TileManagement = () => {
                       type="text"
                       placeholder="Search tiles..."
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onChange={e => setSearchTerm(e.target.value)}
                       className="w-full pr-8 pl-4 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6f4e37]"
                       aria-label="Search tiles"
                     />
-                    <Search className="absolute right-2 top-2.5 h-5 w-5 text-[#6f4e37]" aria-hidden="true" />
+                    <Search
+                      className="absolute right-2 top-2.5 h-5 w-5 text-[#6f4e37]"
+                      aria-hidden="true"
+                    />
                   </div>
 
                   {/* Dropdown Filters */}
@@ -992,7 +1058,7 @@ const TileManagement = () => {
                     <div className="relative w-[135px] sm:w-auto flex-shrink-0">
                       <select
                         value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
+                        onChange={e => setSortBy(e.target.value)}
                         className="w-full appearance-none px-3 pr-7 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6f4e37]"
                       >
                         <option value="">Sort by</option>
@@ -1009,7 +1075,7 @@ const TileManagement = () => {
                     <div className="relative w-[135px] sm:w-auto flex-shrink-0">
                       <select
                         value={sortOrder}
-                        onChange={(e) => setSortOrder(e.target.value)}
+                        onChange={e => setSortOrder(e.target.value)}
                         className="w-full appearance-none px-3 pr-7 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6f4e37]"
                       >
                         <option value="">Order</option>
@@ -1025,7 +1091,7 @@ const TileManagement = () => {
                     <div className="relative w-[135px] sm:w-auto flex-shrink-0">
                       <select
                         value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
+                        onChange={e => setStatusFilter(e.target.value)}
                         className="w-full appearance-none px-3 pr-7 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6f4e37]"
                       >
                         <option value="">Status</option>
@@ -1041,7 +1107,7 @@ const TileManagement = () => {
                     <div className="relative w-[135px] sm:w-auto flex-shrink-0">
                       <select
                         value={priorityFilter}
-                        onChange={(e) => setPriorityFilter(e.target.value)}
+                        onChange={e => setPriorityFilter(e.target.value)}
                         className="w-full appearance-none px-3 pr-7 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6f4e37]"
                       >
                         <option value="">Priority</option>
@@ -1058,7 +1124,7 @@ const TileManagement = () => {
                     <div className="relative w-[135px] sm:w-auto flex-shrink-0">
                       <select
                         value={favoritesFilter}
-                        onChange={(e) => setFavoritesFilter(e.target.value)}
+                        onChange={e => setFavoritesFilter(e.target.value)}
                         className="w-full appearance-none px-3 pr-7 py-2 rounded-md text-sm bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6f4e37]"
                       >
                         <option value="">Favorites</option>
@@ -1077,17 +1143,17 @@ const TileManagement = () => {
                   {/* Grid View */}
                   <div className="border border-gray-300 rounded-md ">
                     <button
-                      onClick={() => setViewMode("grid")}
-                      className={`p-2 transition-all rounded ${viewMode === "grid" ? "bg-[#6f4e37]" : "bg-white"} cursor-pointer`}
+                      onClick={() => setViewMode('grid')}
+                      className={`p-2 transition-all rounded ${viewMode === 'grid' ? 'bg-[#6f4e37]' : 'bg-white'} cursor-pointer`}
                       title="Grid View"
                       aria-label="Switch to grid view"
-                      aria-pressed={viewMode === "grid"}
+                      aria-pressed={viewMode === 'grid'}
                     >
                       <Icon
-                        name={viewMode === "grid" ? "Grid" : "Grid1"}
+                        name={viewMode === 'grid' ? 'Grid' : 'Grid1'}
                         height="20"
                         width="20"
-                        color={viewMode === "grid" ? "white" : "#6f4e37"}
+                        color={viewMode === 'grid' ? 'white' : '#6f4e37'}
                       />
                     </button>
                   </div>
@@ -1095,17 +1161,17 @@ const TileManagement = () => {
                   {/* Table View */}
                   <div className="border border-gray-300 rounded-md ">
                     <button
-                      onClick={() => setViewMode("table")}
-                      className={`p-2 transition-all rounded ${viewMode === "table" ? "bg-[#6f4e37]" : "bg-white"} cursor-pointer`}
+                      onClick={() => setViewMode('table')}
+                      className={`p-2 transition-all rounded ${viewMode === 'table' ? 'bg-[#6f4e37]' : 'bg-white'} cursor-pointer`}
                       title="Table View"
                       aria-label="Switch to table view"
-                      aria-pressed={viewMode === "table"}
+                      aria-pressed={viewMode === 'table'}
                     >
                       <Icon
-                        name={viewMode === "table" ? "Main1" : "Main"}
+                        name={viewMode === 'table' ? 'Main1' : 'Main'}
                         height="20"
                         width="20"
-                        color={viewMode === "table" ? "white" : "#6f4e37"}
+                        color={viewMode === 'table' ? 'white' : '#6f4e37'}
                       />
                     </button>
                   </div>
@@ -1124,13 +1190,13 @@ const TileManagement = () => {
                 <p className="text-gray-500 text-lg mb-2">No tiles found</p>
                 <p className="text-gray-400 text-sm">
                   {searchTerm || getTotalFilters() > 0
-                    ? "Try adjusting your search or filters"
-                    : "Add some tiles to get started"}
+                    ? 'Try adjusting your search or filters'
+                    : 'Add some tiles to get started'}
                 </p>
               </div>
-            ) : viewMode === "grid" ? (
+            ) : viewMode === 'grid' ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 w-full">
-                {paginatedTiles.map((tile) => (
+                {paginatedTiles.map(tile => (
                   <TileCard key={tile.id} tile={tile} />
                 ))}
               </div>
@@ -1153,7 +1219,7 @@ const TileManagement = () => {
       )}
 
       <EditFormPopup
-        key={selectedTile?.id || "edit-popup"}
+        key={selectedTile?.id || 'edit-popup'}
         tile={selectedTile}
         isOpen={isEditMode}
         onClose={closeTilePopup}
@@ -1163,7 +1229,7 @@ const TileManagement = () => {
         onDelete={handleDelete}
       />
     </div>
-  )
-}
+  );
+};
 
 export default TileManagement;
