@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Edit,
 } from 'lucide-react';
+
 import img from '../../assets/image (2).png';
 import { Icon } from '../common/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,6 +24,7 @@ import { fetchColors } from '@/redux/slice/colors/colorThunks';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './TilesSidebar';
 import Header from './TilesHeader';
+
 import { updateTile } from '@/redux/slice/tiles/tileThunks';
 import { toast, Bounce } from 'react-toastify';
 
@@ -260,6 +262,10 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
 
 TilePopup.displayName = 'TilePopup';
 
+import { EditFormPopup, TilePopup } from './TilesPopups';
+import { Checkbox } from '../ui/checkbox';
+
+
 const TileManagement = () => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -469,9 +475,7 @@ const TileManagement = () => {
   const handleToggleFavorite = useCallback(
     id => {
       setTiles(prevTiles =>
-        prevTiles.map(tile =>
-          tile.id === id ? { ...tile, isFavorited: !tile.isFavorited } : tile
-        )
+        prevTiles.map(tile => (tile.id === id ? { ...tile, isFavorited: !tile.isFavorited } : tile))
       );
       if (selectedTile && selectedTile.id === id) {
         setSelectedTile(prev => ({ ...prev, isFavorited: !prev.isFavorited }));
@@ -479,6 +483,7 @@ const TileManagement = () => {
       // Update backend
       const tile = tiles.find(t => t.id === id);
       if (tile) {
+        // eslint-disable-next-line no-undef
         dispatch(updateTile({ id, data: { favorite: !tile.isFavorited } }));
       }
     },
@@ -696,7 +701,8 @@ const TileManagement = () => {
               tile.isFavorited ? 'bg-white' : 'bg-[#6F4E37] bg-opacity-90 hover:bg-opacity-100'
             }`}
           >
-            <Heart
+            <Icon
+              name="Heart"
               size={16}
               className={`transition-all duration-300 ${
                 tile.isFavorited ? 'text-[#6F4E37] fill-[#6F4E37]' : 'text-white fill-white'
@@ -725,8 +731,22 @@ const TileManagement = () => {
                   </div>
                 ),
               },
-              { label: 'Series', value: tile.series },
-              { label: 'Category', value: tile.category },
+              {
+                label: 'Series',
+                value: (
+                  <span className="px-2  text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">
+                    {tile.series}
+                  </span>
+                ),
+              },
+              {
+                label: 'Category',
+                value: (
+                  <span className="px-2  text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">
+                    {tile.category}
+                  </span>
+                ),
+              },
             ].map((item, index) => (
               <div key={index} className="flex justify-between gap-2">
                 <span className="font-semibold text-gray-700 whitespace-nowrap">{item.label}:</span>
@@ -767,11 +787,9 @@ const TileManagement = () => {
 
         <div className="bg-[#FFF5EE] px-4 py-2 flex flex-col sm:flex-row sm:justify-between items-center gap-2 sm:gap-0 w-full mt-1 border-t border-gray-200">
           <label className="inline-flex items-center gap-2 text-[#5C4033] text-sm font-semibold cursor-pointer hover:scale-105 transition-all duration-300">
-            <input
-              type="checkbox"
-              checked={tile.isActive}
+            <Checkbox
               onChange={() => handleToggleActive(tile.id)}
-              className="w-4 h-4 cursor-pointer accent-[#6F4E37] transition-transform duration-300 hover:scale-125"
+              className="w-4 h-4 cursor-pointer accent-[#6F4E37] transition-transform duration-300 hover:scale-125 bg-white border-[#6F4E37]"
             />
             <span
               className={`transition-all duration-300 ${tile.isActive ? 'text-[#5C4033]' : 'text-gray-400'}`}
@@ -784,7 +802,13 @@ const TileManagement = () => {
             onClick={() => handleDelete(tile.id)}
             className="flex items-center gap-2 mt-2 sm:mt-0 px-4 py-1.5 bg-[#5C4033] text-white rounded-lg text-sm font-semibold hover:bg-[#4a3529] hover:scale-105 transition-all duration-300 shadow-md transform"
           >
-            <Trash2 size={14} />
+            <Icon
+              name="DeleteIcon"
+              width={18}
+              height={18}
+              colour="white"
+              className="sm:mr-1 text-white flex-shrink-0"
+            />
             Delete
           </button>
         </div>
@@ -913,31 +937,41 @@ const TileManagement = () => {
                           : 'bg-[#6F4E37] text-white'
                       }`}
                     >
-                      <Heart
-                        size={14}
-                        className={tile.isFavorited ? 'fill-red-500' : 'fill-white'}
+                      <Icon
+                        name="Heart"
+                        size={16}
+                        className={`transition-all duration-300 ${
+                          tile.isFavorited
+                            ? 'text-[#6F4E37] fill-[#6F4E37]'
+                            : 'text-white fill-white'
+                        }`}
                       />
                     </button>
                   </td>
 
                   <td className="px-2 sm:px-4 py-4 flex items-center gap-1">
                     <button
-                      onClick={() => handleDelete(tile.id)}
-                      className="p-2 text-[#6F4E37] rounded"
-                    >
-                      <Trash2 width={22} height={25} />
-                    </button>
-                    <button
                       onClick={() => openTilePopup(tile)}
-                      className="p-2 text-[#6F4E37] rounded"
+                      className="p-2 text-[#6F4E37] rounded cursor-pointer"
                     >
                       <Icon name="Eye" width={25} height={22} />
                     </button>
                     <button
                       onClick={() => openEditMode(tile)}
-                      className="p-2 text-[#6F4E37] rounded"
+                      className="p-2 text-[#6F4E37] rounded cursor-pointer"
                     >
                       <Icon name="EditPencil" width={25} height={22} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(tile.id)}
+                      className="p-2 text-[#6F4E37] rounded cursor-pointer"
+                    >
+                      <Icon
+                        name="DeleteIcon"
+                        width={23}
+                        height={25}
+                        className="sm:mr-1 flex-shrink-0"
+                      />
                     </button>
                   </td>
                 </tr>
@@ -1094,10 +1128,10 @@ const TileManagement = () => {
               {/* Grid View */}
               <div
                 className={`
-          ${viewMode === 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
-          transition-opacity duration-500 ease-in-out
-          grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full h-fit absolute inset-0
-        `}
+            ${viewMode === 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+            transition-opacity duration-500 ease-in-out
+            grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full h-fit absolute inset-0
+          `}
               >
                 {paginatedTiles.map(tile => (
                   <TileCard key={tile.id} tile={tile} />
@@ -1107,10 +1141,10 @@ const TileManagement = () => {
               {/* Table View */}
               <div
                 className={`
-          ${viewMode !== 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
-          transition-opacity duration-500 ease-in-out
-          w-full absolute inset-0
-        `}
+            ${viewMode !== 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+            transition-opacity duration-500 ease-in-out
+            w-full absolute inset-0
+          `}
               >
                 <TableView />
               </div>
