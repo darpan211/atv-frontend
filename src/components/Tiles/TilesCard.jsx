@@ -273,7 +273,16 @@ const TileManagement = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editFormData, setEditFormData] = useState({});
+
+  // Toast logic for navigation success message
   const toastShownRef = useRef(false);
+  useEffect(() => {
+    if (location.state?.toastMessage && !toastShownRef.current) {
+      toast.success(location.state.toastMessage);
+      toastShownRef.current = true;
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const [tiles, setTiles] = useState([
     {
@@ -1026,16 +1035,6 @@ const TileManagement = () => {
       </div>
     );
   };
-
-  // Toast message handling for navigation
-  useEffect(() => {
-    console.log('TileManagement location.state:', location.state);
-    if (location.state?.toastMessage && !toastShownRef.current) {
-      toast.success(location.state.toastMessage);
-      toastShownRef.current = true;
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state]);
 
   return (
     <div className="min-h-screen bg-white w-full">
