@@ -1,9 +1,10 @@
-export const Arrow = ({ height, width, size, className }) => {
+export const UpArrow = ({ height, width, size, className }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width={width ?? size ?? '11'}
       height={height ?? size ?? '6'}
+      className={className}
       viewBox="0 0 11 6"
       fill="none"
     >
