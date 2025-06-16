@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Layout from '@/components/common/Layout';
@@ -7,14 +7,13 @@ import CommonAddForm from '@/components/common/CommonAddForm';
 import { getFinishById, addFinish, updateFinish} from '@/redux/slice/finish/finishThunks';
 import { toast } from 'react-toastify';
 
-const AddFinishPage = () => {
+const AddFinishPage = ({ onSubmit }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { mode, id } = useParams();
   const isEdit = mode === 'edit';
 
-  const { selectedFinish, loading, error } = useSelector(state => state.finish);
-console.log(selectedFinish);
+  const { selectedFinish, loading } = useSelector(state => state.finish);
 
   useEffect(() => {
     if (isEdit && id) {
@@ -22,46 +21,46 @@ console.log(selectedFinish);
     }
   }, [dispatch, isEdit, id]);
 
-  const initialValues = useMemo(() => {
-    if (isEdit && selectedFinish) {
-      return { name: selectedFinish.finish || '' };
-    }
-    return { name: '' };
-  }, [isEdit, selectedFinish]);
-
   const handleSubmit = async values => {
     const payload = { finish: values.name };
 
     try {
       if (isEdit) {
         await dispatch(updateFinish({ id, data: payload })).unwrap();
-        toast.success('Finish updated successfully!');
       } else {
-        await dispatch(addFinish(payload)).unwrap();
-        toast.success('Finish added successfully!');
+        if (onSubmit) {
+          await onSubmit(values);
+        } else {
+          await dispatch(addFinish(payload)).unwrap();
+        }
       }
 
-      navigate('/admin/finish', {
-        state: {
-          toastMessage: isEdit ? 'Finish updated successfully!' : 'Finish added successfully!',
-        },
-      });
-    } catch (err) {
-      console.error('Failed to submit:', err);
-      toast.error(err?.message || 'Failed to save Finish.');
+      if (!onSubmit) {
+        navigate('/admin/finish', {
+          state: {
+            toastMessage: isEdit ? 'Finish updated successfully!' : 'Finish added successfully!',
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Failed to submit finish:', error);
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        (typeof error === 'string' ? error : 'Failed to save finish.');
+
+      toast.error(errorMessage);
     }
   };
 
-  if (isEdit && loading) {
-    return <div className="p-4 text-center">Loading...</div>;
-  }
+  if (isEdit && loading) return <div className="p-4 text-center">Loading...</div>;
 
   return (
     <Layout title="Finish" isEdit={isEdit}>
       <CommonAddForm
         label="Finish Name"
         buttonText={isEdit ? 'Update Finish' : 'Add Finish'}
-        initialValues={initialValues}
+        initialValues={{ name: selectedFinish?.finish || '' }}
         onSubmit={handleSubmit}
       />
     </Layout>

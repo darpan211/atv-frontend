@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
@@ -13,19 +13,13 @@ import { clearSuitablePlacesState } from '@/redux/slice/suitablePlace/suitablePl
 
 import { toast } from 'react-toastify';
 
-const AddPlacePage = () => {
+const AddPlacePage = ({ onSubmit }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { mode, id } = useParams();
   const isEdit = mode === 'edit';
 
   const { selectedPlace, loading } = useSelector(state => state.suitablePlace);
-
-  const initialValues = useMemo(() => {
-    return {
-      name: selectedPlace?.suitablePlace || '',
-    };
-  }, [selectedPlace]);
 
   useEffect(() => {
     if (isEdit && id) {
@@ -43,34 +37,39 @@ const AddPlacePage = () => {
       if (isEdit) {
         await dispatch(updateSuitablePlace({ id, data: payload })).unwrap();
       } else {
-        await dispatch(addSuitablePlace(payload)).unwrap();
+        if (onSubmit) {
+          await onSubmit(values);
+        } else {
+          await dispatch(addSuitablePlace(payload)).unwrap();
+        }
       }
 
-      navigate('/admin/places', {
-        state: {
-          toastMessage: isEdit ? 'Place updated successfully!' : 'Place added successfully!',
-        },
-      });
+      if (!onSubmit) {
+        navigate('/admin/places', {
+          state: {
+            toastMessage: isEdit ? 'Suitable Place updated successfully!' : 'Suitable Place added successfully!',
+          },
+        });
+      }
     } catch (error) {
-      console.error('Failed to submit place:', error);
-
+      console.error('Failed to submit suitable place:', error);
       const errorMessage =
         error?.response?.data?.message ||
         error?.message ||
-        (typeof error === 'string' ? error : 'Failed to save place.');
+        (typeof error === 'string' ? error : 'Failed to save suitable place.');
 
       toast.error(errorMessage);
     }
   };
 
-  if (loading && isEdit) return <div className="p-4 text-center">Loading...</div>;
+  if (isEdit && loading) return <div className="p-4 text-center">Loading...</div>;
 
   return (
     <Layout title="Suitable Place" isEdit={isEdit}>
       <CommonAddForm
         label="Suitable Place Name"
         buttonText={isEdit ? 'Update Suitable Place' : 'Add Suitable Place'}
-        initialValues={initialValues}
+        initialValues={{ name: selectedPlace?.suitablePlace || '' }}
         onSubmit={handleSubmit}
       />
     </Layout>
