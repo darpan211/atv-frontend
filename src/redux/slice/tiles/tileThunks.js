@@ -24,8 +24,6 @@ export const getTileColors = createAsyncThunk(
 export const fetchTiles = createAsyncThunk('tiles/fetchTiles', async (_, thunkAPI) => {
   try {
     const response = await axiosHandler.get(`${BASE_URL}/api/v1/tiles/gettiles`);
-
-    
     return response.data.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || error.message);

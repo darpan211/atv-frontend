@@ -16,8 +16,9 @@ import Header from './TilesHeader';
 import { EditFormPopup, TilePopup } from './TilesPopups';
 import { Checkbox } from '../ui/checkbox';
 
-import { updateTile } from '@/redux/slice/tiles/tileThunks';
+import { fetchTiles, updateTile } from '@/redux/slice/tiles/tileThunks';
 import { toast } from 'react-toastify';
+import { fetchSidebarFilters } from '@/redux/slice/sidebarfilter/filterThunks';
 
 const TileManagement = () => {
   const dispatch = useDispatch();
@@ -43,64 +44,7 @@ const TileManagement = () => {
     }
   }, [location.state]);
 
-  const [tiles, setTiles] = useState([
-    {
-      id: 1,
-      name: 'MONALISA ONYX AQUA GMYK',
-      code: '(S232DA83) copy',
-      size: ['600 x 600', '800 x 800', '300 x 300'],
-      series: 'Wooden',
-      category: 'Floor Tiles',
-      priority: 'High Priority',
-      isActive: true,
-      isFavorited: true,
-      material: 'Porcelain',
-      finish: 'Glossy',
-      color: 'Gainsboro',
-    },
-    {
-      id: 2,
-      name: 'Name two',
-      code: '(S232DA84)',
-      size: ['400 x 400', '300 x 600'],
-      series: 'Modern',
-      category: 'Wall Tiles',
-      priority: 'High Priority',
-      isActive: false,
-      isFavorited: false,
-      material: 'Ceramic',
-      finish: 'Matte',
-      color: 'White',
-    },
-    {
-      id: 3,
-      name: 'Name three',
-      code: '(S232DA85)',
-      size: ['300 x 300', '600 x 1200'],
-      series: 'Classic',
-      category: 'Bathroom Tiles',
-      priority: 'Low Priority',
-      isActive: true,
-      isFavorited: true,
-      material: 'Natural Stone',
-      finish: 'Textured',
-      color: 'Gray',
-    },
-    {
-      id: 4,
-      name: 'Tile name',
-      code: '(S232DA86)',
-      size: ['800 x 800', '600 x 600'],
-      series: 'Luxury',
-      category: 'Kitchen Tiles',
-      priority: 'Medium Priority',
-      isActive: true,
-      isFavorited: false,
-      material: 'Marble',
-      finish: 'Polished',
-      color: 'Beige',
-    },
-  ]);
+  const [tiles, setTiles] = useState([]);
 
   const [activeFilters, setActiveFilters] = useState({
     series: [],
@@ -112,51 +56,30 @@ const TileManagement = () => {
     colors: [],
   });
 
-  // const filterOptions = {
-  //   collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
-  //   categories: ['Wall Tiles', 'Floor Tiles', 'Bathroom Tiles', 'Kitchen Tiles', 'Outdoor Tiles'],
-  //   series: [
-  //     'Modern',
-  //     'Classic',
-  //     'Mosaic',
-  //     'Luxury',
-  //     'Wooden',
-  //     'Rustic',
-  //     'Contemporary',
-  //     'Minimalist',
-  //   ],
-  //   finishes: ['Glossy', 'Matte', 'Textured', 'Polished', 'Natural'],
-  //   sizes: ['200 x 1200', '300 x 300', '400 x 400', '600 x 600', '800 x 800', '1200 x 600'],
-  //   materials: ['Ceramic', 'Porcelain', 'Natural Stone', 'Glass', 'Marble'],
-  //   colors: ['White', 'Black', 'Gray', 'Beige', 'Brown', 'Blue', 'Green', 'Gainsboro'],
-  // };
+  const tilesFromRedux = useSelector(state => state.tiles?.tiles?.data ?? []);
+  const {categories, series, finish, size, material, color } = useSelector(state => state.filters.list ?? []);
+  console.log(categories, 'categories from redux');
 
-  const categories = useSelector(state => state.categories.list?.data ?? null);
-  const sizes = useSelector(state => state.sizes.list?.data ?? []);
-  const materials = useSelector(state => state.materials.list?.data ?? []);
-  const finish = useSelector(state => state.finish.list?.data ?? []);
-  const series = useSelector(state => state.series.list?.data ?? []);
-  const colors = useSelector(state => state.colors.list?.data ?? []);
 
   const filterOptions = {
     collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
-    categories: categories.map(item => item.category),
-    series: series.map(item => item.series),
-    finishes: finish.map(item => item.finish),
-    sizes: sizes.map(item => item.sizes),
-    materials: materials.map(item => item.material),
-    colors: colors.map(item => item.color),
+    categories,
+    series,
+    finishes: finish,
+    sizes: size,
+    materials: material,
+    colors: color
   };
 
   // fetch filter option data on page load
   useEffect(() => {
-    dispatch(fetchCategories());
-    dispatch(fetchSeries());
-    dispatch(fetchFinishes());
-    dispatch(fetchSizes());
-    dispatch(fetchMaterials());
-    dispatch(fetchColors());
+    dispatch(fetchSidebarFilters())
+    dispatch(fetchTiles());
   }, [dispatch]);
+
+  useEffect(() => {
+  setTiles(tilesFromRedux);
+}, [dispatch]);
 
   // On mount, set filters from URL ---
   useEffect(() => {
@@ -359,54 +282,47 @@ const TileManagement = () => {
     [activeFilters]
   );
 
+  console.log(tiles, 'tiles color value');
+
   const filteredTiles = tiles.filter(tile => {
     const matchesSearch =
-      tile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tile.tiles_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       tile.series.toLowerCase().includes(searchTerm.toLowerCase()) ||
       tile.category.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesFilters = Object.entries(activeFilters).every(([key, values]) => {
       if (values.length === 0) return true;
 
-      // switch (key) {
-      //   case 'series':
-      //     return values.includes(tile.series);
-      //   case 'categories':
-      //     return values.includes(tile.category);
-      //   case 'materials':
-      //     return values.includes(tile.material);
-      //   case 'finishes':
-      //     return values.includes(tile.finish);
-      //   case 'sizes':
-      //     return values.includes(tile.size);
-      //   case 'colors':
-      //     return values.includes(tile.color);
-      //   default:
-      //     return true;
-      // }
-
       switch (key) {
         case 'series':
-          return values.some(v => v.trim().toLowerCase() === tile.series.trim().toLowerCase());
+          return values.some(v =>
+            tile.series?.some(s => s.trim().toLowerCase() === v.trim().toLowerCase())
+          );
         case 'categories':
           return values.some(v => v.trim().toLowerCase() === tile.category.trim().toLowerCase());
         case 'materials':
-          return values.some(v => v.trim().toLowerCase() === tile.material.trim().toLowerCase());
+          return values.some(v => 
+            tile.material?.some(m => m.trim().toLowerCase() === v.trim().toLowerCase())
+          );
         case 'finishes':
-          return values.some(v => v.trim().toLowerCase() === tile.finish.trim().toLowerCase());
+          return values.some(v =>
+            tile.finish?.some(f => f.trim().toLowerCase() === v.trim().toLowerCase())
+          )
         case 'sizes':
-          return values.some(
-            v =>
-              v.trim().toLowerCase().replace(/x/g, '') ===
-              tile.size.trim().toLowerCase().replace(/x/g, '')
+         return values.some(v =>
+            tile.size?.some(s =>
+              s.trim().toLowerCase() ===
+              v.trim().toLowerCase()
+            )
           );
         case 'colors':
-          return values.some(v => v.trim().toLowerCase() === tile.color.trim().toLowerCase());
+          return values.some(v => 
+            v?.color_name?.trim().toLowerCase() === tile.tiles_color?.color_name.trim().toLowerCase());
         case 'priority':
           return values.some(v => v.trim().toLowerCase() === tile.priority.trim().toLowerCase());
 
         case 'name':
-          return values.some(v => v.trim().toLowerCase() === tile.name.trim().toLowerCase());
+          return values.some(v => v.trim().toLowerCase() === tile.tiles_name.trim().toLowerCase());
         default:
           return true;
       }
@@ -487,9 +403,14 @@ const TileManagement = () => {
               {
                 label: 'Series',
                 value: (
-                  <span className="px-2  text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">
-                    {tile.series}
-                  </span>
+                  <div className="flex flex-wrap gap-1">
+                    {tile.series.map((s, i) => (
+
+                    <span key={i} className="px-2  text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">
+                      {s}
+                    </span>
+                    ))}
+                  </div>
                 ),
               },
               {
@@ -512,8 +433,8 @@ const TileManagement = () => {
           <div className="flex items-center gap-2 animate-fade-in justify-between">
             <div className="flex gap-1 bg-[#e9d8cb] rounded-[8px] px-1 py-1 items-center w-fit transition-opacity duration-500">
               {priorities.map(p => {
-                const full = `${p} Priority`;
-                const isSelected = tile.priority === full;
+                const full = `${p}`;
+                const isSelected = tile.priority === full.toLowerCase();
                 return (
                   <button
                     key={p}
