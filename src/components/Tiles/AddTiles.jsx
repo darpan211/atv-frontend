@@ -13,11 +13,13 @@ import { Input } from '../ui/input';
 
 import { clearTilesState, clearSelectedTile } from '@/redux/slice/tiles/tileSlice';
 import { fetchSuitablePlaces } from '@/redux/slice/suitablePlace/suitablePlaceThunks';
-import { fetchSizes } from '@/redux/slice/sizes/sizeThunks';
-import { fetchSeries } from '@/redux/slice/series/seriesThunks';
-import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
-import { fetchMaterials } from '@/redux/slice/material/materialThunks';
-import { fetchFinishes } from '@/redux/slice/finish/finishThunks';
+import { fetchSizes, addSize } from '@/redux/slice/sizes/sizeThunks';
+import { fetchSeries, addSeries } from '@/redux/slice/series/seriesThunks';
+import { fetchCategories, addCategory } from '@/redux/slice/categories/categoryThunks';
+import { fetchMaterials, addMaterial } from '@/redux/slice/material/materialThunks';
+import { fetchFinishes, addFinish } from '@/redux/slice/finish/finishThunks';
+import { addSuitablePlace } from '@/redux/slice/suitablePlace/suitablePlaceThunks';
+import { addColor } from '@/redux/slice/colors/colorThunks';
 import { data } from 'react-router-dom';
 import AddSizePage from '../Attributes/addAttribute/AddSizePage';
 import AddSeriesPage from '../Attributes/addAttribute/AddSeriesPage';
@@ -25,6 +27,7 @@ import AddMaterialPage from '../Attributes/addAttribute/AddMaterialPage';
 import AddPlacePage from '../Attributes/addAttribute/AddPlacePage';
 import AddCategoryPage from '../Attributes/addAttribute/AddCategoryPage';
 import AddColorPage from '../Attributes/addAttribute/AddColorPage';
+import AddFinishPage from '../Attributes/addAttribute/AddFinishPage';
 import { fetchTiles, addTile, updateTile } from '@/redux/slice/tiles/tileThunks';
 
 
@@ -252,7 +255,8 @@ const AddTiles = () => {
         img.name.trim() !== '' &&
         img.thickness !== undefined &&
         String(img.thickness).trim() !== ''
-    );
+    ) &&
+    formik.values.size.length > 0;
 
   // Overlay popup rendering
   const renderPopup = () => {
@@ -264,10 +268,60 @@ const AddTiles = () => {
     else if (openPopup === 'suitablePlace') PopupComponent = AddPlacePage;
     else if (openPopup === 'category') PopupComponent = AddCategoryPage;
     else if (openPopup === 'color') PopupComponent = AddColorPage;
+    else if (openPopup === 'finish') PopupComponent = AddFinishPage;
     // For finish, you may need a separate component if available
     if (!PopupComponent) return null;
+
+    const handlePopupSubmit = async (values) => {
+      try {
+        // Dispatch the appropriate action based on the popup type
+        let action;
+        switch (openPopup) {
+          case 'size':
+            action = addSize({ height: values.height, width: values.width, sizes: `${values.height} X ${values.width}` });
+            break;
+          case 'series':
+            action = addSeries({ series: values.name });
+            break;
+          case 'material':
+            action = addMaterial({ material: values.name });
+            break;
+          case 'suitablePlace':
+            action = addSuitablePlace({ suitablePlace: values.name });
+            break;
+          case 'category':
+            action = addCategory({ category: values.name });
+            break;
+          case 'color':
+            action = addColor({ color: values.name });
+            break;
+          case 'finish':
+            action = addFinish({ finish: values.name });
+            break;
+          default:
+            return;
+        }
+
+        const result = await dispatch(action).unwrap();
+        if (result) {
+          // Refresh the data
+          dispatch(fetchSuitablePlaces());
+          dispatch(fetchSizes());
+          dispatch(fetchSeries());
+          dispatch(fetchCategories());
+          dispatch(fetchMaterials());
+          dispatch(fetchFinishes());
+          
+          // Close the popup
+          setOpenPopup(null);
+          toast.success(`${openPopup.charAt(0).toUpperCase() + openPopup.slice(1)} added successfully!`);
+        }
+      } catch (error) {
+        toast.error(error?.message || `Failed to add ${openPopup}`);
+      }
+    };
+
     return (
-      // <div className="absolute left-1/2 top-10 z-50 transform -translate-x-1/2 bg-white rounded-xl shadow-lg p-6 border border-gray-200" style={{minWidth: 400, maxWidth: 500}}>
       <div className="absolute left-1/2 top-10 z-50 transform -translate-x-1/2 bg-white rounded-xl shadow-lg p-6 border border-gray-200">
         <button
           className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl font-bold"
@@ -276,7 +330,7 @@ const AddTiles = () => {
         >
           &times;
         </button>
-        <PopupComponent />
+        <PopupComponent onSubmit={handlePopupSubmit} />
       </div>
     );
   };
@@ -352,8 +406,18 @@ const AddTiles = () => {
                   Title Image
                 </label>
                 <label
-                  onClick={() => setShowModal(true)}
-                  className="font-semibold bg-[#7b4f28] hover:bg-[#633e1f] text-white text-xs px-5 py-2.5 rounded-md cursor-pointer flex items-center gap-2 transition-colors duration-200 h-10"
+                  onClick={() => {
+                    if (formik.values.size.length > 0) {
+                      setShowModal(true);
+                    } else {
+                      toast.error('Please select at least one size before uploading images');
+                    }
+                  }}
+                  className={`font-semibold text-white text-xs px-5 py-2.5 rounded-md flex items-center gap-2 transition-colors duration-200 h-10 ${
+                    formik.values.size.length > 0 
+                      ? 'bg-[#7b4f28] hover:bg-[#633e1f] cursor-pointer' 
+                      : 'bg-gray-400 cursor-not-allowed'
+                  }`}
                 >
                   <Icon name="Upload" height="16px" width="16px" />
                   Upload Image
