@@ -60,9 +60,9 @@ const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, setSearchTe
                           placeholder={selectedValues[filter.label] || filter.options[0]}
                         />
                         {expandedIndex === index ? (
-                          <ChevronUp className="w-5 h-5 ml-2 shrink-0 text-[#6f4e37]" />
+                          <ChevronUp className="w-5 h-5 ml-2 shrink-0 text-black" />
                         ) : (
-                          <ChevronDown className="w-5 h-5 ml-2 shrink-0 text-[#6f4e37]" />
+                          <ChevronDown className="w-5 h-5 ml-2 shrink-0 text-black" />
                         )}
                       </div>
                     </SelectTrigger>
