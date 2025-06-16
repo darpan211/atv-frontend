@@ -1,16 +1,11 @@
 import { useState } from 'react';
-import { Search, Menu } from 'lucide-react';
+import { Search, Menu, ChevronDown, ChevronUp } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Input } from '../ui/input';
 import { Icon } from '../common/icons';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
 
-const FilterDropdowns = () => {
+const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, setSearchTerm }) => {
+  const [expandedIndex, setExpandedIndex] = useState(null);
   const [selectedValues] = useState({});
 
   const filterOptions = [
@@ -21,71 +16,6 @@ const FilterDropdowns = () => {
     { label: 'Favorites', options: ['Favorited', 'Not Favorited'], width: 'w-[131px]' },
   ];
 
-  return (
-    <div className="animate-fade-in">
-      {/* Mobile layout: 2 columns */}
-      <div className="grid grid-cols-2 gap-2 w-[95vw] sm:hidden">
-        {filterOptions.map((filter, index) => (
-          <div
-            key={index}
-            className="relative transition-transform duration-300 ease-in-out transform hover:scale-[1.02] text-lg font-medium"
-          >
-            <Select>
-              <SelectTrigger className="w-full h-10">
-                <SelectValue placeholder={selectedValues[filter.label] || filter.options[0]} />
-              </SelectTrigger>
-              <SelectContent>
-                {filter.options.map(opt => (
-                  <SelectItem key={opt} value={opt}>
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        ))}
-      </div>
-
-      {/* Desktop layout: horizontal flex */}
-      <div className="hidden sm:flex flex-wrap gap-4">
-        {filterOptions.map((filter, index) => (
-          <div
-            key={index}
-            className={`
-              relative
-              w-full
-              sm:w-auto
-              flex-shrink-0
-              ${filter.width}
-              transition-transform
-              duration-300
-              ease-in-out
-              transform
-              hover:scale-[1.02]
-              text-lg
-              font-medium
-            `}
-          >
-            <Select>
-              <SelectTrigger className="w-full h-10 mr-5">
-                <SelectValue placeholder={selectedValues[filter.label] || filter.options[0]} />
-              </SelectTrigger>
-              <SelectContent>
-                {filter.options.map(opt => (
-                  <SelectItem key={opt} value={opt}>
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, setSearchTerm }) => {
   return (
     <div className="bg-[#E9D8CB] p-2.5 border-b border-gray-200 w-full h-auto">
       <div className="flex flex-col space-y-4 sm:space-y-2 md:space-y-0 md:flex-row md:items-center md:justify-between w-full">
@@ -116,8 +46,81 @@ const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, setSearchTe
               </div>
             </div>
 
-            {/* Filters */}
-            <FilterDropdowns />
+            {/* Filters (Mobile) */}
+            <div className="grid grid-cols-2 gap-2 w-[95vw] sm:hidden animate-fade-in">
+              {filterOptions.map((filter, index) => (
+                <div
+                  key={index}
+                  className="relative text-lg font-medium transition-transform duration-300 transform hover:scale-[1.02]"
+                >
+                  <Select onOpenChange={open => setExpandedIndex(open ? index : null)}>
+                    <SelectTrigger className="w-full h-10 flex justify-between items-center px-3 bg-white appearance-none [&>svg]:hidden">
+                      <div className="flex justify-between items-center w-full">
+                        <SelectValue
+                          placeholder={selectedValues[filter.label] || filter.options[0]}
+                        />
+                        {expandedIndex === index ? (
+                          <ChevronUp className="w-5 h-5 ml-2 shrink-0 text-[#6f4e37]" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 ml-2 shrink-0 text-[#6f4e37]" />
+                        )}
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent
+                      className={`transition-transform transition-opacity duration-300 ease-in-out transform origin-top-left ${
+                        expandedIndex === index
+                          ? 'opacity-100 scale-100'
+                          : 'opacity-0 scale-95 pointer-events-none'
+                      }`}
+                    >
+                      {filter.options.map(opt => (
+                        <SelectItem key={opt} value={opt}>
+                          {opt}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+            </div>
+
+            {/* Filters (Desktop) */}
+            <div className="hidden sm:flex flex-wrap gap-4 animate-fade-in">
+              {filterOptions.map((filter, index) => (
+                <div
+                  key={index}
+                  className={`relative ${filter.width} text-lg font-medium transition-transform duration-300 transform hover:scale-[1.02]`}
+                >
+                  <Select onOpenChange={open => setExpandedIndex(open ? index : null)}>
+                    <SelectTrigger className="w-full h-10 flex justify-between items-center px-3 bg-white appearance-none [&>svg]:hidden cursor-pointer">
+                      <div className="flex justify-between items-center w-full">
+                        <SelectValue
+                          placeholder={selectedValues[filter.label] || filter.options[0]}
+                        />
+                        {expandedIndex === index ? (
+                          <ChevronUp className="w-5 h-5 ml-2 shrink-0 text-black cursor-pointer" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 ml-2 shrink-0 text-black cursor-pointer" />
+                        )}
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent
+                      className={`transition-transform transition-opacity duration-300 ease-in-out transform origin-top-left ${
+                        expandedIndex === index
+                          ? 'opacity-100 scale-100'
+                          : 'opacity-0 scale-95 pointer-events-none'
+                      }`}
+                    >
+                      {filter.options.map(opt => (
+                        <SelectItem key={opt} value={opt}>
+                          {opt}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* View Toggle Buttons */}
