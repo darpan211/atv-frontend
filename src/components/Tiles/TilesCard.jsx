@@ -1,16 +1,5 @@
-import { useState, useCallback, memo, useEffect, useRef } from 'react';
-import {
-  Heart,
-  Trash2,
-  ChevronDown,
-  ChevronUp,
-  X,
-  Search,
-  Menu,
-  ChevronLeft,
-  ChevronRight,
-  Edit,
-} from 'lucide-react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { ChevronDown, ChevronUp, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import img from '../../assets/image (2).png';
 import { Icon } from '../common/icons';
@@ -28,7 +17,7 @@ import { EditFormPopup, TilePopup } from './TilesPopups';
 import { Checkbox } from '../ui/checkbox';
 
 import { updateTile } from '@/redux/slice/tiles/tileThunks';
-import { toast, Bounce } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 const TileManagement = () => {
   const dispatch = useDispatch();
@@ -461,7 +450,7 @@ const TileManagement = () => {
               e.stopPropagation();
               handleToggleFavorite(tile.id);
             }}
-            className={`absolute top-3 right-3 p-1.5 rounded-md shadow-md transition-all duration-200 ${
+            className={`absolute top-3 right-3 p-1.5 rounded-md shadow-md transition-all duration-200 cursor-pointer ${
               tile.isFavorited ? 'bg-white' : 'bg-[#6F4E37] bg-opacity-90 hover:bg-opacity-100'
             }`}
           >
@@ -542,29 +531,25 @@ const TileManagement = () => {
             </div>
 
             <span
-              className={`text-[11px] font-semibold px-2 py-1 rounded text-white transition-all duration-700 ease-in-out ${getPriorityColor(tile.priority)}`}
+              className={`text-[11px] font-semibold px-2 py-1 rounded-lg text-white transition-all w-[113.92px] h-[24.07px] justify-center flex items-center  duration-700 ease-in-out ${getPriorityColor(tile.priority)}`}
             >
               {tile.priority}
             </span>
           </div>
         </div>
 
-        <div className="bg-[#FFF5EE] px-4 py-2 flex flex-col sm:flex-row sm:justify-between items-center gap-2 sm:gap-0 w-full mt-1 border-t border-gray-200">
+        <div className="bg-[#FFF5EE] px-4 py-2 flex flex-col  sm:flex-row sm:justify-between items-center gap-2 sm:gap-0 w-full mt-1 border-t border-gray-200">
           <label className="inline-flex items-center gap-2 text-[#5C4033] text-sm font-semibold cursor-pointer hover:scale-105 transition-all duration-300">
             <Checkbox
               onChange={() => handleToggleActive(tile.id)}
               className="w-4 h-4 cursor-pointer accent-[#6F4E37] transition-transform duration-300 hover:scale-125 bg-white border-[#6F4E37]"
             />
-            <span
-              className={`transition-all duration-300 ${tile.isActive ? 'text-[#5C4033]' : 'text-gray-400'}`}
-            >
-              Active
-            </span>
+            <span className={`transition-all duration-300 text-[#6F4E37]`}>Active</span>
           </label>
 
           <button
             onClick={() => handleDelete(tile.id)}
-            className="flex items-center gap-2 mt-2 sm:mt-0 px-4 py-1.5 bg-[#5C4033] text-white rounded-lg text-sm font-semibold hover:bg-[#4a3529] hover:scale-105 transition-all duration-300 shadow-md transform"
+            className="flex cursor-pointer items-center gap-2 mt-2 sm:mt-0 px-4 py-1.5 bg-[#5C4033] text-white rounded-lg text-sm font-semibold hover:bg-[#4a3529] hover:scale-105 transition-all duration-300 shadow-md transform"
           >
             <Icon
               name="DeleteIcon"
@@ -600,7 +585,7 @@ const TileManagement = () => {
                 <button
                   key={p}
                   onClick={() => handlePriorityChange(tile.id, full)}
-                  className={`px-2 py-1 text-xs rounded font-medium transition-all duration-300 ease-in-out transform hover:scale-105 ${
+                  className={`px-2 cursor-pointer py-1 text-xs rounded font-medium transition-all duration-300 ease-in-out transform hover:scale-105 ${
                     isSelected ? 'bg-white text-gray-800 shadow' : 'text-gray-700 hover:bg-gray-300'
                   }`}
                 >
@@ -682,7 +667,7 @@ const TileManagement = () => {
                   <td className="px-2 sm:px-4 py-4 border-r border-gray-200">
                     <button
                       onClick={() => handleToggleActive(tile.id)}
-                      className={`px-2 py-1 rounded text-xs font-medium transition ${
+                      className={`px-2 py-1 rounded text-xs font-medium transition cursor-pointer ${
                         tile.isActive
                           ? 'bg-[#005E06] text-white hover:bg-[#004d05]'
                           : 'bg-[#DADADA] text-[#6E6E6E] hover:bg-[#cfcfcf]'
@@ -695,7 +680,7 @@ const TileManagement = () => {
                   <td className="px-2 sm:px-4 py-4 border-r border-gray-200">
                     <button
                       onClick={() => handleToggleFavorite(tile.id)}
-                      className={`p-2 rounded transition ${
+                      className={`p-2 rounded transition cursor-pointer ${
                         tile.isFavorited
                           ? 'bg-white text-[#6F4E37] border border-[#6f4e37]'
                           : 'bg-[#6F4E37] text-white'
@@ -704,7 +689,7 @@ const TileManagement = () => {
                       <Icon
                         name="Heart"
                         size={16}
-                        className={`transition-all duration-300 ${
+                        className={`transition-all duration-300  ${
                           tile.isFavorited
                             ? 'text-[#6F4E37] fill-[#6F4E37]'
                             : 'text-white fill-white'
@@ -753,7 +738,7 @@ const TileManagement = () => {
               <select
                 value={rowsPerPage}
                 onChange={e => handleRowsPerPageChange(Number(e.target.value))}
-                className="appearance-none bg-white border border-gray-300 rounded px-3 py-1 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="appearance-none bg-white border border-gray-300 rounded px-3 py-1 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-[#6F4E37]"
               >
                 <option value={10}>10</option>
                 <option value={25}>25</option>

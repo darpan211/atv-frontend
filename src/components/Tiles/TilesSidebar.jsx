@@ -20,33 +20,43 @@ const TilesSidebar = ({
     const activeItems = activeFilters[filterKey] || [];
 
     return (
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 overflow-hidden">
         <button
           onClick={() => toggleSection(filterKey)}
-          className="w-full flex items-center justify-between py-3 px-1 text-left font-medium text-gray-900 hover:text-gray-700 transition-colors"
+          className="w-full flex items-center justify-between py-3 px-1 text-left font-medium text-gray-900 hover:text-gray-700"
           aria-expanded={isExpanded}
           aria-controls={`filter-section-${filterKey}`}
         >
           <span className="text-sm sm:text-base">{title}</span>
-          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          {isExpanded ? <ChevronUp className="w-6 h-6 cursor-pointer" /> : <ChevronDown className="w-6 h-6 cursor-pointer" />}
         </button>
 
-        {isExpanded && (
-          <div id={`filter-section-${filterKey}`} className="pb-4 space-y-2 max-h-full">
-            {options.map(option => (
-              <div key={option} className="flex items-center gap-3">
-                <Checkbox
-                  id={`${filterKey}-${option}`}
-                  checked={activeItems.includes(option)}
-                  onCheckedChange={() => handleFilterChange(filterKey, option)}
-                />
-                <Label htmlFor={`${filterKey}-${option}`} className="capitalize">
-                  {option}
-                </Label>
-              </div>
-            ))}
+        <div
+          id={`filter-section-${filterKey}`}
+          className={`${
+            isExpanded ? 'block opacity-100 scale-y-100' : 'hidden opacity-0 scale-y-0'
+          } transform origin-top transition-all duration-300 ease-in-out`}
+        >
+          <div className="pb-4 space-y-2 pt-1">
+            {options.length === 0 ? (
+              <p className="text-xs text-gray-500 italic pl-2">No options available</p>
+            ) : (
+              options.map(option => (
+                <div key={option} className="flex items-center gap-3">
+                  <Checkbox
+                    id={`${filterKey}-${option}`}
+                    checked={activeItems.includes(option)}
+                    onCheckedChange={() => handleFilterChange(filterKey, option)}
+                    className="border-[#6F4E37] cursor-pointer"
+                  />
+                  <Label htmlFor={`${filterKey}-${option}`} className="capitalize">
+                    {option}
+                  </Label>
+                </div>
+              ))
+            )}
           </div>
-        )}
+        </div>
       </div>
     );
   };
@@ -55,7 +65,7 @@ const TilesSidebar = ({
     <div
       className={`${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } fixed lg:static top-0 left-0 z-40 w-[200px] bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transition-none flex flex-col`}
+      } fixed lg:static top-0 left-0 z-40 w-[250px] bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transition-none flex flex-col`}
     >
       {/* Mobile Close Button */}
       <div className="lg:hidden flex justify-end p-4 border-b border-gray-200">
@@ -69,12 +79,12 @@ const TilesSidebar = ({
       </div>
 
       {/* Header */}
-      <div className="p-1 border-b border-gray-200 flex-shrink-0 bg-white h-[71px]">
+      <div className="p-1 border-b border-gray-200 flex-shrink-0 bg-white h-[100px]">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">Filter</h2>
           <button
             onClick={clearAllFilters}
-            className="cursor-pointer text-[#CA0000] hover:text-[#CA0000] text-sm font-medium underline hover:no-underline transition-all"
+            className="cursor-pointer text-[#CA0000] hover:text-[#CA0000] text-sm font-medium underline"
           >
             Clear
           </button>
@@ -104,7 +114,7 @@ const TilesSidebar = ({
                   {item}
                   <button
                     onClick={() => removeFilter(category, item)}
-                    className="ml-1 hover:bg-green-200 rounded-full p-0.5"
+                    className="ml-1 hover:bg-green-200 rounded-full p-0.5 cursor-pointer"
                     aria-label={`Remove ${category} filter: ${item}`}
                   >
                     <X className="w-3 h-3" />
@@ -128,7 +138,7 @@ const TilesSidebar = ({
             { title: 'Materials', key: 'materials' },
             { title: 'Colors', key: 'colors' },
           ].map(({ title, key }) => (
-            <div key={key} className="rounded-lg pl-1 w-[180px] bg-white">
+            <div key={key} className="rounded-lg pl-1 w-[230px] bg-white">
               <FilterSection title={title} filterKey={key} options={filterOptions[key] || []} />
             </div>
           ))}
@@ -139,3 +149,4 @@ const TilesSidebar = ({
 };
 
 export default TilesSidebar;
+      
