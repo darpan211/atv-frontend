@@ -54,7 +54,6 @@ const AddTiles = () => {
   // Get category from URL query param
   const searchParams = new URLSearchParams(location.search);
   const categoryFromUrl = searchParams.get('category') || 'wall';
-  console.log('categoryFromUrl', categoryFromUrl);
   
   const { categories, series, sizes, suitablePlace, finish, materials, tiles } = useSelector(
     state => state
