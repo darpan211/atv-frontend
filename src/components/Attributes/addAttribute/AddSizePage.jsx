@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { addSize, updateSize, fetchSizeById } from '@/redux/slice/sizes/sizeThunks';
 import { clearSelectedSize } from '@/redux/slice/sizes/sizeSlice';
 import { toast } from 'react-toastify';
 
-const AddSizePage = ({ onSubmit }) => {
+const AddSizePage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { mode, id } = useParams();
@@ -36,20 +36,14 @@ const AddSizePage = ({ onSubmit }) => {
       if (isEdit) {
         await dispatch(updateSize({ id, data: payload })).unwrap();
       } else {
-        if (onSubmit) {
-          await onSubmit(values);
-        } else {
-          await dispatch(addSize(payload)).unwrap();
-        }
+        await dispatch(addSize(payload)).unwrap();
       }
 
-      if (!onSubmit) {
-        navigate('/admin/sizes', {
-          state: {
-            toastMessage: isEdit ? 'Sizes updated successfully!' : 'Sizes added successfully!',
-          },
-        });
-      }
+      navigate('/admin/sizes', {
+        state: {
+          toastMessage: isEdit ? 'Sizes updated successfully!' : 'Sizes added successfully!',
+        },
+      });
     } catch (err) {
       console.error('Failed to submit:', err);
       const errorMessage = err?.response?.data?.message || err?.message || 'Failed to save size.';

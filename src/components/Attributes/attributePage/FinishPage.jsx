@@ -86,7 +86,7 @@ const FinishPage = () => {
   // ✅ Safer filtering logic
   const filteredFinishes = useMemo(() => {
     const lower = searchQuery.toLowerCase();
-    return finish?.data?.filter(item =>
+    return finish?.filter(item =>
       (item?.finish || '').toLowerCase().includes(lower)
     );
   }, [searchQuery, finish]);

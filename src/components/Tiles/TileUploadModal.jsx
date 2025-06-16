@@ -4,7 +4,6 @@ import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { getTileColors } from '@/redux/slice/tiles/tileThunks';
-import { toast } from 'react-toastify';
 
 const MAX_IMAGES = 10;
 
@@ -27,16 +26,30 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
     if (selectedFiles.length < MAX_IMAGES) {
       fileInputRef.current.click();
     } else {
-      toast.error(`You can upload only up to ${MAX_IMAGES} images.`);
+      alert(`You can upload only up to ${MAX_IMAGES} images.`);
     }
   };
 
+  const getColorName = (hexColor) => {
+    // This is a simple mapping of hex colors to names
+    // You might want to use a more comprehensive color naming library
+    const colorMap = {
+      '#DCDCDC': 'Gainsboro',
+      '#FFFFFF': 'White',
+      '#000000': 'Black',
+      '#808080': 'Gray',
+      '#FF0000': 'Red',
+      '#00FF00': 'Green',
+      '#0000FF': 'Blue',
+      // Add more color mappings as needed
+    };
+    return colorMap[hexColor.toUpperCase()] || 'Unknown';
+  };
 
   const handleUpload = async (values) => {
     try {
       if (selectedFiles.length === 0) {
-        toast.error('Please select at least one image');
-        return;
+        throw new Error('Please select at least one image');
       }
 
       const formData = new FormData();
@@ -48,8 +61,7 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
       const resultAction = await dispatch(getTileColors(formData));
       
       if (resultAction.error) {
-        toast.error(resultAction.error.message || 'Failed to process images');
-        return;
+        throw new Error(resultAction.error.message || 'Failed to process images');
       }
 
       const colors = resultAction.payload.data;
@@ -66,20 +78,15 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
       onUploadComplete(filesWithColors);
       setSelectedFiles([]);
       onClose();
-      toast.success('Images uploaded successfully!');
     } catch (error) {
       console.error('Error uploading images:', error);
-      toast.error(error.message || 'Failed to process images. Please try again.');
+      alert(error.message || 'Failed to process images. Please try again.');
     }
   };
 
   const handleFileChange = e => {
     const files = Array.from(e.target.files);
-    if (selectedFiles.length + files.length > MAX_IMAGES) {
-      toast.error(`You can upload only up to ${MAX_IMAGES} images.`);
-      return;
-    }
-    const newFiles = [...selectedFiles, ...files];
+    const newFiles = [...selectedFiles, ...files].slice(0, MAX_IMAGES); // limit to 10 total
     setSelectedFiles(newFiles);
     fileInputRef.current.value = '';
   };
@@ -87,7 +94,6 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
   const handleRemoveImage = index => {
     const updatedFiles = selectedFiles.filter((_, i) => i !== index);
     setSelectedFiles(updatedFiles);
-    toast.info('Image removed');
   };
 
   const handleDragOver = (e) => {
@@ -97,11 +103,7 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
   const handleDrop = (e) => {
     e.preventDefault();
     const files = Array.from(e.dataTransfer.files);
-    if (selectedFiles.length + files.length > MAX_IMAGES) {
-      toast.error(`You can upload only up to ${MAX_IMAGES} images.`);
-      return;
-    }
-    const newFiles = [...selectedFiles, ...files];
+    const newFiles = [...selectedFiles, ...files].slice(0, MAX_IMAGES);
     setSelectedFiles(newFiles);
   };
 
@@ -136,7 +138,7 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
                   min="0.1"
                   step="0.1"
                   placeholder="Enter Tile Thickness (mm)"
-                  className={`w-full px-3 py-2 border ${errors.thickness && touched.thickness ? 'border-red-500' : 'border-gray-300'} bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#7b4f28] cursor-pointer`}
+                  className={`w-full px-3 py-2 border ${errors.thickness && touched.thickness ? 'border-red-500' : 'border-gray-300'} bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#7b4f28]`}
                 />
                 {errors.thickness && touched.thickness && (
                   <p className="text-red-600 text-sm mt-1">{errors.thickness}</p>
@@ -146,7 +148,7 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Upload Images</label>
                 <div
-                  className="w-full border-2 border-dashed border-gray-300 rounded-md py-6 px-4 text-center text-sm text-gray-500 bg-white transition cursor-pointer"
+                  className="w-full border-2 border-dashed border-gray-300 rounded-md py-6 px-4 text-center text-sm text-gray-500 bg-white transition"
                   onClick={handleDropAreaClick}
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
@@ -195,12 +197,12 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
                     selectedFiles.length === 0 || colorLoading ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
-                  {colorLoading ? 'Processing...' : 'Upload'}
+                  {colorLoading ? 'Processing...' : 'Upload & Process'}
                 </button>
               </div>
-              {/* {colorError && (
+              {colorError && (
                 <p className="text-red-600 text-sm mt-2 text-center">{colorError}</p>
-              )} */}
+              )}
             </Form>
           )}
         </Formik>

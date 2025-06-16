@@ -6,7 +6,7 @@ import CommonAddForm from '@/components/common/CommonAddForm';
 import { fetchSeriesById, addSeries, updateSeries } from '@/redux/slice/series/seriesThunks';
 import { toast } from 'react-toastify';
 
-const AddSeriesPage = ({ onSubmit }) => {
+const AddSeriesPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { mode, id } = useParams();
@@ -27,22 +27,17 @@ const AddSeriesPage = ({ onSubmit }) => {
       if (isEdit) {
         await dispatch(updateSeries({ id, data: payload })).unwrap();
       } else {
-        if (onSubmit) {
-          await onSubmit(values);
-        } else {
-          await dispatch(addSeries(payload)).unwrap();
-        }
+        await dispatch(addSeries(payload)).unwrap();
       }
 
-      if (!onSubmit) {
-        navigate('/admin/series', {
-          state: {
-            toastMessage: isEdit ? 'Series updated successfully!' : 'Series added successfully!',
-          },
-        });
-      }
+      navigate('/admin/series', {
+        state: {
+          toastMessage: isEdit ? 'Series updated successfully!' : 'Series added successfully!',
+        },
+      });
     } catch (error) {
       console.error('Failed to submit series:', error);
+
       const errorMessage =
         error?.response?.data?.message ||
         error?.message ||
