@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Input } from '../ui/input';
 import { Icon } from '../common/icons';
 
-const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, setSearchTerm }) => {
+const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, handleSearchChange }) => {
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [selectedValues] = useState({});
 
@@ -35,7 +35,7 @@ const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, setSearchTe
             <div className="relative w-full sm:w-64 md:w-72">
               <Input
                 value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 aria-label="Search tiles"
                 className="peer pe-9 bg-white h-10 w-full focus:outline-none focus:ring-2 focus:ring-[#6f4e37]"
                 placeholder="Search tiles..."

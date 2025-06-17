@@ -38,8 +38,11 @@ const DataTable = ({
   // Filter data based on search query
   const filteredData = useMemo(() => {
     if (!searchQuery) return data;
-    
-    const searchTerms = searchQuery.toLowerCase().split(' ').filter(term => term.length > 0);
+
+    const searchTerms = searchQuery
+      .toLowerCase()
+      .split(' ')
+      .filter(term => term.length > 0);
     if (searchTerms.length === 0) return data;
 
     return data.filter(item => {
@@ -132,7 +135,7 @@ const DataTable = ({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="text-center px-4 py-4 text-gray-500">
-                  {searchQuery ? "No results found matching your search." : emptyStateMessage}
+                  {searchQuery ? 'No results found matching your search.' : emptyStateMessage}
                 </TableCell>
               </TableRow>
             )}

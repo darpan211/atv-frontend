@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormik } from 'formik';
-import { Upload } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import * as Yup from 'yup';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +15,11 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { addRoom, fetchRoomById, updateRoom } from '@/redux/slice/room/roomThunks';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
 
 // Validation schema using Yup
 const RoomSchema = Yup.object().shape({
@@ -22,47 +27,107 @@ const RoomSchema = Yup.object().shape({
   category: Yup.string().required('Category is required'),
   room_type: Yup.string().required('Room type is required'),
   status: Yup.string().oneOf(['active', 'inactive']).required('Status is required'),
-  description: Yup.string().required('Description is required'),
+  description: Yup.string(), // Removed required validation
+  upload_image: Yup.mixed().nullable(),
 });
 
 const AddNewRoom = () => {
+  const { categories } = useSelector(state => state);
+  console.log(categories);
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
+  const categoriesOptions =
+    categories?.list?.data?.map(category => ({
+      label: category.category,
+      value: category.category,
+    })) || [];
+
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const id = searchParams.get('id'); // ← works with ?id=...
+  // const { id } = useParams();
+  console.log(id, 'id=>>>>>>');
+  const isEditMode = Boolean(id);
+  // Get loading state from Redux store
+  const { loading, error } = useSelector(state => state.rooms);
+
   const formik = useFormik({
     initialValues: {
       template_name: '',
       category: '',
       room_type: '',
-      status: '',
+      status: 'active',
       description: '',
+      upload_image: null,
     },
     validationSchema: RoomSchema,
     onSubmit: async values => {
+      const formData = new FormData();
+      formData.append('template_name', values.template_name);
+      formData.append('category', values.category);
+      formData.append('room_type', values.room_type);
+      formData.append('status', values.status);
+      formData.append('description', values.description);
+      if (values.image) {
+        formData.append('upload_image', values.image);
+      }
+
       try {
-        // Here you would typically make an API call to save the room
-        // console.log('Submitting room data:', values);
-        toast.success('Room template added successfully!');
+        if (isEditMode) {
+          await dispatch(updateRoom({ id, formData })).unwrap();
+          toast.success('Room updated successfully');
+        } else {
+          await dispatch(addRoom(formData)).unwrap();
+          toast.success('Room added successfully');
+        }
         navigate('/admin/room/list');
-      } catch (error) {
-        console.error('Error adding room:', error);
-        toast.error('Failed to add room template');
+      } catch (err) {
+        toast.error(err.message || 'Something went wrong');
       }
     },
   });
 
   const handleCancel = () => {
     formik.resetForm();
+    setPreviewUrl(null);
     navigate('/admin/room/list');
   };
 
   const fileInputRef = React.useRef(null);
   const [previewUrl, setPreviewUrl] = React.useState(null);
 
-  const handleFileChange = (event) => {
+  const handleFileChange = event => {
     const file = event.target.files && event.target.files[0];
     if (file) {
+      // Validate file size (e.g., max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (file.size > maxSize) {
+        toast.error('File size must be less than 5MB');
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Only JPEG, JPG, and PNG files are allowed');
+        return;
+      }
+
+      // Set the file in formik values
+      formik.setFieldValue('image', file);
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewUrl(reader.result);
+      };
+      reader.onerror = () => {
+        toast.error('Error reading file');
       };
       reader.readAsDataURL(file);
     }
@@ -70,21 +135,47 @@ const AddNewRoom = () => {
 
   const handleRemoveImage = () => {
     setPreviewUrl(null);
+    formik.setFieldValue('image', null);
+    // Clear the file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
+  useEffect(() => {
+    if (isEditMode) {
+      dispatch(fetchRoomById(id))
+        .unwrap()
+        .then(room => {
+          formik.setValues({
+            template_name: room.template_name || '',
+            category: room.category || '',
+            room_type: room.room_type || '',
+            status: room.status || 'active',
+            description: room.description || '',
+            image: null, // Image upload remains empty
+          });
+        })
+        .catch(() => {
+          toast.error('Failed to fetch room details');
+        });
+    }
+  }, [id]);
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <div>
-        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-3xl font-bold py-4 mt-6 px-4 sm:px-8 md:px-12">
-          Add New Room Template
+      <div className="mb-6 text-left">
+        <h1 className="text-3xl font-bold text-gray-900">
+          {isEditMode ? 'Edit Room Template' : 'Add New Room Template'}
         </h1>
       </div>
-      <div className="sm:mx-10 p-6 bg-[#FFF5EE]">
+      <div className="p-6 bg-[#FFF5EE] rounded-md shadow-sm">
         <form onSubmit={formik.handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-[#FFF5EE]">
             {/* Template Name */}
             <div className="space-y-2">
-              <Label htmlFor="template_name" className="font-medium">Template Name</Label>
+              <Label htmlFor="template_name" className="font-medium">
+                Template Name
+              </Label>
               <Input
                 id="template_name"
                 name="template_name"
@@ -92,8 +183,11 @@ const AddNewRoom = () => {
                 value={formik.values.template_name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
+                disabled={loading}
                 className={`bg-white text-black h-10 hover:bg-white font-[400] ${
-                  formik.touched.template_name && formik.errors.template_name ? 'border-red-500' : ''
+                  formik.touched.template_name && formik.errors.template_name
+                    ? 'border-red-500'
+                    : ''
                 }`}
               />
               {formik.touched.template_name && formik.errors.template_name && (
@@ -103,11 +197,14 @@ const AddNewRoom = () => {
 
             {/* Category */}
             <div className="space-y-2">
-              <Label htmlFor="category" className="font-medium">Category</Label>
+              <Label htmlFor="category" className="font-medium">
+                Category
+              </Label>
               <Select
                 name="category"
                 value={formik.values.category}
                 onValueChange={value => formik.setFieldValue('category', value)}
+                disabled={loading}
               >
                 <SelectTrigger
                   id="category"
@@ -117,10 +214,13 @@ const AddNewRoom = () => {
                 >
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
+
                 <SelectContent>
-                  <SelectItem value="luxury">Luxury</SelectItem>
-                  <SelectItem value="standard">Standard</SelectItem>
-                  <SelectItem value="budget">Budget</SelectItem>
+                  {categoriesOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {formik.touched.category && formik.errors.category && (
@@ -130,11 +230,14 @@ const AddNewRoom = () => {
 
             {/* Room Type */}
             <div className="space-y-2">
-              <Label htmlFor="room_type" className="font-medium">Room Type</Label>
+              <Label htmlFor="room_type" className="font-medium">
+                Room Type
+              </Label>
               <Select
                 name="room_type"
                 value={formik.values.room_type}
                 onValueChange={value => formik.setFieldValue('room_type', value)}
+                disabled={loading}
               >
                 <SelectTrigger
                   id="room_type"
@@ -145,10 +248,9 @@ const AddNewRoom = () => {
                   <SelectValue placeholder="Select room type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="single">Single</SelectItem>
-                  <SelectItem value="double">Double</SelectItem>
-                  <SelectItem value="suite">Suite</SelectItem>
-                  <SelectItem value="deluxe">Deluxe</SelectItem>
+                  <SelectItem value="bathroom">bathroom</SelectItem>
+                  <SelectItem value="kitchen">kitchen</SelectItem>
+                  <SelectItem value="living room">living room</SelectItem>
                 </SelectContent>
               </Select>
               {formik.touched.room_type && formik.errors.room_type && (
@@ -158,11 +260,14 @@ const AddNewRoom = () => {
 
             {/* Status */}
             <div className="space-y-2">
-              <Label htmlFor="status" className="font-medium">Status</Label>
+              <Label htmlFor="status" className="font-medium">
+                Status
+              </Label>
               <Select
                 name="status"
                 value={formik.values.status}
                 onValueChange={value => formik.setFieldValue('status', value)}
+                disabled={loading}
               >
                 <SelectTrigger
                   id="status"
@@ -186,7 +291,9 @@ const AddNewRoom = () => {
           <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6 bg-[#FFF5EE] mt-6">
             {/* Description field (50%) */}
             <div className="space-y-2 w-full">
-              <Label htmlFor="description" className="font-medium">Description</Label>
+              <Label htmlFor="description" className="font-medium">
+                Description
+              </Label>
               <textarea
                 id="description"
                 name="description"
@@ -194,6 +301,7 @@ const AddNewRoom = () => {
                 value={formik.values.description}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
+                disabled={loading}
                 className={`bg-white text-black h-28 w-full resize-none p-2 rounded-md font-[400] ${
                   formik.touched.description && formik.errors.description
                     ? 'border border-red-500'
@@ -205,16 +313,31 @@ const AddNewRoom = () => {
               )}
             </div>
 
-            {/* Upload Image button (50%) */}
+            {/* Upload Image section (50%) */}
             <div className="space-y-2 w-full">
               <label className="text-black font-medium">Upload Image</label>
+
+              {/* Image preview with cross icon - positioned above upload button */}
               {previewUrl && (
-                <img
-                  src={previewUrl}
-                  alt="Preview"
-                  className="w-50  h-28 object-cover rounded-md"
-                />
+                <div className="relative  w-50 h-28">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    disabled={loading}
+                    className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    title="Remove image"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               )}
+
+              {/* Upload button */}
               <div className="flex flex-row gap-4 mt-2">
                 <input
                   type="file"
@@ -226,47 +349,37 @@ const AddNewRoom = () => {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex cursor-pointer items-center gap-2 bg-[#6F4E37] text-white px-4 py-2 rounded-md hover:bg-[#a98f7d] transition"
+                  disabled={loading}
+                  className="flex cursor-pointer items-center gap-2 bg-[#6F4E37] text-white px-4 py-2 rounded-md hover:bg-[#a98f7d] transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Upload className="w-4 h-4" />
                   <span className="font-medium">Upload Image</span>
                 </button>
-                {previewUrl && (
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="flex cursor-pointer items-center gap-2 bg-[#6F4E37] text-white px-4 py-2 rounded-md hover:bg-[#a98f7d] transition"
-                  >
-                    <span className="font-medium">Remove</span>
-                  </button>
-                )}
               </div>
-              {formik.touched.image && formik.errors.image && (
-                <div className="text-red-500 text-sm">{formik.errors.image}</div>
+
+              {formik.touched.upload_image && formik.errors.upload_image && (
+                <div className="text-red-500 text-sm">{formik.errors.upload_image}</div>
               )}
             </div>
           </div>
 
           {/* Form Actions */}
-          <div className="flex justify-end gap-4 mt-6">
+          <div className="flex justify-center gap-4 mt-6">
             <Button
               type="button"
               variant="outline"
               onClick={handleCancel}
-              className="bg-white text-[#6F4E37] border-[#6F4E37] hover:bg-[#6F4E37] hover:text-white"
+              disabled={loading}
+              className="bg-white text-[#6F4E37] border-[#6F4E37] hover:bg-[#6F4E37] hover:text-white disabled:opacity-50"
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="bg-[#6F4E37] text-white hover:bg-[#a98f7d]"
-            >
-              Save
+            <Button type="submit" className="...">
+              {loading ? 'Saving...' : isEditMode ? 'Update Template' : 'Add Template'}
             </Button>
           </div>
         </form>
       </div>
-      <ToastContainer />
     </div>
   );
 };
