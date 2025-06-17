@@ -61,7 +61,7 @@ const finishSlice = createSlice({
       })
       .addCase(addFinish.fulfilled, (state, action) => {
         state.loading = false;
-        state.list.push(action.payload.data);
+        state.list.data.push(action.payload.data);
       })
       .addCase(addFinish.rejected, (state, action) => {
         state.loading = false;

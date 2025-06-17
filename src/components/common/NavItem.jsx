@@ -9,6 +9,7 @@ import { fetchColors } from '@/redux/slice/colors/colorThunks';
 import { fetchMaterials } from '@/redux/slice/material/materialThunks';
 import { fetchSeries } from '@/redux/slice/series/seriesThunks';
 import { fetchFinishes } from '@/redux/slice/finish/finishThunks';
+import { toCapitalize } from '../../helpers';
 
 const labelToThunkMap = {
   categories: fetchCategories,
@@ -17,7 +18,7 @@ const labelToThunkMap = {
   materials: fetchMaterials,
   series: fetchSeries,
   finish: fetchFinishes,
-  addtiles: fetchCategories, // Map AddTiles to categories thunk,
+  addtiles : fetchCategories
 };
 
 const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested = false }) => {
@@ -64,7 +65,7 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested 
     materials,
     series,
     finish,
-    addtiles: categories,
+    addtiles: categories // Assuming 'addtiles' refers to categories for adding tiles
   }), [categories, sizes, colors, materials, series, finish]);
 
   useEffect(() => {
@@ -80,12 +81,13 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], enableDynamicNested 
           item.sizes ||
           item.color ||
           item.series ||
-          item.finish;
+          item.finish ||
+          item.addtiles;
 
         const paramValue = encodeURIComponent(labelValue);
         return {
-          label: labelValue,
-          path: `/tiles/list?${activeMainKey}=${paramValue}`,
+          label: toCapitalize(labelValue),
+          path: `/tiles/${activeMainKey === 'addtiles' ?'add':'list'}?${activeMainKey ==='addtiles' ? 'category': activeMainKey}=${paramValue}`,
         };
       });
 

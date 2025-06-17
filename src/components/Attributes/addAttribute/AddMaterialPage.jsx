@@ -13,7 +13,7 @@ import {
 import { clearSelectedMaterial } from '@/redux/slice/material/materialSlice';
 import { toast } from 'react-toastify';
 
-const AddMaterialPage = () => {
+const AddMaterialPage = ({ onSubmit }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { mode, id } = useParams();
@@ -38,14 +38,20 @@ const AddMaterialPage = () => {
       if (isEdit) {
         await dispatch(updateMaterial({ id, data: payload })).unwrap();
       } else {
-        await dispatch(addMaterial(payload)).unwrap();
+        if (onSubmit) {
+          await onSubmit(values);
+        } else {
+          await dispatch(addMaterial(payload)).unwrap();
+        }
       }
 
-      navigate('/admin/materials', {
-        state: {
-          toastMessage: isEdit ? 'Material updated successfully!' : 'Material added successfully!',
-        },
-      });
+      if (!onSubmit) {
+        navigate('/admin/materials', {
+          state: {
+            toastMessage: isEdit ? 'Material updated successfully!' : 'Material added successfully!',
+          },
+        });
+      }
     } catch (error) {
       console.error('Failed to submit material:', error);
 
