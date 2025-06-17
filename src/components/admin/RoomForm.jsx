@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addRoom, fetchRoomById, updateRoom } from '@/redux/slice/room/roomThunks';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
 
 // Validation schema using Yup
 const RoomSchema = Yup.object().shape({
@@ -31,8 +32,21 @@ const RoomSchema = Yup.object().shape({
 });
 
 const AddNewRoom = () => {
+  const { categories } = useSelector(state => state);
+  console.log(categories);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
+  const categoriesOptions =
+    categories?.list?.data?.map(category => ({
+      label: category.category,
+      value: category.category,
+    })) || [];
 
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -200,10 +214,13 @@ const AddNewRoom = () => {
                 >
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
+
                 <SelectContent>
-                  <SelectItem value="luxury">Luxury</SelectItem>
-                  <SelectItem value="standard">Standard</SelectItem>
-                  <SelectItem value="budget">Budget</SelectItem>
+                  {categoriesOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {formik.touched.category && formik.errors.category && (
