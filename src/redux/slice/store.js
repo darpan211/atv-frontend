@@ -13,6 +13,7 @@ import tileReducer from './tiles/tileSlice';
 import sellerReducer from './seller/sellerSlice';
 import finishReducer from './finish/finishSlice';
 import adminReducer from './admin/adminSlice';
+import filterReducer from './sidebarfilter/filterSlice';
 
 const encryptor = encryptTransform({
   secretKey: import.meta.env.VITE_SECRET_KEY,
@@ -39,6 +40,7 @@ const rootReducer = combineReducers({
   seller: sellerReducer,
   admin: adminReducer,
   finish: finishReducer,
+  filters: filterReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
