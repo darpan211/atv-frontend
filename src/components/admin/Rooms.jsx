@@ -1,198 +1,184 @@
-import React from 'react';
-// import DataTable from './DataTable';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { CiEdit } from 'react-icons/ci';
-
-import { RiDeleteBinLine } from 'react-icons/ri';
-
-import { MoreHorizontal, Edit, Trash2, Eye, Plus } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { useDispatch, useSelector } from 'react-redux';
+import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
+import { deleteRoom, fetchRooms } from '@/redux/slice/room/roomThunks';
+import { toast } from 'react-toastify';
+import { Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import DataTable from '../common/DataTable';
 import { useNavigate } from 'react-router-dom';
+import { DeleteIcon } from '../common/icons/svgs/DeleteIcon';
+import { EditIcon } from '../common/icons/svgs/EditIcon';
 
-// Example usage of the DataTable component
 const Rooms = () => {
-  const navigate = useNavigate();
-  // Sample data
-  const roomsData = [
-    {
-      id: 1,
-      image: 'https://via.placeholder.com/100x60?text=Room+1',
-      templateName: 'Modern Minimalist',
-      category: 'Living Room',
-      roomType: 'Lounge',
-      description: 'A sleek and modern room with neutral tones.',
-      status: 'Active',
-    },
-    {
-      id: 2,
-      image: 'https://via.placeholder.com/100x60?text=Room+2',
-      templateName: 'Cozy Cottage',
-      category: 'Bedroom',
-      roomType: 'Master Bedroom',
-      description: 'Warm and inviting space with wooden accents.',
-      status: 'Inactive',
-    },
-    {
-      id: 3,
-      image: 'https://via.placeholder.com/100x60?text=Room+3',
-      templateName: 'Urban Loft',
-      category: 'Studio',
-      roomType: 'Multi-purpose',
-      description: 'Open-concept design with industrial features.',
-      status: 'Active',
-    },
-  ];
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedRoomId, setSelectedRoomId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Table column definitions
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { list: roomsList, loading } = useSelector(state => state.rooms);
+
+  useEffect(() => {
+    dispatch(fetchRooms());
+  }, [dispatch]);
+
+  const roomsData = Array.isArray(roomsList)
+    ? roomsList
+    : Array.isArray(roomsList?.data)
+      ? roomsList.data
+      : [];
+  console.log(roomsData, 'RoomData');
+  const handleDeleteClick = id => {
+    setSelectedRoomId(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedRoomId) return;
+    setIsDeleting(true);
+
+    try {
+      await dispatch(deleteRoom(selectedRoomId)).unwrap();
+      toast.success('Room deleted successfully!');
+      dispatch(fetchRooms());
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete room.');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+      setSelectedRoomId(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setSelectedRoomId(null);
+  };
+
+  const handleEdit = id => {
+    navigate(`/admin/roomform?id=${id}`);
+  };
+
   const columns = [
     {
       header: 'Room Image',
-      accessor: 'sellerName',
+      cell: row => (
+        <img
+          src={row.upload_image}
+          alt={row.template_name}
+          className="h-12 w-12 object-cover rounded"
+        />
+      ),
     },
     {
       header: 'Template Name',
-      accessor: 'ownerName',
+      accessor: 'template_name',
     },
     {
       header: 'Category',
-      accessor: 'mobile',
+      accessor: 'category',
     },
     {
       header: 'Room Type',
-      accessor: 'mobile',
+      accessor: 'room_type',
     },
     {
-      header: 'Descrpition',
-      accessor: 'mobile',
+      header: 'Description',
+      accessor: 'description',
     },
     {
-      header: 'Subscription Date',
-      accessor: 'subscriptionDate',
+      header: 'Created At',
       cell: row => {
-        // Format date for display
-        const date = new Date(row.subscriptionDate);
-        return date.toLocaleDateString();
-      },
-    },
-    {
-      header: 'Payment Status',
-      cell: row => {
-        // Render payment status with appropriate styling
-        const getStatusColor = status => {
-          switch (status) {
-            case 'Paid':
-              return 'bg-green-800 text-white';
-            case 'Overdue':
-              return 'bg-[#4D4D4D] text-white ';
-            case 'Pending':
-              return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100';
-            default:
-              return 'bg-gray-100 text-gray-800 hover:bg-gray-100';
-          }
-        };
-
-        return (
-          <Badge className={`font-normal ${getStatusColor(row.paymentStatus)}`}>
-            {row.paymentStatus}
-          </Badge>
-        );
+        const date = new Date(row.createdAt);
+        return date.toLocaleDateString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        });
       },
     },
     {
       header: 'Status',
       cell: row => {
-        // Render status with appropriate styling
         const getStatusColor = status => {
           switch (status) {
-            case 'Active':
-              return 'bg-green-800 text-white ';
-            case 'Inactive':
-              return 'bg-[#6E6E6E] text-white ';
-            case 'Suspended':
-              return 'bg-red-100 text-red-800 hover:bg-red-100';
+            case 'active':
+              return 'bg-green-800 text-white';
+            case 'inactive':
+              return 'bg-gray-500 text-white';
             default:
-              return 'bg-gray-100 text-gray-800 hover:bg-gray-100';
+              return 'bg-gray-200 text-black';
           }
         };
 
-        return <Badge className={`font-normal ${getStatusColor(row.status)}`}>{row.status}</Badge>;
+        return (
+          <Badge className={`font-normal capitalize ${getStatusColor(row.status)}`}>
+            {row.status}
+          </Badge>
+        );
       },
     },
     {
       header: 'Actions',
       cell: row => (
-        // <DropdownMenu>
-        //   <DropdownMenuTrigger asChild>
-        //     <Button variant="ghost" className="h-8 w-8 p-0">
-        //       <span className="sr-only">Open menu</span>
-        //       <MoreHorizontal className="h-4 w-4" />
-        //     </Button>
-        //   </DropdownMenuTrigger>
-        //   <DropdownMenuContent align="end">
-        //     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        //     <DropdownMenuSeparator />
-        //     <DropdownMenuItem className="cursor-pointer">
-        //       <Eye className="mr-2 h-4 w-4" />
-        //       <span>View Details</span>
-        //     </DropdownMenuItem>
-        //     <DropdownMenuItem className="cursor-pointer">
-        //       <Edit className="mr-2 h-4 w-4" />
-        //       <span>Edit</span>
-        //     </DropdownMenuItem>
-        //     <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-500">
-        //       <Trash2 className="mr-2 h-4 w-4" />
-        //       <span>Delete</span>
-        //     </DropdownMenuItem>
-        //   </DropdownMenuContent>
-        // </DropdownMenu>
-
-        // Edit and Delete Buttons
         <div className="btns flex gap-4 text-xl">
-          <CiEdit className="text-[#a98f7d]" />
-          <RiDeleteBinLine className="text-[#a98f7d]" />
+          <span
+            className="cursor-pointer text-gray-700 hover:text-blue-600 transition duration-200"
+            onClick={() => handleEdit(row._id)}
+          >
+            <EditIcon />
+          </span>
+          <span
+            className="cursor-pointer text-gray-700 hover:text-red-600 transition duration-200"
+            onClick={() => handleDeleteClick(row._id)}
+          >
+            <DeleteIcon />
+          </span>
         </div>
       ),
     },
   ];
 
-  // Event handlers
   const handleSearch = query => {
     console.log('Searching for:', query);
-    // Implement actual search logic here
   };
 
   const handleAddSeller = () => {
-    console.log('Add seller clicked');
     navigate('/admin/roomform');
-    // Implement add seller logic here
   };
 
   return (
     <div className="p-6 max-w-full sm:mx-10">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">List of Sellers</h1>
-        <Button onClick={handleAddSeller} className="bg-[#6F4E37] hover:bg-[#a98f7d] text-white cursor-pointer">
+        <h1 className="text-3xl font-bold text-gray-900">Add Room</h1>
+        <Button
+          onClick={handleAddSeller}
+          className="bg-[#6F4E37] hover:bg-[#a98f7d] text-white cursor-pointer"
+        >
           <Plus className="mr-2 h-4 w-4" /> Add Room
         </Button>
       </div>
+
       <DataTable
         data={roomsData}
         columns={columns}
         onSearch={handleSearch}
         onAddClick={handleAddSeller}
-        searchPlaceholder="Search Seller..."
-        addButtonText="Add Seller"
-        emptyStateMessage="No sellers found. Add a seller to get started."
+        searchPlaceholder="Search Room..."
+        addButtonText="Add Room"
+        emptyStateMessage="No sellers found. Add a Room to get started."
       />
+
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          tile={{ description: 'This action cannot be undone. Do you want to continue?' }}
+          onCancel={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
+          isLoading={isDeleting}
+        />
+      )}
     </div>
   );
 };
