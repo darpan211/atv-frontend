@@ -55,7 +55,6 @@ import AdminList from './pages/Admin/AdminList';
 import FinishPage from './components/Attributes/attributePage/FinishPage';
 import AddFinishPage from './components/Attributes/addAttribute/AddFinishPage';
 
-
 // ================== App Routes ==================
 const App = () => {
   return (
@@ -105,7 +104,7 @@ const App = () => {
           path="/admin/dashboard/create"
           element={
             <AppLayout>
-              <AddNewAdmin/>
+              <AddNewAdmin />
             </AppLayout>
           }
         />
@@ -114,7 +113,7 @@ const App = () => {
           path="/admin/dashboard/:mode/:id?"
           element={
             <AppLayout>
-              <AddNewAdmin/>
+              <AddNewAdmin />
             </AppLayout>
           }
         />
@@ -123,7 +122,7 @@ const App = () => {
           path="/admin/dashboard/list"
           element={
             <AppLayout>
-              <AdminList/>
+              <AdminList />
             </AppLayout>
           }
         />
@@ -167,7 +166,7 @@ const App = () => {
 
         {/* Rooms */}
         <Route
-          path="/admin/addroom/list"
+          path="/admin/room/list"
           element={
             <AppLayout>
               <Rooms />
