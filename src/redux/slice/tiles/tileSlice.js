@@ -49,7 +49,7 @@ const tileSlice = createSlice({
       })
       .addCase(getTileColors.rejected, (state, action) => {
         state.colorLoading = false;
-        state.colorError = action.error.message;
+        state.colorError = action.payload.message;
       })
 
       // Fetch all tiles

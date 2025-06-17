@@ -46,9 +46,11 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
 
       // Call the color detection API using Redux thunk
       const resultAction = await dispatch(getTileColors(formData));
+      // console.log(resultAction, 'resultAction====>>>');
       
       if (resultAction.error) {
-        toast.error(resultAction.error.message || 'Failed to process images');
+        // toast.error(resultAction.error.message || 'Failed to process images');
+        toast.error(colorError || 'Failed to process images');
         return;
       }
 
@@ -68,7 +70,7 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
       onClose();
       toast.success('Images uploaded successfully!');
     } catch (error) {
-      console.error('Error uploading images:', error);
+      // console.error('Error uploading images:', error);
       toast.error(error.message || 'Failed to process images. Please try again.');
     }
   };

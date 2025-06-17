@@ -221,7 +221,7 @@
           } fixed lg:static top-0 left-0 z-40 w-[250px] h-full bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transition-none flex flex-col`}
         >
           {/* Mobile Close Button */}
-          {/* <div className="lg:hidden flex justify-end p-4 border-b border-gray-200">
+          <div className="lg:hidden flex justify-end p-4 border-b border-gray-200">
             <button
               onClick={() => setSidebarOpen(false)}
               className="p-2 rounded-md text-white bg-[#6F4E37] hover:bg-[#5c3f2f]"
@@ -229,7 +229,7 @@
             >
               <X size={20} />
             </button>
-          </div> */}
+          </div>
 
           {/* Header */}
           <div className="p-1 border-b border-gray-200 flex-shrink-0 bg-white h-[100px]">
