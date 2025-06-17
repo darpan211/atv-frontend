@@ -531,7 +531,7 @@ const TileManagement = () => {
             </div>
 
             <span
-              className={`text-[11px] font-semibold px-2 py-1 rounded-lg text-white transition-all w-[113.92px] h-[24.07px] justify-center flex items-center  duration-700 ease-in-out ${getPriorityColor(tile.priority)}`}
+              className={`text-[11px] font-semibold px-2 py-1 rounded-lg text-white transition-all  justify-center flex items-center  duration-700 ease-in-out ${getPriorityColor(tile.priority)}`}
             >
               {tile.priority}
             </span>
@@ -793,7 +793,7 @@ const TileManagement = () => {
           {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
 
-        {isExpanded && (
+        {isExpanded && (  
           <div
             id={`filter-section-${filterKey}`}
             className="pb-4 space-y-2 max-h-48 overflow-y-auto"

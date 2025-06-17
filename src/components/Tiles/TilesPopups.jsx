@@ -24,7 +24,7 @@ const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave,
         >
           <Icon
             name="Close"
-            size={30}
+            size={10}
             className="text-white transition-all duration-300 ease-in-out"
           />
         </button>
@@ -177,7 +177,7 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
         >
           <Icon
             name="Close"
-            size={30}
+            size={10}
             className="text-white transition-all duration-300 ease-in-out"
           />
         </button>
@@ -215,19 +215,72 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
                 </div>
               </div>
 
-              {/* Other Details */}
-              {[
-                { label: 'Sizes', value: tile.size },
-                { label: 'Materials', value: tile.material },
-                { label: 'Finishes', value: tile.finish },
-                { label: 'Series', value: tile.series },
-                { label: 'Color', value: tile.color },
-              ].map(({ label, value }) => (
-                <div key={label} className="space-y-1">
-                  <label className="text-xs sm:text-sm font-semibold text-gray-700">{label}</label>
-                  <p className="text-xs sm:text-sm text-gray-900 break-words">{value}</p>
-                </div>
-              ))}
+              <div className="space-y-1 text-sm">
+                {[
+                  {
+                    label: 'Size',
+                    value: (
+                      <div className="flex flex-wrap gap-1">
+                        {tile.size.map((sz, i) => (
+                          <span
+                            key={i}
+                            className="inline-block bg-gray-100 text-gray-900 text-xs sm:text-sm px-2.5 py-1 rounded-md border border-gray-300 shadow-sm"
+                          >
+                            {sz}
+                          </span>
+                        ))}
+                      </div>
+                    ),
+                  },
+                  {
+                    label: 'Series',
+                    value: (
+                      <span className="inline-block bg-gray-100 text-gray-900 text-xs sm:text-sm px-2.5 py-1 rounded-md border border-gray-300 shadow-sm">
+                        {tile.series}
+                      </span>
+                    ),
+                  },
+                  {
+                    label: 'Category',
+                    value: (
+                      <span className="inline-block bg-gray-100 text-gray-900 text-xs sm:text-sm px-2.5 py-1 rounded-md border border-gray-300 shadow-sm">
+                        {tile.category}
+                      </span>
+                    ),
+                  },
+                  {
+                    label: 'Material',
+                    value: (
+                      <span className="inline-block bg-gray-100 text-gray-900 text-xs sm:text-sm px-2.5 py-1 rounded-md border border-gray-300 shadow-sm">
+                        {tile.material}
+                      </span>
+                    ),
+                  },
+                  {
+                    label: 'Finish',
+                    value: (
+                      <span className="inline-block bg-gray-100 text-gray-900 text-xs sm:text-sm px-2.5 py-1 rounded-md border border-gray-300 shadow-sm">
+                        {tile.finish}
+                      </span>
+                    ),
+                  },
+                  {
+                    label: 'Color',
+                    value: (
+                      <span className='text-black'>
+                        {tile.color}
+                      </span>
+                    ),
+                  },
+                ].map((item, index) => (
+                  <div key={index} className="flex justify-between gap-2">
+                    <span className="font-semibold text-gray-700 whitespace-nowrap">
+                      {item.label}:
+                    </span>
+                    <span className="truncate flex-1 text-gray-600">{item.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -254,6 +307,6 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
   );
 });
 
-TilePopup.displayName = 'TilePopup';
+TilePopup.displayName = 'TilePopup';                                                                                                        
 
-export { EditFormPopup, TilePopup };
+export { EditFormPopup, TilePopup };                                                                                                                                                                                                                                                                                                            
