@@ -57,7 +57,7 @@ export default function AdminProfile() {
                       <img
                         src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=320&h=320&fit=crop&crop=face"
                         alt="Profile"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover rounded-[10px]"
                       />
 
                       <div className="absolute bottom-0 right-0 sm:bottom-0 sm:right-0 bg-white rounded-tl-lg rounded-br-lg cursor-pointer hover:bg-gray-100 transition-colors shadow-sm">

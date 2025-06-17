@@ -30,11 +30,8 @@ import AddColorPage from '../Attributes/addAttribute/AddColorPage';
 import AddFinishPage from '../Attributes/addAttribute/AddFinishPage';
 import { fetchTiles, addTile, updateTile } from '@/redux/slice/tiles/tileThunks';
 
-
 const validationSchema = Yup.object().shape({
-  size: Yup.array()
-    .min(1, 'Please select at least one size')
-    .required('Size is required'),
+  size: Yup.array().min(1, 'Please select at least one size').required('Size is required'),
   material: Yup.array(),
   finish: Yup.array(),
   tileImages: Yup.array()
@@ -55,12 +52,11 @@ const AddTiles = () => {
   const searchParams = new URLSearchParams(location.search);
   const categoryFromUrl = searchParams.get('category') || 'wall';
   console.log('categoryFromUrl', categoryFromUrl);
-  
+
   const { categories, series, sizes, suitablePlace, finish, materials, tiles } = useSelector(
     state => state
   );
 
-  
   const [showPreview, setShowPreview] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [tileImages, setTileImages] = useState([]); // [{ file, thickness, name, favorite }]
@@ -101,7 +97,9 @@ const AddTiles = () => {
         }
         // Validate that names and thicknesses are present for each image
         const missingName = tileImages.some(img => !img.name || img.name.trim() === '');
-        const missingThickness = tileImages.some(img => !img.thickness || String(img.thickness).trim() === '');
+        const missingThickness = tileImages.some(
+          img => !img.thickness || String(img.thickness).trim() === ''
+        );
         if (missingName || missingThickness) {
           toast.error('Each image must have a name and thickness.');
           return;
@@ -126,13 +124,13 @@ const AddTiles = () => {
         const tileNames = tileImages.map(img => img.name).join(',');
         const tileThicknesses = tileImages.map(img => img.thickness).join(',');
         const tileColors = tileImages.map(img => img.color).join(',');
-        const tileFavorites = tileImages.map(img => img.favorite ? 'true' : 'false').join(',');
+        const tileFavorites = tileImages.map(img => (img.favorite ? 'true' : 'false')).join(',');
         formData.append('tiles_name', tileNames);
         formData.append('thickness', tileThicknesses);
         formData.append('tiles_color', tileColors);
         formData.append('favorite', tileFavorites);
         // Add all tile images as files only (not as string or name)
-        tileImages.forEach((image) => {
+        tileImages.forEach(image => {
           formData.append('tiles_image', image.file);
         });
         const resultAction = await dispatch(addTile(formData));
@@ -145,7 +143,7 @@ const AddTiles = () => {
           setTileImages([]);
           // Navigate to tiles list with toast message in state
           navigate('/tiles/list', {
-            state: { toastMessage: 'Tile added successfully!' }
+            state: { toastMessage: 'Tile added successfully!' },
           });
         }
       } catch (error) {
@@ -244,7 +242,10 @@ const AddTiles = () => {
 
   const handleDeleteImage = index => {
     setTileImages(prev => prev.filter((_, i) => i !== index));
-    formik.setFieldValue('tileImages', tileImages.filter((_, i) => i !== index));
+    formik.setFieldValue(
+      'tileImages',
+      tileImages.filter((_, i) => i !== index)
+    );
   };
 
   const canSubmit =
@@ -272,13 +273,17 @@ const AddTiles = () => {
     // For finish, you may need a separate component if available
     if (!PopupComponent) return null;
 
-    const handlePopupSubmit = async (values) => {
+    const handlePopupSubmit = async values => {
       try {
         // Dispatch the appropriate action based on the popup type
         let action;
         switch (openPopup) {
           case 'size':
-            action = addSize({ height: values.height, width: values.width, sizes: `${values.height} X ${values.width}` });
+            action = addSize({
+              height: values.height,
+              width: values.width,
+              sizes: `${values.height} X ${values.width}`,
+            });
             break;
           case 'series':
             action = addSeries({ series: values.name });
@@ -311,10 +316,12 @@ const AddTiles = () => {
           dispatch(fetchCategories());
           dispatch(fetchMaterials());
           dispatch(fetchFinishes());
-          
+
           // Close the popup
           setOpenPopup(null);
-          toast.success(`${openPopup.charAt(0).toUpperCase() + openPopup.slice(1)} added successfully!`);
+          toast.success(
+            `${openPopup.charAt(0).toUpperCase() + openPopup.slice(1)} added successfully!`
+          );
         }
       } catch (error) {
         toast.error(error?.message || `Failed to add ${openPopup}`);
@@ -414,8 +421,8 @@ const AddTiles = () => {
                     }
                   }}
                   className={`font-semibold text-white text-xs px-5 py-2.5 rounded-md flex items-center gap-2 transition-colors duration-200 h-10 ${
-                    formik.values.size.length > 0 
-                      ? 'bg-[#7b4f28] hover:bg-[#633e1f] cursor-pointer' 
+                    formik.values.size.length > 0
+                      ? 'bg-[#7b4f28] hover:bg-[#633e1f] cursor-pointer'
                       : 'bg-gray-400 cursor-not-allowed'
                   }`}
                 >
