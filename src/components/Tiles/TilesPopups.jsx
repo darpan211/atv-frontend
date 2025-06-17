@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import img from '../../assets/image (2).png';
-import { Icon } from '../common/icons';
+import { X } from 'lucide-react';
 
 // EditFormPopup component
 const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave, onDelete }) => {
@@ -22,14 +22,9 @@ const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave,
           onClick={onClose}
           aria-label="Close edit form"
         >
-          <Icon
-            name="Close"
-            size={30}
-            className="text-white transition-all duration-300 ease-in-out"
-          />
+          <X size={30} className="text-white transition-all duration-300 ease-in-out" />
         </button>
 
-        {/* Scrollable content wrapper */}
         <div className="overflow-y-auto max-h-max">
           <div className="flex flex-col lg:flex-row  lg:gap-4">
             <div className="aspect-square border border-[#BCBCBC] overflow-hidden  p-3 w-full max-w-[262px] h-[300px] sm:h-[369px] rounded-[10px] mx-auto md:mx-0 animate-fadeIn delay-100">
@@ -125,7 +120,6 @@ const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave,
             </div>
           </div>
 
-          {/* Bottom Buttons */}
           <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 animate-fadeIn delay-200">
             <button
               type="button"
@@ -171,21 +165,15 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">
       <div className="relative bg-[#FFF5EE] rounded-sm w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-4 duration-500 ease-out">
         <button
-          className="absolute top-0 right-0 z-10 cursor-pointer transition-colors duration-300 ease-in-out p-[11px] bg-[#6F4E37] rounded-tr-[5px] rounded-bl-[5px] text-gray-100 hover:text-white"
           onClick={onClose}
-          aria-label="Close edit form"
+          className="p-2 px-0 py-0 absolute top-0 right-0"
+          aria-label="Close popup"
         >
-          <Icon
-            name="Close"
-            size={30}
-            className="text-white transition-all duration-300 ease-in-out"
-          />
+          <X size={20} className="bg-[#6F4E37] cursor-pointer rounded-bl-sm text-white" />
         </button>
 
-        {/* Content */}
         <div className="p-3 sm:p-4 md:p-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-            {/* Image Section */}
             <div className="aspect-square border border-[#BCBCBC] w-full max-w-[200px] sm:max-w-[250px] md:max-w-[300px] lg:max-w-none h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] rounded-lg p-3 mx-auto lg:mx-0 animate-in slide-in-from-left-5 duration-700 delay-200">
               <img
                 src={img || '/placeholder.svg'}
@@ -194,7 +182,6 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
               />
             </div>
 
-            {/* Details Section */}
             <div className="space-y-2 sm:space-y-3 md:space-y-4 animate-in slide-in-from-right-5 duration-700 delay-300">
               <div>
                 <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-1 break-words">
@@ -203,7 +190,6 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
                 <p className="text-xs sm:text-sm text-gray-600 break-all">{tile.code}</p>
               </div>
 
-              {/* Priority */}
               <div className="space-y-1 sm:space-y-2">
                 <label className="text-xs sm:text-sm font-semibold text-gray-700">Priority</label>
                 <div className="flex items-center">
@@ -215,9 +201,24 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
                 </div>
               </div>
 
-              {/* Other Details */}
               {[
-                { label: 'Sizes', value: tile.size },
+                {
+                  label: 'Sizes',
+                  value: (
+                    <div className="flex flex-wrap gap-1">
+                      {Array.isArray(tile.size) ? tile.size.map((sz, i) => (
+                        <span
+                          key={i}
+                          className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700"
+                        >
+                          {sz}
+                        </span>
+                      )) : (
+                        <span className="text-xs text-gray-500">No sizes available</span>
+                      )}
+                    </div>
+                  ),
+                },
                 { label: 'Materials', value: tile.material },
                 { label: 'Finishes', value: tile.finish },
                 { label: 'Series', value: tile.series },
@@ -231,7 +232,6 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 mt-4 sm:mt-6 pt-3 sm:pt-4 animate-in slide-in-from-bottom-3 duration-600 delay-500">
             <button
               onClick={() => onDelete(tile.id)}
