@@ -21,14 +21,57 @@ export const getTileColors = createAsyncThunk(
 );
 
 // Fetch all tiles
-export const fetchTiles = createAsyncThunk('tiles/fetchTiles', async (_, thunkAPI) => {
-  try {
-    const response = await axiosHandler.get(`${BASE_URL}/api/v1/tiles/gettiles`);
-    return response.data.data;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error.response?.data || error.message);
+// export const fetchTiles = createAsyncThunk('tiles/fetchTiles', async (queryParams = {}, thunkAPI) => {
+//   try {
+//     // Convert array values to comma-separated strings
+//     const normalizedParams = {};
+//     Object.entries(queryParams).forEach(([key, value]) => {
+//       normalizedParams[key] = Array.isArray(value) ? value.join(',') : value;
+//     });
+//     const queryString = new URLSearchParams(normalizedParams).toString();
+//     const response = await axiosHandler.get(`${BASE_URL}/api/v1/tiles/gettiles?${queryString}`);
+//     return response.data.data;
+//   } catch (error) {
+//     return thunkAPI.rejectWithValue(error.response?.data || error.message);
+//   }
+// });
+
+export const fetchTiles = createAsyncThunk(
+  'tiles/fetchTiles',
+  async (queryParams = {}, { rejectWithValue }) => {
+    try {
+      // Normalize query parameters: convert arrays to comma-separated strings
+      const normalizedParams = {};
+      Object.entries(queryParams).forEach(([key, value]) => {
+        if (value) { // Only include non-empty values
+          normalizedParams[key] = Array.isArray(value) ? value.join(',') : value;
+        }
+      });
+
+      // Construct query string
+      const queryString = new URLSearchParams(normalizedParams).toString();
+      const url = `${BASE_URL}/api/v1/tiles/gettiles${queryString ? `?${queryString}` : ''}`;
+
+      // Make API request
+      const response = await axiosHandler.get(url);
+
+      // Validate response data
+      if (!response.data || !response.data.data) {
+        throw new Error('Invalid response format: No data found');
+      }
+
+      return response.data.data; // Return the tiles data
+    } catch (error) {
+      // Log error for debugging
+      console.error('Error fetching tiles:', error.message);
+      // Return detailed error information
+      return rejectWithValue({
+        message: error.response?.data?.message || error.message,
+        status: error.response?.status || 500,
+      });
+    }
   }
-});
+);
 
 // Add tile
 export const addTile = createAsyncThunk('tiles/addTile', async (formData, thunkAPI) => {

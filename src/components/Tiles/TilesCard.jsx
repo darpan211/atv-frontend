@@ -4,21 +4,19 @@ import { ChevronDown, ChevronUp, Search, ChevronLeft, ChevronRight } from 'lucid
 import img from '../../assets/image (2).png';
 import { Icon } from '../common/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
-import { fetchSeries } from '@/redux/slice/series/seriesThunks';
-import { fetchFinishes } from '@/redux/slice/finish/finishThunks';
-import { fetchSizes } from '@/redux/slice/sizes/sizeThunks';
-import { fetchMaterials } from '@/redux/slice/material/materialThunks';
-import { fetchColors } from '@/redux/slice/colors/colorThunks';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './TilesSidebar';
 import Header from './TilesHeader';
 import { EditFormPopup, TilePopup } from './TilesPopups';
 import { Checkbox } from '../ui/checkbox';
-
 import { fetchTiles, updateTile } from '@/redux/slice/tiles/tileThunks';
 import { toast } from 'react-toastify';
-import { fetchSidebarFilters } from '@/redux/slice/sidebarfilter/filterThunks';
+import { fetchColors } from '@/redux/slice/colors/colorThunks';
+import { fetchFinishes } from '@/redux/slice/finish/finishThunks';
+import { fetchSeries } from '@/redux/slice/series/seriesThunks';
+import { fetchMaterials } from '@/redux/slice/material/materialThunks';
+import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
+import { fetchSuitablePlaces } from '@/redux/slice/suitablePlace/suitablePlaceThunks';
 
 const TileManagement = () => {
   const dispatch = useDispatch();
@@ -44,8 +42,6 @@ const TileManagement = () => {
     }
   }, [location.state]);
 
-  const [tiles, setTiles] = useState([]);
-
   const [activeFilters, setActiveFilters] = useState({
     series: [],
     collections: [],
@@ -57,46 +53,63 @@ const TileManagement = () => {
   });
 
   const tilesFromRedux = useSelector(state => state.tiles?.tiles?.data ?? []);
-  const {categories, series, finish, size, material, color } = useSelector(state => state.filters.list ?? []);
-  console.log(categories, 'categories from redux');
+  const categories = useSelector(state => state.categories.list?.data ?? null);
+  const sizes = useSelector(state => state.sizes.list?.data ?? []);
+  const materials = useSelector(state => state.materials.list?.data ?? []);
+  const finish = useSelector(state => state.finish.list?.data ?? []);
+  const series = useSelector(state => state.series.list?.data ?? []);
+  const colors = useSelector(state => state.colors.list?.data ?? []);
 
-
-  const filterOptions = {
-    collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
-    categories,
-    series,
-    finishes: finish,
-    sizes: size,
-    materials: material,
-    colors: color
-  };
+const filterOptions = {
+  collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
+  categories: categories.map(item => item.category),
+  series: series.map(item => item.series),
+  finishes: finish.map(item => item.finish),
+  sizes: sizes.map(item => item.sizes),
+  materials: materials.map(item => item.material),
+  colors: colors.map(item => item.colors),
+};
 
   // fetch filter option data on page load
   useEffect(() => {
-    dispatch(fetchSidebarFilters())
     dispatch(fetchTiles());
+    dispatch(fetchColors());
+    dispatch(fetchFinishes());
+    dispatch(fetchSeries());
+    dispatch(fetchMaterials());
+    dispatch(fetchCategories());
+    dispatch(fetchSuitablePlaces());
   }, [dispatch]);
 
-  useEffect(() => {
-  setTiles(tilesFromRedux);
-}, [dispatch]);
+  const [tiles, setTiles] = useState([]);
 
-  // On mount, set filters from URL ---
+  useEffect(() => {
+    setTiles(tilesFromRedux);
+  }, [tilesFromRedux]);
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const newFilters = { ...activeFilters };
     Object.keys(newFilters).forEach(key => {
       const value = params.get(key);
       if (value) {
-        // For multi-select, support comma separated values
         newFilters[key] = value.split(',');
       }
     });
     setActiveFilters(newFilters);
-    // eslint-disable-next-line
+    const search = params.get('search') || '';
+    setSearchTerm(search);
+
+    // Fetch tiles based on URL filters and search term
+    const queryParams = { ...newFilters };
+    if (search) {
+      queryParams.search = search;
+    }
+    if (Object.keys(queryParams).length > 0) {
+      dispatch(fetchTiles(queryParams));
+    }
   }, [location.search]);
 
-  // Whenever filters change, update URL ---
   useEffect(() => {
     const params = new URLSearchParams();
     Object.entries(activeFilters).forEach(([key, values]) => {
@@ -104,13 +117,13 @@ const TileManagement = () => {
         params.set(key, values.join(','));
       }
     });
-
-    // Only push if params changed
+    if (searchTerm) {
+      params.set('search', searchTerm);
+    }
     if (params.toString() !== location.search.replace(/^\?/, '')) {
       navigate({ search: params.toString() }, { replace: true });
     }
-    // eslint-disable-next-line
-  }, [activeFilters]);
+  }, [activeFilters, searchTerm, navigate]);
 
   const [expandedSections, setExpandedSections] = useState({
     collections: true,
@@ -251,90 +264,77 @@ const TileManagement = () => {
   }, []);
 
   const handleFilterChange = useCallback((category, value) => {
-    console.log(value, 'value====>');
+    setActiveFilters(prev => {
+      const updatedFilters = {
+        ...prev,
+        [category]: prev[category].includes(value)
+          ? prev[category].filter(item => item !== value)
+          : [...prev[category], value],
+      };
 
-    setActiveFilters(prev => ({
-      ...prev,
-      [category]: prev[category].includes(value)
-        ? prev[category].filter(item => item !== value)
-        : [...prev[category], value],
-    }));
+      // Construct query parameters
+      const queryParams = { ...updatedFilters };
+      if (searchTerm) {
+        queryParams.search = searchTerm;
+      }
+
+      // Dispatch fetchTiles with query parameters
+      dispatch(fetchTiles(queryParams));
+
+      return updatedFilters;
+    });
     setCurrentPage(1);
-  }, []);
+  }, [dispatch, searchTerm]);
 
   const removeFilter = useCallback((category, value) => {
-    setActiveFilters(prev => ({
-      ...prev,
-      [category]: prev[category].filter(item => item !== value),
-    }));
+    setActiveFilters(prev => {
+      const updatedFilters = {
+        ...prev,
+        [category]: prev[category].filter(item => item !== value),
+      };
+
+      // Update query parameters
+      const queryParams = { ...updatedFilters };
+      if (searchTerm) {
+        queryParams.search = searchTerm;
+      }
+
+      // Fetch tiles with updated filters
+      dispatch(fetchTiles(queryParams));
+
+      return updatedFilters;
+    });
     setCurrentPage(1);
-  }, []);
+  }, [dispatch, searchTerm]);
 
   const clearAllFilters = useCallback(() => {
     const cleared = {};
     Object.keys(activeFilters).forEach(key => (cleared[key] = []));
     setActiveFilters(cleared);
+    setSearchTerm('');
+    dispatch(fetchTiles({})); // Fetch all tiles when filters are cleared
     setCurrentPage(1);
-  }, [activeFilters]);
+  }, [activeFilters, dispatch]);
+
+  const handleSearchChange = useCallback((newSearchTerm) => {
+    setSearchTerm(newSearchTerm);
+    const queryParams = { ...activeFilters };
+    if (newSearchTerm) {
+      queryParams.search = newSearchTerm;
+    }
+    dispatch(fetchTiles(queryParams));
+    setCurrentPage(1);
+  }, [activeFilters, dispatch]);
 
   const getTotalFilters = useCallback(
     () => Object.values(activeFilters).flat().length,
     [activeFilters]
   );
 
-  console.log(tiles, 'tiles color value');
-
-  const filteredTiles = tiles.filter(tile => {
-    const matchesSearch =
-      tile.tiles_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tile.series.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tile.category.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesFilters = Object.entries(activeFilters).every(([key, values]) => {
-      if (values.length === 0) return true;
-
-      switch (key) {
-        case 'series':
-          return values.some(v =>
-            tile.series?.some(s => s.trim().toLowerCase() === v.trim().toLowerCase())
-          );
-        case 'categories':
-          return values.some(v => v.trim().toLowerCase() === tile.category.trim().toLowerCase());
-        case 'materials':
-          return values.some(v => 
-            tile.material?.some(m => m.trim().toLowerCase() === v.trim().toLowerCase())
-          );
-        case 'finishes':
-          return values.some(v =>
-            tile.finish?.some(f => f.trim().toLowerCase() === v.trim().toLowerCase())
-          )
-        case 'sizes':
-         return values.some(v =>
-            tile.size?.some(s =>
-              s.trim().toLowerCase() ===
-              v.trim().toLowerCase()
-            )
-          );
-        case 'colors':
-          return values.some(v => 
-            v?.color_name?.trim().toLowerCase() === tile.tiles_color?.color_name.trim().toLowerCase());
-        case 'priority':
-          return values.some(v => v.trim().toLowerCase() === tile.priority.trim().toLowerCase());
-
-        case 'name':
-          return values.some(v => v.trim().toLowerCase() === tile.tiles_name.trim().toLowerCase());
-        default:
-          return true;
-      }
-    });
-
-    return matchesSearch && matchesFilters;
-  });
-
-  const totalPages = Math.ceil(filteredTiles.length / rowsPerPage);
+  const totalPages = Math.ceil(tiles.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
-  const paginatedTiles = filteredTiles.slice(startIndex, endIndex);
+  const paginatedTiles = tiles.slice(startIndex, endIndex);
 
   const handlePageChange = useCallback(page => {
     setCurrentPage(page);
@@ -356,7 +356,7 @@ const TileManagement = () => {
         >
           <div className="overflow-hidden rounded-xl w-full h-full">
             <img
-              src={img || '/placeholder.svg'}
+              src={tile?.tiles_image || '/placeholder.svg'}
               alt=""
               className="object-cover h-full rounded-xl w-full max-h-[262.34px] overflow-hidden transition-transform duration-300 ease-in-out group-hover:scale-105"
             />
@@ -672,7 +672,7 @@ const TileManagement = () => {
           {/* Page navigation */}
           <div className="flex items-center space-x-4">
             <span className="text-sm text-gray-700">
-              {startIndex + 1}-{Math.min(endIndex, filteredTiles.length)} of {filteredTiles.length}
+              {startIndex + 1}-{Math.min(endIndex, tiles.length)} of {tiles.length}
             </span>
             <div className="flex space-x-1">
               <button
@@ -763,7 +763,8 @@ const TileManagement = () => {
           clearAllFilters={clearAllFilters}
           getTotalFilters={getTotalFilters}
           filterOptions={filterOptions}
-          filteredTiles={filteredTiles}
+          // filteredTiles={filteredTiles}
+          filteredTiles={tiles}
         />
 
         <div className="flex-1 min-h-[100%] bg-gray-50 flex flex-col w-full lg:ml-0">
@@ -773,13 +774,13 @@ const TileManagement = () => {
             viewMode={viewMode}
             setViewMode={setViewMode}
             searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
+            handleSearchChange={handleSearchChange}
           />
 
           {/* Main Content */}
           <div className="flex-1 bg-white p-3 sm:p-4 lg:p-6 w-full relative">
             {/* Empty state */}
-            {filteredTiles.length === 0 && (
+            {tiles.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-gray-400 mb-4">
                   <Search size={48} className="mx-auto" />
