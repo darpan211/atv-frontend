@@ -16,12 +16,11 @@ const AdminHeader = () => {
     navigate('/');
   };
 
-  const handleDashRoute = () => {
-    navigate('admin/dashboard');
-  };
-
   const navLinks = [
-    { label: 'Dashboard', onClick: handleDashRoute },
+    { label: 'Dashboard',
+      withDropdown: false,
+      onClick: () =>navigate('/') 
+    },
     { 
       label: 'Manage Users',
       withDropdown: true,
@@ -58,6 +57,11 @@ const AdminHeader = () => {
         { label: 'Manage Suitable Places', path: '/admin/places' },
          { label: 'Manage Finish', path: '/admin/finish' },
       ]
+    },
+    { 
+      label: 'Admin Profile',
+      withDropdown: false,
+      onClick: () => navigate('/admin/profile'),
     },
   ];
 

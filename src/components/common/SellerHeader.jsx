@@ -16,12 +16,11 @@ const SellerHeader = () => {
     navigate('/');
   };
 
-  const handleDashRoute = () => {
-    navigate('seller/dashboard');
-  };
-
   const navLinks = [
-    { label: 'Dashboard', onClick: handleDashRoute },
+    { label: 'Dashboard',
+      withDropdown: false,
+      onClick: () =>navigate('/') 
+    },
     {
       label: 'Manage Tiles',
       withDropdown: true,

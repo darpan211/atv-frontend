@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { toCapitalize } from '../../helpers';
+import { fetchSidebarFilters } from '@/redux/slice/sidebarfilter/filterThunks';
 
 const NavItem = ({ label, withDropdown, dropdownItems = [], onClick, enableDynamicNested = false }) => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const hoverTimeoutRef = useRef(null);
@@ -96,6 +98,7 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], onClick, enableDynam
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
+    dispatch(fetchSidebarFilters())
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
