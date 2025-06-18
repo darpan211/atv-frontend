@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useState } from 'react';
 import {
   Select,
   SelectContent,
@@ -9,9 +9,12 @@ import {
 } from '../ui/select';
 import img from '../../assets/image (2).png';
 import { X } from 'lucide-react';
+import { MultiSelectDropdown } from '../common/MultiSelectDropdown';
+import { toCapitalize } from '@/helpers';
+import DeleteConfirmationModal from '../common/DeleteConfirmationModal';
 
 // EditFormPopup component
-const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave, onDelete }) => {
+const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave, onDelete, materialOptions, sizeOptions, finishOptions, seriesOptions, colorOptions }) => {
   if (!isOpen || !tile) return null;
 
   return (
@@ -29,8 +32,8 @@ const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave,
           <div className="flex flex-col lg:flex-row  lg:gap-4">
             <div className="aspect-square border border-[#BCBCBC] overflow-hidden  p-3 w-full max-w-[262px] h-[300px] sm:h-[369px] rounded-[10px] mx-auto md:mx-0 animate-fadeIn delay-100">
               <img
-                src={img || '/placeholder.svg'}
-                alt={tile.name}
+                src={tile.tiles_image || '/placeholder.svg'}
+                alt={tile.tiles_name}
                 className="w-full h-full object-cover rounded-[10px]  transition-transform duration-300 ease-in-out"
               />
             </div>
@@ -42,6 +45,7 @@ const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave,
                   key={`name-${tile.id}`}
                   type="text"
                   placeholder="Enter name"
+                  value={formData.name || ''}
                   onChange={e => onChange('name', e.target.value)}
                   className="w-full mt-1 px-3 py-1.5 text-sm rounded focus:outline-none bg-white focus:ring-2 focus:ring-[#7b4f28] transition-all duration-300"
                 />
@@ -69,54 +73,63 @@ const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave,
                 </div>
               </div>
 
-              {[
-                {
-                  label: 'Sizes',
-                  key: 'size',
-                  options: ['300 x 300', '400 x 400', '600 x 600', '800 x 800'],
-                },
-                {
-                  label: 'Materials',
-                  key: 'material',
-                  options: ['Porcelain', 'Ceramic', 'Natural Stone', 'Glass', 'Marble'],
-                },
-                {
-                  label: 'Finishes',
-                  key: 'finish',
-                  options: ['Glossy', 'Matte', 'Textured', 'Polished', 'Natural'],
-                },
-                {
-                  label: 'Series',
-                  key: 'series',
-                  options: ['Wooden', 'Modern', 'Classic', 'Luxury', 'Rustic'],
-                },
-                {
-                  label: 'Color',
-                  key: 'color',
-                  options: ['Gainsboro', 'White', 'Gray', 'Beige', 'Brown', 'Black'],
-                },
-              ].map(({ label, key, options }) => (
-                <div
-                  key={key}
-                  className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6"
-                >
-                  <label className="text-base font-semibold block mb-1">{label}</label>
-                  <Select value={formData[key] || ''} onValueChange={value => onChange(key, value)}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={`Select ${label}`} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {options.map(option => (
-                          <SelectItem key={option} value={option}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-              ))}
+              <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
+                <label className="text-base font-semibold block mb-1">Sizes</label>
+                <MultiSelectDropdown
+                  label="Sizes"
+                  options={sizeOptions}
+                  selectedValues={formData.size || []}
+                  onChange={vals => onChange('size', vals)}
+                />
+              </div>
+
+              <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
+                <label className="text-base font-semibold block mb-1">Materials</label>
+                <MultiSelectDropdown
+                  label="Materials"
+                  options={materialOptions}
+                  selectedValues={formData.material || []}
+                  onChange={vals => onChange('material', vals)}
+                />
+              </div>
+
+              <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
+                <label className="text-base font-semibold block mb-1">Finishes</label>
+                <MultiSelectDropdown
+                  label="Finishes"
+                  options={finishOptions}
+                  selectedValues={formData.finish || []}
+                  onChange={vals => onChange('finish', vals)}
+                />
+              </div>
+
+              <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
+                <label className="text-base font-semibold block mb-1">Series</label>
+                <MultiSelectDropdown
+                  label="Series"
+                  options={seriesOptions}
+                  selectedValues={formData.series || []}
+                  onChange={vals => onChange('series', vals)}
+                />
+              </div>
+
+              {/* <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
+                <label className="text-base font-semibold block mb-1">Color</label>
+                <Select value={formData.color || ''} onValueChange={value => onChange('color', value)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={`Select Color`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {colorOptions && colorOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div> */}
             </div>
           </div>
 
@@ -159,7 +172,11 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
     }
   }, []);
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   if (!isOpen || !tile) return null;
+// console.log(tile,"==> tile");
 
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">
@@ -176,8 +193,8 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
             <div className="aspect-square border border-[#BCBCBC] w-full max-w-[200px] sm:max-w-[250px] md:max-w-[300px] lg:max-w-none h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] rounded-lg p-3 mx-auto lg:mx-0 animate-in slide-in-from-left-5 duration-700 delay-200">
               <img
-                src={img || '/placeholder.svg'}
-                alt={tile.name}
+                src={tile.tiles_image || '/placeholder.svg'}
+                alt={tile.tiles_name}
                 className="w-full h-full object-cover rounded-lg transition-all duration-300 hover:scale-105"
               />
             </div>
@@ -185,9 +202,8 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
             <div className="space-y-2 sm:space-y-3 md:space-y-4 animate-in slide-in-from-right-5 duration-700 delay-300">
               <div>
                 <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-1 break-words">
-                  {tile.name}
+                  {toCapitalize(tile.tiles_name)}
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 break-all">{tile.code}</p>
               </div>
 
               <div className="space-y-1 sm:space-y-2">
@@ -196,45 +212,96 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
                   <span
                     className={`px-2 sm:px-3 py-1 rounded text-white text-[10px] sm:text-[11px] font-medium transition-transform duration-200 hover:scale-105 ${getPriorityColor(tile.priority)}`}
                   >
-                    {tile.priority}
+                    {toCapitalize(tile.priority)}
                   </span>
                 </div>
               </div>
 
-              {[
-                {
-                  label: 'Sizes',
-                  value: (
-                    <div className="flex flex-wrap gap-1">
-                      {Array.isArray(tile.size) ? tile.size.map((sz, i) => (
-                        <span
-                          key={i}
-                          className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700"
-                        >
-                          {sz}
-                        </span>
-                      )) : (
-                        <span className="text-xs text-gray-500">No sizes available</span>
-                      )}
-                    </div>
-                  ),
-                },
-                { label: 'Materials', value: tile.material },
-                { label: 'Finishes', value: tile.finish },
-                { label: 'Series', value: tile.series },
-                { label: 'Color', value: tile.color },
-              ].map(({ label, value }) => (
-                <div key={label} className="space-y-1">
-                  <label className="text-xs sm:text-sm font-semibold text-gray-700">{label}</label>
-                  <p className="text-xs sm:text-sm text-gray-900 break-words">{value}</p>
+              {/* Sizes */}
+              {tile.size && tile.size.length > 0 && (
+                <div className="space-y-1">
+                  <label className="text-xs sm:text-sm font-semibold text-gray-700">Sizes</label>
+                  <div className="flex flex-wrap gap-1">
+                    {tile.size.map((sz, i) => (
+                      <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">{sz}</span>
+                    ))}
+                  </div>
                 </div>
-              ))}
+              )}
+
+              {/* Materials */}
+              {tile.material && tile.material.length > 0 && (
+                <div className="space-y-1">
+                  <label className="text-xs sm:text-sm font-semibold text-gray-700">Materials</label>
+                  <div className="flex flex-wrap gap-1">
+                    {tile.material.map((mat, i) => (
+                      <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">{mat}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Finishes */}
+              {tile.finish && tile.finish.length > 0 && (
+                <div className="space-y-1">
+                  <label className="text-xs sm:text-sm font-semibold text-gray-700">Finishes</label>
+                  <div className="flex flex-wrap gap-1">
+                    {tile.finish.map((fin, i) => (
+                      <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">{fin}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Series */}
+              {tile.series && tile.series.length > 0 && (
+                <div className="space-y-1">
+                  <label className="text-xs sm:text-sm font-semibold text-gray-700">Series</label>
+                  <div className="flex flex-wrap gap-1">
+                    {tile.series.map((ser, i) => (
+                      <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">{ser}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Color */}
+              {tile.tiles_color && tile.tiles_color.length > 0 && (
+                <div className="space-y-1">
+                  <label className="text-xs sm:text-sm font-semibold text-gray-700">Color</label>
+                  <div>
+                    {tile.tiles_color.map((c, i) => (
+                      <span
+                        key={i}
+                        style={{ display: 'inline-flex', alignItems: 'center', marginRight: 12 }}
+                      >
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            width: 20,
+                            height: 20,
+                            borderRadius: '50%',
+                            background: c.color_code,
+                            marginRight: 8,
+                            border: '1px solid #ddd',
+                            verticalAlign: 'middle'
+                          }}
+                        />
+                        <span className="text-xs sm:text-sm text-gray-700 font-semibold">
+                          {toCapitalize(c.color_name)}
+                        </span>
+                        {i < tile.tiles_color.length - 1 ? ', ' : ''}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 mt-4 sm:mt-6 pt-3 sm:pt-4 animate-in slide-in-from-bottom-3 duration-600 delay-500">
             <button
-              onClick={() => onDelete(tile.id)}
+              onClick={() => setShowDeleteModal(true)}
               className="cursor-pointer w-[120px] px-3 sm:px-4 py-2 bg-white text-black rounded-md font-medium transition-all duration-200 border border-gray-300 hover:bg-gray-50 hover:shadow-lg active:scale-95 transform text-sm sm:text-base"
               style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)' }}
             >
@@ -250,6 +317,21 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
           </div>
         </div>
       </div>
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          tile={{ description: 'This action cannot be undone. Do you want to continue?' }}
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={() => {
+            setIsDeleting(true);
+            const id = tile.id || tile._id;
+            onDelete(id);
+            setShowDeleteModal(false);
+            setIsDeleting(false);
+          }}
+          isLoading={isDeleting}
+        />
+      )}
     </div>
   );
 });

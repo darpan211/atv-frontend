@@ -14,6 +14,7 @@ const TilesSidebar = ({
   getTotalFilters,
   filterOptions,
   filteredTiles,
+  totalDesigns,
 }) => {
   const FilterSection = ({ title, filterKey, options }) => {
     const isExpanded = expandedSections[filterKey];
@@ -61,6 +62,9 @@ const TilesSidebar = ({
     );
   };
 
+  // Determine if filters are applied
+  const filtersApplied = Object.values(activeFilters).some(arr => arr.length > 0);
+
   return (
     <div
       className={`${
@@ -90,7 +94,8 @@ const TilesSidebar = ({
           </button>
         </div>
         <p className="text-sm text-gray-800 font-medium">
-          Total Designs: <span className="text-amber-800 font-bold">{filteredTiles.length}</span>
+          {/* Total Designs: <span className="text-amber-800 font-bold">{filtersApplied ? filteredTiles.length : totalDesigns}</span> */}
+          Total Designs: <span className="text-amber-800 font-bold">{totalDesigns}</span>
         </p>
         {getTotalFilters() > 0 && (
           <p className="text-xs text-gray-600 mt-1">
@@ -130,7 +135,7 @@ const TilesSidebar = ({
       <div className="flex-1 bg-[#E0E0E0] px-2.5 pt-3 space-y-4 overflow-y-auto">
         <div className="space-y-1">
           {[
-            { title: 'Collections', key: 'collections' },
+            // { title: 'Collections', key: 'collections' },
             { title: 'Categories', key: 'categories' },
             { title: 'Series', key: 'series' },
             { title: 'Finishes', key: 'finishes' },

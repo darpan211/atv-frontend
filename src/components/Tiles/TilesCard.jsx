@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { ChevronDown, ChevronUp, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+
 import img from '../../assets/image (2).png';
 import { Icon } from '../common/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,7 +10,7 @@ import Sidebar from './TilesSidebar';
 import Header from './TilesHeader';
 import { EditFormPopup, TilePopup } from './TilesPopups';
 import { Checkbox } from '../ui/checkbox';
-import { fetchTiles, updateTile } from '@/redux/slice/tiles/tileThunks';
+import { fetchTiles, updateTile, getfilteredtiles, deleteTile } from '@/redux/slice/tiles/tileThunks';
 import { toast } from 'react-toastify';
 import { fetchColors } from '@/redux/slice/colors/colorThunks';
 import { fetchFinishes } from '@/redux/slice/finish/finishThunks';
@@ -16,6 +18,8 @@ import { fetchSeries } from '@/redux/slice/series/seriesThunks';
 import { fetchMaterials } from '@/redux/slice/material/materialThunks';
 import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
 import { fetchSuitablePlaces } from '@/redux/slice/suitablePlace/suitablePlaceThunks';
+import { MultiSelectDropdown } from '../common/MultiSelectDropdown';
+import { fetchSizes } from '@/redux/slice/sizes/sizeThunks';
 
 const TileManagement = () => {
   const dispatch = useDispatch();
@@ -24,15 +28,20 @@ const TileManagement = () => {
   const [viewMode, setViewMode] = useState('grid');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedTile, setSelectedTile] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editFormData, setEditFormData] = useState({});
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    collections: true,
+    categories: true,
+    series: true,
+    finishes: false,
+    sizes: false,
+    materials: false,
+    colors: false,
+  });
 
   // Toast logic for navigation success message
   const toastShownRef = useRef(false);
@@ -54,7 +63,11 @@ const TileManagement = () => {
     colors: [],
   });
 
-  const tilesFromRedux = useSelector(state => state.tiles?.tiles?.data ?? []);
+  const filteredTilesOptions = useSelector(state => state.tiles.filteredtiles ?? []);
+  const [tiles, setTiles] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const totalItems = useSelector(state => state.tiles.tiles?.totalItems ?? 0);  
   const categories = useSelector(state => state.categories.list?.data ?? null);
   const sizes = useSelector(state => state.sizes.list?.data ?? []);
   const materials = useSelector(state => state.materials.list?.data ?? []);
@@ -62,18 +75,9 @@ const TileManagement = () => {
   const series = useSelector(state => state.series.list?.data ?? []);
   const colors = useSelector(state => state.colors.list?.data ?? []);
 
-const filterOptions = {
-  collections: ['Modern', 'Contemporary', 'Traditional', 'Vintage', 'Minimalist'],
-  categories: categories.map(item => item.category),
-  series: series.map(item => item.series),
-  finishes: finish.map(item => item.finish),
-  sizes: sizes.map(item => item.sizes),
-  materials: materials.map(item => item.material),
-  colors: colors.map(item => item.colors),
-};
-
   // fetch filter option data on page load
   useEffect(() => {
+    dispatch(fetchSizes());
     dispatch(fetchTiles());
     dispatch(fetchColors());
     dispatch(fetchFinishes());
@@ -81,52 +85,39 @@ const filterOptions = {
     dispatch(fetchMaterials());
     dispatch(fetchCategories());
     dispatch(fetchSuitablePlaces());
+    dispatch(getfilteredtiles());
   }, [dispatch]);
 
-  const [tiles, setTiles] = useState([]);
+  const filterOptions = {
+    categories: filteredTilesOptions.categories || [],
+    series: filteredTilesOptions.series || [],
+    finishes: filteredTilesOptions.finish || [],
+    sizes: filteredTilesOptions.size || [],
+    materials: filteredTilesOptions.material || [],
+    colors: filteredTilesOptions.color || [],
+  };
 
-useEffect(() => {
-  if (page === 1) {
-    // Reset tiles on first page (e.g., when filters or search change)
-    setTiles(tilesFromRedux);
-  } else {
-    // Append new tiles, avoiding duplicates
-    setTiles(prev => {
-      const newTiles = tilesFromRedux.filter(
-        newTile => !prev.some(prevTile => prevTile.id === newTile.id)
-      );
-      return [...prev, ...newTiles];
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const newFilters = { ...activeFilters };
+    Object.keys(newFilters).forEach(key => {
+      const values = params.getAll(key);
+      if (values.length > 0) {
+        newFilters[key] = values;
+      }
     });
-  }
-}, [tilesFromRedux, page]);
+    setActiveFilters(newFilters);
+    const search = params.get('tiles_name') || '';
+    setSearchTerm(search);
 
-// Add after your other useEffects
-useEffect(() => {
-  if (viewMode !== 'grid') return;
-  setLoading(true);
-
-  const paramsObj = {};
-  Object.entries(activeFilters).forEach(([key, values]) => {
-    if (values.length > 0) paramsObj[key] = values.join(',');
-  });
-  if (searchTerm) paramsObj.search = searchTerm;
-  paramsObj.page = page;
-  paramsObj.limit = 12;
-
-  const urlParams = new URLSearchParams(paramsObj);
-  if (urlParams.toString() !== location.search.replace(/^\?/, '')) {
-    navigate({ search: urlParams.toString() }, { replace: true });
-  }
-
-  dispatch(fetchTiles(paramsObj)).then((action) => {
-    if (action.payload?.length < 12) {
-      setHasMore(false);
-    } else {
-      setHasMore(true);
+    // Fetch tiles based on URL filters and search term
+    const queryParams = { ...newFilters };
+    if (search) {
+      queryParams.tiles_name = search;
     }
     setLoading(false);
-  });
-}, [viewMode, activeFilters, searchTerm, page, dispatch, location.search, navigate]);
+  // });
+}, [viewMode, page, dispatch, location.search, navigate]);
 
 useEffect(() => {
   if (viewMode !== 'grid') return;
@@ -154,26 +145,23 @@ useEffect(() => {
     const params = new URLSearchParams();
     Object.entries(activeFilters).forEach(([key, values]) => {
       if (values.length > 0) {
-        params.set(key, values.join(','));
+        values.forEach(value => params.append(key, value));
       }
     });
     if (searchTerm) {
-      params.set('search', searchTerm);
+      params.set('tiles_name', searchTerm);
     }
-    if (params.toString() !== location.search.replace(/^\?/, '')) {
+    if (params.toString() !== location.search.replace(/^3F/, '')) {
       navigate({ search: params.toString() }, { replace: true });
     }
   }, [activeFilters, searchTerm, navigate]);
 
-  const [expandedSections, setExpandedSections] = useState({
-    collections: true,
-    categories: true,
-    series: true,
-    finishes: false,
-    sizes: false,
-    materials: false,
-    colors: false,
-  });
+  useEffect(() => {
+    const hasFilters = Object.values(activeFilters).some(arr => arr.length > 0) || !!searchTerm;
+    if (!hasFilters) {
+      dispatch(fetchTiles({}));
+    }
+  }, [activeFilters, searchTerm, dispatch]);
 
   const getPriorityColor = useCallback(priority => {
     switch (priority) {
@@ -188,59 +176,102 @@ useEffect(() => {
     }
   }, []);
 
-  // Memoized handlers to prevent unnecessary re-renders
   const handlePriorityChange = useCallback(
     (id, newPriority) => {
-      setTiles(prevTiles =>
-        prevTiles.map(tile => (tile.id === id ? { ...tile, priority: newPriority } : tile))
-      );
-      if (selectedTile && selectedTile.id === id) {
-        setSelectedTile(prev => ({ ...prev, priority: newPriority }));
-      }
+      if (!id) return;
+      dispatch(updateTile({ id, data: { priority: newPriority } }))
+        .then(() => {
+          // Update local tiles state immediately
+          setTiles(prev => prev.map(tile =>
+            (tile.id === id || tile._id === id)
+              ? { ...tile, priority: newPriority }
+              : tile
+          ));
+          // Optionally refresh from backend
+          dispatch(fetchTiles());
+          if (selectedTile && (selectedTile.id === id || selectedTile._id === id)) {
+            setSelectedTile(prev => ({ ...prev, priority: newPriority }));
+          }
+        })
+        .catch(error => {
+          toast.error('Failed to update priority');
+        });
     },
-    [selectedTile]
+    [selectedTile, dispatch]
   );
 
   const handleToggleFavorite = useCallback(
     id => {
-      setTiles(prevTiles =>
-        prevTiles.map(tile => (tile.id === id ? { ...tile, isFavorited: !tile.isFavorited } : tile))
-      );
-      if (selectedTile && selectedTile.id === id) {
-        setSelectedTile(prev => ({ ...prev, isFavorited: !prev.isFavorited }));
-      }
-      // Update backend
-      const tile = tiles.find(t => t.id === id);
-      if (tile) {
-        // eslint-disable-next-line no-undef
-        dispatch(updateTile({ id, data: { favorite: !tile.isFavorited } }));
-      }
+      if (!id) return;
+      const tile = tiles.find(t => t.id === id || t._id === id);
+      if (!tile) return;
+      dispatch(updateTile({ id, data: { favorite: !tile.favorite } }))
+        .then(() => {
+          // Update local tiles state immediately
+          setTiles(prev => prev.map(t =>
+            (t.id === id || t._id === id)
+              ? { ...t, favorite: !t.favorite }
+              : t
+          ));
+          // Optionally refresh from backend
+          dispatch(fetchTiles());
+          if (selectedTile && (selectedTile.id === id || selectedTile._id === id)) {
+            setSelectedTile(prev => ({ ...prev, favorite: !prev.favorite }));
+          }
+        })
+        .catch(error => {
+          toast.error('Failed to update favorite status');
+        });
     },
     [selectedTile, tiles, dispatch]
   );
 
   const handleToggleActive = useCallback(
     id => {
-      setTiles(prevTiles =>
-        prevTiles.map(tile => (tile.id === id ? { ...tile, isActive: !tile.isActive } : tile))
-      );
-      if (selectedTile && selectedTile.id === id) {
-        setSelectedTile(prev => ({ ...prev, isActive: !prev.isActive }));
-      }
+      if (!id) return;
+      const tile = tiles.find(t => t.id === id || t._id === id);
+      if (!tile) return;
+      const newStatus = tile.status === 'active' ? 'inactive' : 'active';
+      dispatch(updateTile({ id, data: { status: newStatus } }))
+        .then(() => {
+          // Update local tiles state immediately
+          setTiles(prev => prev.map(t =>
+            (t.id === id || t._id === id)
+              ? { ...t, status: newStatus }
+              : t
+          ));
+          // Optionally refresh from backend
+          dispatch(fetchTiles());
+          if (selectedTile && (selectedTile.id === id || selectedTile._id === id)) {
+            setSelectedTile(prev => ({ ...prev, status: newStatus }));
+          }
+        })
+        .catch(error => {
+          toast.error('Failed to update active status');
+        });
     },
-    [selectedTile]
+    [selectedTile, tiles, dispatch]
   );
 
   const handleDelete = useCallback(
     id => {
-      setTiles(prevTiles => prevTiles.filter(tile => tile.id !== id));
-      if (selectedTile && selectedTile.id === id) {
-        setIsPopupOpen(false);
-        setSelectedTile(null);
-        setIsEditMode(false);
-      }
+      if (!id) return;
+      dispatch(deleteTile(id))
+        .then(() => {
+          dispatch(fetchTiles());
+          if (selectedTile && (selectedTile.id === id || selectedTile._id === id)) {
+            setIsPopupOpen(false);
+            setSelectedTile(null);
+            setIsEditMode(false);
+          }
+          toast.success('Tile deleted successfully!');
+        })
+        .catch((error) => {
+          alert(error);
+          toast.error('Failed to delete tile');
+        });
     },
-    [selectedTile]
+    [selectedTile, dispatch]
   );
 
   const openTilePopup = useCallback(tile => {
@@ -256,52 +287,55 @@ useEffect(() => {
     setEditFormData({});
   }, []);
 
+  // Map redux data to MultiSelectDropdown options
+  const materialOptions = (materials?.data || materials || []).map(mat => ({ label: mat.material, value: mat.material }));
+  const sizeOptions = (sizes?.data || sizes || []).map(sz => ({ label: sz.sizes, value: sz.sizes }));
+  const finishOptions = (finish?.data || finish || []).map(f => ({ label: f.finish, value: f.finish }));
+  const seriesOptions = (series?.data || series || []).map(s => ({ label: s.series, value: s.series }));
+  const colorOptions = (colors?.data || colors || []).map(c => ({ label: c.colors, value: c.colors }));
+
   const openEditMode = useCallback(tile => {
     setSelectedTile(tile);
     setEditFormData({
-      name: tile.name,
-      priority: tile.priority.replace(' Priority', ''),
-      size: tile.size,
-      material: tile.material,
-      finish: tile.finish,
-      series: tile.series,
-      color: tile.color,
+      name: tile.name || tile.tiles_name || '',
+      priority: (tile.priority || '').replace(' Priority', ''),
+      size: (Array.isArray(tile.size) ? tile.size : (tile.size ? [tile.size] : [])).map(val => ({ label: val, value: val })),
+      material: (Array.isArray(tile.material) ? tile.material : (tile.material ? [tile.material] : [])).map(val => ({ label: val, value: val })),
+      finish: (Array.isArray(tile.finish) ? tile.finish : (tile.finish ? [tile.finish] : [])).map(val => ({ label: val, value: val })),
+      series: (Array.isArray(tile.series) ? tile.series : (tile.series ? [tile.series] : [])).map(val => ({ label: val, value: val })),
+      color: (tile.color || (tile.tiles_color && tile.tiles_color.length > 0 ? tile.tiles_color[0].color_name : '')),
     });
     setIsEditMode(true);
     setIsPopupOpen(false); // Close the view popup when opening edit mode
   }, []);
 
-  // Fixed form change handler - this was the main issue
   const handleEditFormChange = useCallback((field, value) => {
     setEditFormData(prev => ({ ...prev, [field]: value }));
   }, []);
 
   const handleSaveEdit = useCallback(() => {
+    // Prepare arrays for backend (map to string values)
+    try{
     const updatedTile = {
       ...selectedTile,
-      name: editFormData.name,
-      priority: `${editFormData.priority} Priority`,
-      size: editFormData.size,
-      material: editFormData.material,
-      finish: editFormData.finish,
-      series: editFormData.series,
-      color: editFormData.color,
+      tiles_name: editFormData.name,
+      priority: `${editFormData.priority}`,
+      size: (editFormData.size || []).map(opt => opt.value),
+      material: (editFormData.material || []).map(opt => opt.value),
+      finish: (editFormData.finish || []).map(opt => opt.value),
+      series: (editFormData.series || []).map(opt => opt.value),
+      tiles_color: editFormData.color ? [{ color_name: editFormData.color }] : [],
     };
-
-    setTiles(prevTiles =>
-      prevTiles.map(tile => (tile.id === selectedTile.id ? updatedTile : tile))
-    );
+    // Dispatch updateTile thunk
+    dispatch(updateTile({ id: selectedTile._id || selectedTile.id, data: updatedTile }));
+    dispatch(fetchTiles());
     setSelectedTile(updatedTile);
     setIsEditMode(false);
-    alert('Tile updated successfully!');
-  }, [selectedTile, editFormData]);
-
-  const toggleSection = useCallback(section => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  }, []);
+    toast.success('Tile updated successfully!');
+  }catch(err){
+    toast.error('Failed to update tile.');
+  }
+  }, [selectedTile, editFormData, dispatch]);
 
   const handleFilterChange = useCallback((category, value) => {
     setActiveFilters(prev => {
@@ -323,7 +357,6 @@ useEffect(() => {
 
       return updatedFilters;
     });
-    setCurrentPage(1);
   }, [dispatch, searchTerm]);
 
   const removeFilter = useCallback((category, value) => {
@@ -344,7 +377,6 @@ useEffect(() => {
 
       return updatedFilters;
     });
-    setCurrentPage(1);
   }, [dispatch, searchTerm]);
 
   const clearAllFilters = useCallback(() => {
@@ -353,7 +385,6 @@ useEffect(() => {
     setActiveFilters(cleared);
     setSearchTerm('');
     dispatch(fetchTiles({})); // Fetch all tiles when filters are cleared
-    setCurrentPage(1);
   }, [activeFilters, dispatch]);
 
   const handleSearchChange = useCallback((newSearchTerm) => {
@@ -363,7 +394,6 @@ useEffect(() => {
       queryParams.search = newSearchTerm;
     }
     dispatch(fetchTiles(queryParams));
-    setCurrentPage(1);
   }, [activeFilters, dispatch]);
 
   const getTotalFilters = useCallback(
@@ -371,26 +401,64 @@ useEffect(() => {
     [activeFilters]
   );
 
-  console.log('tilesFromRedux:', tilesFromRedux);
-  console.log('tiles:', tiles);
+  const totalDesigns = totalItems;
 
-  const totalPages = Math.ceil(tiles.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = startIndex + rowsPerPage;
-  const paginatedTiles = tiles.slice(startIndex, endIndex);
+  // Add state for filter bar dropdowns
+  const [sortBy, setSortBy] = useState('Priority');
+  const [sortOrder, setSortOrder] = useState('Descending');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [favoriteFilter, setFavoriteFilter] = useState('');
 
-  const handlePageChange = useCallback(page => {
-    setCurrentPage(page);
-  }, []);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const handleRowsPerPageChange = useCallback(newRowsPerPage => {
-    setRowsPerPage(newRowsPerPage);
-    setCurrentPage(1);
-  }, []);
+  // Fetch tiles with page and append option
+  const fetchWithAllFilters = useCallback((pageToFetch = 1, append = false) => {
+    if (!append) setIsLoadingMore(false);
+    const queryParams = {
+      ...activeFilters,
+      tiles_name: searchTerm,
+      sort_by: sortBy === 'Name' ? 'name' : sortBy.toLowerCase(),
+      order: sortOrder === 'Descending' ? 'desc' : 'asc',
+      status: statusFilter === 'Active' ? 'active' : statusFilter === 'Inactive' ? 'inactive' : undefined,
+      priority: priorityFilter && priorityFilter !== 'All' ? priorityFilter.toLowerCase() : undefined,
+      favorite: favoriteFilter === 'Favorited' ? 'true' : favoriteFilter === 'Not Favorited' ? 'false' : undefined,
+      page: pageToFetch,
+    };
+    Object.keys(queryParams).forEach(key => queryParams[key] === undefined && delete queryParams[key]);
+    dispatch(fetchTiles(queryParams)).then(res => {
+      const data = res.payload?.data || res.payload || [];
+      if (append) {
+        setTiles(prev => [...prev, ...data]);
+        setIsLoadingMore(false);
+      } else {
+        setTiles(data);
+      }
+      const perPage = res.payload?.perPage || 12;
+      setHasMore(pageToFetch * perPage < (res.payload?.totalItems || totalItems));
+    });
+  }, [activeFilters, searchTerm, sortBy, sortOrder, statusFilter, priorityFilter, favoriteFilter, dispatch, totalItems]);
+
+  // Reset tiles and page on filter/sort/search change
+  useEffect(() => {
+    setPage(1);
+    setTiles([]); // Only reset here
+    fetchWithAllFilters(1, false);
+  }, [activeFilters, searchTerm, sortBy, sortOrder, statusFilter, priorityFilter, favoriteFilter, fetchWithAllFilters]);
+
+  // Load more handler
+  const fetchMoreData = () => {
+    if (isLoadingMore) return;
+    setIsLoadingMore(true);
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchWithAllFilters(nextPage, true);
+  };
 
   const TileCard = ({ tile }) => {
+    const tileId = tile.id || tile._id;
     const priorities = ['Low', 'Medium', 'High'];
-
+    const currentPriority = (tile.priority || '');
     return (
       <div className="w-full h-fit bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-200 overflow-hidden">
         <div
@@ -407,18 +475,16 @@ useEffect(() => {
           <button
             onClick={e => {
               e.stopPropagation();
-              handleToggleFavorite(tile.id);
+              handleToggleFavorite(tileId);
             }}
-            className={`absolute top-3 right-3 p-1.5 rounded-md shadow-md transition-all duration-200 cursor-pointer ${
-              tile.isFavorited ? 'bg-white' : 'bg-[#6F4E37] bg-opacity-90 hover:bg-opacity-100'
-            }`}
-          >
+            className={`absolute top-3 right-3 p-1.5 rounded-md shadow-md transition-all duration-200 cursor-pointer ${tile.favorite ? 'bg-white' : 'bg-[#6F4E37] bg-opacity-90 hover:bg-opacity-100'}`}
+          >            
             <Icon
               name="Heart"
               size={16}
-              className={`transition-all duration-300 ${
-                tile.isFavorited ? 'text-[#6F4E37] fill-[#6F4E37]' : 'text-white fill-white'
-              }`}
+              className={`transition-all duration-300 ${ tile.favorite ? 'text-[#6F4E37] fill-[#6F4E37]' : 'text-white fill-white'}`}
+              colour={tile.favorite ? '#6F4E37' : '#fff'}
+              // filled={tile.favorite}
             />
           </button>
         </div>
@@ -432,7 +498,7 @@ useEffect(() => {
                 label: 'Size',
                 value: (
                   <div className="flex flex-wrap gap-1">
-                    {tile.size.map((sz, i) => (
+                    {(Array.isArray(tile.size) ? tile.size : tile.size ? [tile.size] : []).map((sz, i) => (
                       <span
                         key={i}
                         className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700"
@@ -447,7 +513,7 @@ useEffect(() => {
                 label: 'Series',
                 value: (
                   <div className="flex flex-wrap gap-1">
-                    {tile.series.map((s, i) => (
+                    {(Array.isArray(tile.series) ? tile.series : tile.series ? [tile.series] : []).map((s, i) => (
 
                     <span key={i} className="px-2  text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">
                       {s}
@@ -476,17 +542,16 @@ useEffect(() => {
           <div className="flex items-center gap-2 animate-fade-in justify-between">
             <div className="flex gap-1 bg-[#e9d8cb] rounded-[8px] px-1 py-1 items-center w-fit transition-opacity duration-500">
               {priorities.map(p => {
-                const full = `${p}`;
-                const isSelected = tile.priority === full.toLowerCase();
+                const full = `${p}`;              
+                const isSelected = currentPriority === p.toLowerCase();
                 return (
                   <button
                     key={p}
-                    onClick={() => handlePriorityChange(tile.id, full)}
-                    className={`cursor-pointer px-0.5 py-0.5 text-xs rounded-sm font-medium transition-all duration-300 ease-in-out transform hover:scale-105 ${
-                      isSelected
-                        ? 'bg-white text-gray-800 shadow-sm'
-                        : 'text-gray-700 hover:bg-gray-200'
-                    }`}
+                    onClick={e => {
+                      e.stopPropagation();
+                      handlePriorityChange(tileId, full.toLowerCase());
+                    }}
+                    className={`cursor-pointer px-0.5 py-0.5 text-xs rounded-sm font-medium transition-all duration-300 ease-in-out transform hover:scale-105 ${isSelected ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-700 hover:bg-gray-200'}`}
                   >
                     {p}
                   </button>
@@ -505,14 +570,18 @@ useEffect(() => {
         <div className="bg-[#FFF5EE] px-4 py-2 flex flex-col  sm:flex-row sm:justify-between items-center gap-2 sm:gap-0 w-full mt-1 border-t border-gray-200">
           <label className="inline-flex items-center gap-2 text-[#5C4033] text-sm font-semibold cursor-pointer hover:scale-105 transition-all duration-300">
             <Checkbox
-              onChange={() => handleToggleActive(tile.id)}
+              checked={tile.status === 'active'}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleActive(tileId);
+              }}
               className="w-4 h-4 cursor-pointer accent-[#6F4E37] transition-transform duration-300 hover:scale-125 bg-white border-[#6F4E37]"
             />
             <span className={`transition-all duration-300 text-[#6F4E37]`}>Active</span>
           </label>
 
           <button
-            onClick={() => handleDelete(tile.id)}
+            onClick={() => handleDelete(tileId)}
             className="flex cursor-pointer items-center gap-2 mt-2 sm:mt-0 px-4 py-1.5 bg-[#5C4033] text-white rounded-lg text-sm font-semibold hover:bg-[#4a3529] hover:scale-105 transition-all duration-300 shadow-md transform"
           >
             <Icon
@@ -548,7 +617,7 @@ useEffect(() => {
               return (
                 <button
                   key={p}
-                  onClick={() => handlePriorityChange(tile.id, full)}
+                  onClick={() => handlePriorityChange(tile.id || tile._id, full)}
                   className={`px-2 cursor-pointer py-1 text-xs rounded font-medium transition-all duration-300 ease-in-out transform hover:scale-105 ${
                     isSelected ? 'bg-white text-gray-800 shadow' : 'text-gray-700 hover:bg-gray-300'
                   }`}
@@ -593,7 +662,7 @@ useEffect(() => {
             </thead>
 
             <tbody className="divide-y divide-gray-200">
-              {paginatedTiles.map((tile, index) => (
+              {tiles.map((tile, index) => (
                 <tr key={tile.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                   <td
                     className="px-2 sm:px-4 py-4 border-r border-gray-200"
@@ -613,39 +682,55 @@ useEffect(() => {
                     <PriorityControls tile={tile} />
                   </td>
 
-                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200 w-max-[105px]">
-                    {tile.size}
+                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200 w-max-[105px] whitespace-normal">
+                    <div className="flex flex-wrap gap-1">
+                      {(Array.isArray(tile.size) ? tile.size : tile.size ? [tile.size] : []).map((sz, i) => (
+                        <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700 mr-1 break-words">{sz}</span>
+                      ))}
+                    </div>
                   </td>
 
-                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200">
-                    {tile.material}
+                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200 whitespace-normal">
+                    <div className="flex flex-wrap gap-1">
+                      {(Array.isArray(tile.material) ? tile.material : tile.material ? [tile.material] : []).map((mat, i) => (
+                        <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700 mr-1 break-words">{mat}</span>
+                      ))}
+                    </div>
                   </td>
 
-                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200">
-                    {tile.finish}
+                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200 whitespace-normal">
+                    <div className="flex flex-wrap gap-1">
+                      {(Array.isArray(tile.finish) ? tile.finish : tile.finish ? [tile.finish] : []).map((fin, i) => (
+                        <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700 mr-1 break-words">{fin}</span>
+                      ))}
+                    </div>
                   </td>
-                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200">
-                    {tile.series}
+                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200 whitespace-normal">
+                    <div className="flex flex-wrap gap-1">
+                      {(Array.isArray(tile.series) ? tile.series : tile.series ? [tile.series] : []).map((ser, i) => (
+                        <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700 mr-1 break-words">{ser}</span>
+                      ))}
+                    </div>
                   </td>
 
                   <td className="px-2 sm:px-4 py-4 border-r border-gray-200">
                     <button
-                      onClick={() => handleToggleActive(tile.id)}
+                      onClick={() => handleToggleActive(tile.id || tile._id)}
                       className={`px-2 py-1 rounded text-xs font-medium transition cursor-pointer ${
-                        tile.isActive
+                        tile.status === 'active'
                           ? 'bg-[#005E06] text-white hover:bg-[#004d05]'
                           : 'bg-[#DADADA] text-[#6E6E6E] hover:bg-[#cfcfcf]'
                       }`}
                     >
-                      {tile.isActive ? 'Active' : 'Inactive'}
+                      {tile.status === 'active' ? 'Active' : 'Inactive'}
                     </button>
                   </td>
 
                   <td className="px-2 sm:px-4 py-4 border-r border-gray-200">
                     <button
-                      onClick={() => handleToggleFavorite(tile.id)}
+                      onClick={() => handleToggleFavorite(tile.id || tile._id)}
                       className={`p-2 rounded transition cursor-pointer ${
-                        tile.isFavorited
+                        tile.favorite
                           ? 'bg-white text-[#6F4E37] border border-[#6f4e37]'
                           : 'bg-[#6F4E37] text-white'
                       }`}
@@ -654,7 +739,7 @@ useEffect(() => {
                         name="Heart"
                         size={16}
                         className={`transition-all duration-300  ${
-                          tile.isFavorited
+                          tile.favorite
                             ? 'text-[#6F4E37] fill-[#6F4E37]'
                             : 'text-white fill-white'
                         }`}
@@ -676,7 +761,7 @@ useEffect(() => {
                       <Icon name="EditPencil" width={25} height={22} />
                     </button>
                     <button
-                      onClick={() => handleDelete(tile.id)}
+                      onClick={() => handleDelete(tile.id || tile._id)}
                       className="p-2 text-[#6F4E37] rounded cursor-pointer"
                     >
                       <Icon
@@ -691,51 +776,6 @@ useEffect(() => {
               ))}
             </tbody>
           </table>
-        </div>
-
-        {/* Pagination Controls */}
-        <div className="bg-gray-50 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-200">
-          {/* Rows per page */}
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-700">Rows per page:</span>
-            <div className="relative">
-              <select
-                value={rowsPerPage}
-                onChange={e => handleRowsPerPageChange(Number(e.target.value))}
-                className="appearance-none bg-white border border-gray-300 rounded px-3 py-1 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-[#6F4E37]"
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-              </select>
-              <ChevronDown className="absolute right-2 top-1.5 h-4 w-4 text-gray-400 pointer-events-none" />
-            </div>
-          </div>
-
-          {/* Page navigation */}
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-700">
-              {startIndex + 1}-{Math.min(endIndex, tiles.length)} of {tiles.length}
-            </span>
-            <div className="flex space-x-1">
-              <button
-                className="p-1 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={currentPage === 1}
-                onClick={() => handlePageChange(currentPage - 1)}
-                aria-label="Previous page"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <button
-                className="p-1 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={currentPage === totalPages}
-                onClick={() => handlePageChange(currentPage + 1)}
-                aria-label="Next page"
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     );
@@ -783,6 +823,13 @@ useEffect(() => {
     );
   };
 
+  const toggleSection = useCallback(section => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  }, []);
+
   return (
     <div className="min-h-screen bg-white w-full">
       <div className="flex w-full relative">
@@ -806,8 +853,8 @@ useEffect(() => {
           clearAllFilters={clearAllFilters}
           getTotalFilters={getTotalFilters}
           filterOptions={filterOptions}
-          // filteredTiles={filteredTiles}
           filteredTiles={tiles}
+          totalDesigns={totalDesigns}
         />
 
         <div className="flex-1 min-h-[100%] bg-gray-50 flex flex-col w-full lg:ml-0">
@@ -818,6 +865,16 @@ useEffect(() => {
             setViewMode={setViewMode}
             searchTerm={searchTerm}
             handleSearchChange={handleSearchChange}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            priorityFilter={priorityFilter}
+            setPriorityFilter={setPriorityFilter}
+            favoriteFilter={favoriteFilter}
+            setFavoriteFilter={setFavoriteFilter}
           />
 
           {/* Main Content */}
@@ -841,15 +898,29 @@ useEffect(() => {
             <div className="relative w-full min-h-[300px]">
               {/* Grid View */}
               <div
-                className={`
-            ${viewMode === 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
-            transition-opacity duration-500 ease-in-out
-            grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full h-fit absolute inset-0
-          `}
+                className={
+                  `${viewMode === 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+                  transition-opacity duration-500 ease-in-out
+                  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full h-fit absolute inset-0`
+                }
               >
-                {paginatedTiles.map(tile => (
-                  <TileCard key={tile.id} tile={tile} />
-                ))}
+                <InfiniteScroll
+                  dataLength={tiles.length}
+                  next={fetchMoreData}
+                  hasMore={hasMore}
+                  loader={
+                    <div className="w-full flex justify-center py-4">
+                      {/* <h4>Loading...</h4> */}
+                    </div>
+                  }
+                  scrollThreshold={0.95}
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full h-fit min-h-[400px] absolute inset-0">
+                    {tiles.map(tile => (
+                      <TileCard key={tile.id} tile={tile} />
+                    ))}
+                  </div>
+                </InfiniteScroll>
               </div>
 
               {/* Table View */}
@@ -887,6 +958,11 @@ useEffect(() => {
         onChange={handleEditFormChange}
         onSave={handleSaveEdit}
         onDelete={handleDelete}
+        materialOptions={materialOptions}
+        sizeOptions={sizeOptions}
+        finishOptions={finishOptions}
+        seriesOptions={seriesOptions}
+        colorOptions={colorOptions}
       />
     </div>
   );

@@ -7,10 +7,12 @@ import {
   updateTile,
   deleteTile,
   getTileColors,
+  getfilteredtiles
 } from '@/redux/slice/tiles/tileThunks';
 
 const initialState = {
   tiles: [],
+  filteredtiles: [],
   selectedTile: null,
   loading: false,
   error: null,
@@ -108,9 +110,13 @@ const tileSlice = createSlice({
       })
       .addCase(updateTile.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.tiles.findIndex(tile => tile.id === action.payload.id);
+        // Support both id and _id for tile identification
+        const updated = action.payload.data || action.payload;
+        const updatedId = updated._id || updated.id;
+        
+        const index = state.tiles.data.findIndex(tile => (tile._id || tile.id) === updatedId);
         if (index !== -1) {
-          state.tiles[index] = action.payload;
+          state.tiles[index] = updated;
         }
         state.success = true;
       })
@@ -126,11 +132,26 @@ const tileSlice = createSlice({
         state.success = false;
       })
       .addCase(deleteTile.fulfilled, (state, action) => {
-        state.loading = false;
-        state.tiles = state.tiles.filter(tile => tile.id !== action.payload);
+        state.loading = false;      
+        state.tiles = state.tiles.data.filter(tile => tile._id !== action.payload);
         state.success = true;
       })
       .addCase(deleteTile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      //filter tiles
+      .addCase(getfilteredtiles.pending, state => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(getfilteredtiles.fulfilled, (state, action) => {
+        state.loading = false;
+        state.filteredtiles = action.payload;
+      })
+      .addCase(getfilteredtiles.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

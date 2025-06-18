@@ -4,17 +4,40 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Input } from '../ui/input';
 import { Icon } from '../common/icons';
 
-const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, handleSearchChange }) => {
+const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, handleSearchChange, sortBy, setSortBy, sortOrder, setSortOrder, statusFilter, setStatusFilter, priorityFilter, setPriorityFilter, favoriteFilter, setFavoriteFilter }) => {
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [selectedValues] = useState({});
 
   const filterOptions = [
     { label: 'Sort by', options: ['Name', 'Priority', 'Size'], width: 'w-[160px]' },
     { label: 'Order', options: ['Ascending', 'Descending'], width: 'w-[160px]' },
-    { label: 'Status', options: ['Active', 'Inactive'], width: 'w-[135px]' },
-    { label: 'Priority', options: ['Low', 'Medium', 'High'], width: 'w-[148px]' },
-    { label: 'Favorites', options: ['Favorited', 'Not Favorited'], width: 'w-[131px]' },
+    { label: 'Status', options: ['All', 'Active', 'Inactive'], width: 'w-[135px]' },
+    { label: 'Priority', options: ['All', 'Low', 'Medium', 'High'], width: 'w-[148px]' },
+    { label: 'Favorites', options: ['All', 'Favorited', 'Not Favorited'], width: 'w-[131px]' },
   ];
+
+  // Handler for dropdown changes
+  const handleDropdownChange = (label, value) => {
+    switch (label) {
+      case 'Sort by':
+        setSortBy(value);
+        break;
+      case 'Order':
+        setSortOrder(value);
+        break;
+      case 'Status':
+        setStatusFilter(value);
+        break;
+      case 'Priority':
+        setPriorityFilter(value);
+        break;
+      case 'Favorites':
+        setFavoriteFilter(value);
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <div className="bg-[#E9D8CB] p-2.5 border-b border-gray-200 w-full h-auto">
@@ -53,7 +76,20 @@ const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, handleSearc
                   key={index}
                   className="relative text-lg font-medium transition-transform duration-300 transform hover:scale-[1.02]"
                 >
-                  <Select onOpenChange={open => setExpandedIndex(open ? index : null)}>
+                  <Select
+                    value={(() => {
+                      switch (filter.label) {
+                        case 'Sort by': return sortBy;
+                        case 'Order': return sortOrder;
+                        case 'Status': return statusFilter;
+                        case 'Priority': return priorityFilter;
+                        case 'Favorites': return favoriteFilter;
+                        default: return '';
+                      }
+                    })()}
+                    onValueChange={value => handleDropdownChange(filter.label, value)}
+                    onOpenChange={open => setExpandedIndex(open ? index : null)}
+                  >
                     <SelectTrigger className="w-full h-10 flex justify-between items-center px-3 bg-white appearance-none [&>svg]:hidden">
                       <div className="flex justify-between items-center w-full">
                         <SelectValue
@@ -91,7 +127,20 @@ const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, handleSearc
                   key={index}
                   className={`relative ${filter.width} text-lg font-medium transition-transform duration-300 transform hover:scale-[1.02]`}
                 >
-                  <Select onOpenChange={open => setExpandedIndex(open ? index : null)}>
+                  <Select
+                    value={(() => {
+                      switch (filter.label) {
+                        case 'Sort by': return sortBy;
+                        case 'Order': return sortOrder;
+                        case 'Status': return statusFilter;
+                        case 'Priority': return priorityFilter;
+                        case 'Favorites': return favoriteFilter;
+                        default: return '';
+                      }
+                    })()}
+                    onValueChange={value => handleDropdownChange(filter.label, value)}
+                    onOpenChange={open => setExpandedIndex(open ? index : null)}
+                  >
                     <SelectTrigger className="w-full h-10 flex justify-between items-center px-3 bg-white appearance-none [&>svg]:hidden cursor-pointer">
                       <div className="flex justify-between items-center w-full">
                         <SelectValue
