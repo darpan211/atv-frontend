@@ -35,9 +35,9 @@ const SellerHeader = () => {
         { label: 'Add Tiles', hasDynamicChildren: true },
       ],
     },
-    { label: 'All Tiles Design', withDropdown: true },
-    { label: '3D Visualization', withDropdown: true },
-    { label: 'Company Profile', withDropdown: true },
+    { label: 'All Tiles Design', withDropdown: false, onClick: () => navigate('/tiles/list') },
+    { label: '3D Visualization', withDropdown: false, onClick: () => navigate('/tiles/visualizer') },
+    { label: 'Company Profile', withDropdown: false, onClick: () => navigate("/admin/seller/profile") },
   ];
 
   return (

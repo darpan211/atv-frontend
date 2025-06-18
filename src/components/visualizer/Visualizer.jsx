@@ -9,6 +9,7 @@ import filterIcon from '../../assets/Filter.png';
 import { Icon } from '../common/icons';
 import FilterPopup from './FilterPopup';
 import { Input } from '../ui/input';
+import { useNavigate } from 'react-router-dom';
 
 const SearchDropdown = ({ onFilterClick }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -311,6 +312,7 @@ const TileVisualizer = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFilterPopupOpen, setIsFilterPopupOpen] = useState(false);
   const sidebarRef = useRef(null);
+  const navigate = useNavigate();
 
   const roomImage =
     'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?q=80&w=1974&auto=format&fit=crop';
@@ -414,11 +416,13 @@ const TileVisualizer = () => {
 
         <div className="flex-1 flex flex-col bg-white min-h-screen lg:min-h-0">
           <div className="bg-[#EFEFEF] text-gray-800 p-3 sm:p-4 lg:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-300 mx-2 sm:mx-3 lg:mx-4 mt-14 sm:mt-16 lg:mt-0 rounded-lg shadow-lg gap-3 sm:gap-4">
-            <div className="flex items-center gap-2 sm:gap-3 cursor-pointer">
+            <div 
+            onClick={()=>navigate('/')}
+            className="flex items-center gap-2 sm:gap-3 cursor-pointer">
               <button className="flex cursor-pointer items-center justify-center w-8 h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11 bg-[#6F4E37] hover:bg-[#5a3e2a] rounded transition-colors duration-200">
                 <ChevronLeft className="text-white w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
               </button>
-              <span className="text-sm font-medium">Back</span>
+              <span className="text-sm font-medium" >Back</span>
             </div>
             <div className="flex flex-wrap xs:flex-row sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
               <button className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-white border border-gray-300 rounded text-xs sm:text-sm lg:text-base hover:bg-gray-50 transition-colors duration-200 min-w-[120px] sm:min-w-[130px] lg:min-w-[140px]">
