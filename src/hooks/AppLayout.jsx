@@ -14,21 +14,20 @@ const AppLayout = ({ children }) => {
   const user = authState?.user;
   const localUser = localStorage.getItem('user');
   const parseUser = JSON.parse(localUser);
-  const isProtectedRoute = location.pathname.startsWith('/admin');
   const authToken = localStorage.getItem('authToken');
 
   useEffect(() => {
-    if (!authToken && isProtectedRoute) {
+    if (!authToken) {
       navigate('/', { replace: true });
     }
-  }, [authToken, isProtectedRoute, navigate]);
+  }, [authToken, navigate]);
 
   const userRole = user?.user?.role || parseUser?.role;
 
   const renderHeader = () => {
     if (isLoginPage) return null;
 
-    switch ("seller") {
+    switch (userRole) {
       case 'admin':
         return <AdminHeader />;
       case 'seller':

@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { ChevronDown, ChevronUp, Search, ChevronLeft, ChevronRight } from 'lucide-react';
-
 import img from '../../assets/image (2).png';
 import { Icon } from '../common/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -31,6 +30,9 @@ const TileManagement = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editFormData, setEditFormData] = useState({});
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Toast logic for navigation success message
   const toastShownRef = useRef(false);
@@ -83,32 +85,70 @@ const filterOptions = {
 
   const [tiles, setTiles] = useState([]);
 
-  useEffect(() => {
+useEffect(() => {
+  if (page === 1) {
+    // Reset tiles on first page (e.g., when filters or search change)
     setTiles(tilesFromRedux);
-  }, [tilesFromRedux]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const newFilters = { ...activeFilters };
-    Object.keys(newFilters).forEach(key => {
-      const value = params.get(key);
-      if (value) {
-        newFilters[key] = value.split(',');
-      }
+  } else {
+    // Append new tiles, avoiding duplicates
+    setTiles(prev => {
+      const newTiles = tilesFromRedux.filter(
+        newTile => !prev.some(prevTile => prevTile.id === newTile.id)
+      );
+      return [...prev, ...newTiles];
     });
-    setActiveFilters(newFilters);
-    const search = params.get('search') || '';
-    setSearchTerm(search);
+  }
+}, [tilesFromRedux, page]);
 
-    // Fetch tiles based on URL filters and search term
-    const queryParams = { ...newFilters };
-    if (search) {
-      queryParams.search = search;
+// Add after your other useEffects
+useEffect(() => {
+  if (viewMode !== 'grid') return;
+  setLoading(true);
+
+  const paramsObj = {};
+  Object.entries(activeFilters).forEach(([key, values]) => {
+    if (values.length > 0) paramsObj[key] = values.join(',');
+  });
+  if (searchTerm) paramsObj.search = searchTerm;
+  paramsObj.page = page;
+  paramsObj.limit = 12;
+
+  const urlParams = new URLSearchParams(paramsObj);
+  if (urlParams.toString() !== location.search.replace(/^\?/, '')) {
+    navigate({ search: urlParams.toString() }, { replace: true });
+  }
+
+  dispatch(fetchTiles(paramsObj)).then((action) => {
+    if (action.payload?.length < 12) {
+      setHasMore(false);
+    } else {
+      setHasMore(true);
     }
-    if (Object.keys(queryParams).length > 0) {
-      dispatch(fetchTiles(queryParams));
+    setLoading(false);
+  });
+}, [viewMode, activeFilters, searchTerm, page, dispatch, location.search, navigate]);
+
+useEffect(() => {
+  if (viewMode !== 'grid') return;
+
+  const handleScroll = () => {
+    if (
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
+      hasMore &&
+      !loading
+    ) {
+      setPage(prev => prev + 1);
     }
-  }, [location.search]);
+  };
+
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}, [viewMode, hasMore, loading]);
+
+useEffect(() => {
+  setPage(1);
+  setHasMore(true);
+}, [activeFilters, searchTerm, viewMode]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -330,6 +370,9 @@ const filterOptions = {
     () => Object.values(activeFilters).flat().length,
     [activeFilters]
   );
+
+  console.log('tilesFromRedux:', tilesFromRedux);
+  console.log('tiles:', tiles);
 
   const totalPages = Math.ceil(tiles.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
@@ -557,7 +600,7 @@ const filterOptions = {
                     onClick={() => openTilePopup(tile)}
                   >
                     <img
-                      src={img || '/placeholder.svg'}
+                      src={tile.tiles_image || '/placeholder.svg'}
                       alt={tile.name}
                       className="max-h-[58px] w-[75px] object-contain rounded-lg cursor-pointer"
                     />

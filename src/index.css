@@ -130,6 +130,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    height: 100%;
+    /* overflow: hidden; */
   }
   .satisfy-regular {
     font-family: 'Satisfy', cursive;
