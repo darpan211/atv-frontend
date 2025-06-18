@@ -13,6 +13,7 @@ export const getTileColors = createAsyncThunk(
           'Content-Type': 'multipart/form-data',
         },
       });
+      
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: 'Failed to process images' });
@@ -116,3 +117,17 @@ export const updateTile = createAsyncThunk('tiles/updateTile', async ({ id, data
     return thunkAPI.rejectWithValue(error.response?.data || error.message);
   }
 });
+
+export const getfilteredtiles = createAsyncThunk(
+  'tiles/getfilteredtiles',
+  async (_, thunkAPI) => {
+    try {
+      const response = await axiosHandler.get(`${BASE_URL}/api/v1/tiles/getfilteredtiles`);
+      console.log("Response ==> ",response);
+      
+      return response.data.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);

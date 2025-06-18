@@ -15,7 +15,7 @@ createRoot(document.getElementById('root')).render(
     <ErrorBoundary>
       <BrowserRouter basename="/">
         <Provider store={store}>
-          <PersistGate loading={<div>Loading State...</div>} persistor={persistor}>
+          <PersistGate loading={<div></div>} persistor={persistor}>
             <App />
           </PersistGate>
         </Provider>
