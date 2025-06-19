@@ -13,6 +13,7 @@ import { login } from '@/redux/slice/auth/authThunks';
 import { FaRegEye } from 'react-icons/fa';
 import { FaRegEyeSlash } from 'react-icons/fa';
 import Spinner from '../common/Spinner';
+import { toast } from 'react-toastify';
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -48,13 +49,20 @@ const Login = () => {
         );
 
         if (login.fulfilled.match(resultAction)) {
-          // console.log('Login successful');
-          navigate('/admin/dashboard');
+          console.log(resultAction, 'resultAction');
+          const role = resultAction?.payload?.user?.role || '';
+          if (role === 'admin') {
+            navigate('/admin/dashboard');
+          } else {
+            navigate('/seller/dashboard');
+          }
         } else {
-          alert(resultAction.payload || 'Login failed. Please check your credentials.');
+          toast.error(
+            resultAction?.payload?.message || 'Login failed. Please check your credentials.'
+          );
         }
       } catch (error) {
-        alert('Login failed. Please check your credentials.');
+        toast.error('Login failed. Please check your credentials.');
       }
     },
   });
@@ -62,7 +70,13 @@ const Login = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen justify-center items-stretch bg-white">
       <div className="hidden md:flex md:w-1/2 h-[40vh] md:h-auto lg:h-screen items-center justify-center">
-        <ImageSlider slides={SLIDES} buttonShow={false} autoPlay={true} autoPlayInterval={4000} />
+        <ImageSlider
+          slides={SLIDES}
+          buttonShow={false}
+          autoPlay={true}
+          autoPlayInterval={4000}
+          height={'h-screen'}
+        />
       </div>
 
       {/* Right Side - Login Form */}
@@ -94,10 +108,6 @@ const Login = () => {
               {formik.touched.email && formik.errors.email && (
                 <div className="text-red-500 text-sm mt-1">{formik.errors.email}</div>
               )}
-
-              {authState.error && (
-                <div className="text-red-600 text-sm">{authState.error.message}</div>
-              )}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -108,7 +118,7 @@ const Login = () => {
                   type="button"
                   variant="link"
                   className="p-0 h-auto text-sm font-normal text-[#6C4A34] cursor-pointer"
-                  onClick={() => alert('Forgot password functionality would go here')}
+                  onClick={() => toast.info('Forgot password functionality would go here')}
                 >
                   Forgot password?
                 </Button>
@@ -158,7 +168,6 @@ const Login = () => {
                 Remember me
               </Label>
             </div>
-
 
             <Button
               type="submit"

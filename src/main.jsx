@@ -7,8 +7,7 @@ import { persistor, store } from './redux/slice/store.js';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import ErrorBoundary from './components/Home/ErrorBoundary.jsx';
-// import { Provider } from 'react-redux';
-// import { store } from './redux/store.js';
+import './App.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

@@ -4,7 +4,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Input } from '../ui/input';
 import { Icon } from '../common/icons';
 
-const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, handleSearchChange, sortBy, setSortBy, sortOrder, setSortOrder, statusFilter, setStatusFilter, priorityFilter, setPriorityFilter, favoriteFilter, setFavoriteFilter }) => {
+const Header = ({
+  setSidebarOpen,
+  viewMode,
+  setViewMode,
+  searchTerm,
+  handleSearchChange,
+  sortBy,
+  setSortBy,
+  sortOrder,
+  setSortOrder,
+  statusFilter,
+  setStatusFilter,
+  priorityFilter,
+  setPriorityFilter,
+  favoriteFilter,
+  setFavoriteFilter,
+}) => {
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [selectedValues] = useState({});
 
@@ -58,7 +74,7 @@ const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, handleSearc
             <div className="relative w-full sm:w-64 md:w-72">
               <Input
                 value={searchTerm}
-                onChange={(e) => handleSearchChange(e.target.value)}
+                onChange={e => handleSearchChange(e.target.value)}
                 aria-label="Search tiles"
                 className="peer pe-9 bg-white h-10 w-full focus:outline-none focus:ring-2 focus:ring-[#6f4e37]"
                 placeholder="Search tiles..."
@@ -79,12 +95,18 @@ const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, handleSearc
                   <Select
                     value={(() => {
                       switch (filter.label) {
-                        case 'Sort by': return sortBy;
-                        case 'Order': return sortOrder;
-                        case 'Status': return statusFilter;
-                        case 'Priority': return priorityFilter;
-                        case 'Favorites': return favoriteFilter;
-                        default: return '';
+                        case 'Sort by':
+                          return sortBy;
+                        case 'Order':
+                          return sortOrder;
+                        case 'Status':
+                          return statusFilter;
+                        case 'Priority':
+                          return priorityFilter;
+                        case 'Favorites':
+                          return favoriteFilter;
+                        default:
+                          return '';
                       }
                     })()}
                     onValueChange={value => handleDropdownChange(filter.label, value)}
@@ -130,12 +152,18 @@ const Header = ({ setSidebarOpen, viewMode, setViewMode, searchTerm, handleSearc
                   <Select
                     value={(() => {
                       switch (filter.label) {
-                        case 'Sort by': return sortBy;
-                        case 'Order': return sortOrder;
-                        case 'Status': return statusFilter;
-                        case 'Priority': return priorityFilter;
-                        case 'Favorites': return favoriteFilter;
-                        default: return '';
+                        case 'Sort by':
+                          return sortBy;
+                        case 'Order':
+                          return sortOrder;
+                        case 'Status':
+                          return statusFilter;
+                        case 'Priority':
+                          return priorityFilter;
+                        case 'Favorites':
+                          return favoriteFilter;
+                        default:
+                          return '';
                       }
                     })()}
                     onValueChange={value => handleDropdownChange(filter.label, value)}

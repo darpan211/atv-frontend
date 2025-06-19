@@ -13,16 +13,24 @@ const AppLayout = ({ children }) => {
   const authState = useSelector(state => state.auth);
   const user = authState?.user;
   const localUser = localStorage.getItem('user');
-  const parseUser = JSON.parse(localUser);
+  const parseUser = localUser ? JSON.parse(localUser) : null;
   const authToken = localStorage.getItem('authToken');
 
+  const userRole = user?.user?.role || parseUser?.role;
+
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   useEffect(() => {
+    // Redirect if no token
     if (!authToken) {
       navigate('/', { replace: true });
     }
-  }, [authToken, navigate]);
 
-  const userRole = user?.user?.role || parseUser?.role;
+    // Redirect if trying to access /admin routes as non-admin
+    if (isAdminRoute && userRole !== 'admin') {
+      navigate('/not-authorized', { replace: true });
+    }
+  }, [authToken, navigate, isAdminRoute, userRole]);
 
   const renderHeader = () => {
     if (isLoginPage) return null;
@@ -39,9 +47,7 @@ const AppLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen flex flex-col overflow-auto">
-      {/* Render header based on user role */}
       {renderHeader()}
-      {/* Main content area */}
       <main className="flex-grow">{children}</main>
     </div>
   );

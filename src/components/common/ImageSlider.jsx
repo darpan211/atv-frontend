@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
 export function ImageSlider({
   slides,
   autoPlay = true,
   autoPlayInterval = 5000,
   buttonShow = false,
-  height = '500px',
+  height = '',
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -40,9 +38,9 @@ export function ImageSlider({
   }
 
   return (
-    <div className={`relative w-full h-[730px]`}>
+    <div className={`relative w-full ${height ? height : ``}`}>
       <div
-        className="h-full w-full bg-cover bg-center duration-500   bg-no-repeat  flex flex-col items-center justify-center text-white"
+        className="h-full w-full bg-cover bg-center duration-500 bg-no-repeat  flex flex-col items-center justify-center text-white"
         style={{ backgroundImage: `url(${slides[currentIndex].url})` }}
       >
         <div className="absolute inset-0" />

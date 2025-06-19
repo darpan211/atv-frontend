@@ -10,7 +10,12 @@ import Sidebar from './TilesSidebar';
 import Header from './TilesHeader';
 import { EditFormPopup, TilePopup } from './TilesPopups';
 import { Checkbox } from '../ui/checkbox';
-import { fetchTiles, updateTile, getfilteredtiles, deleteTile } from '@/redux/slice/tiles/tileThunks';
+import {
+  fetchTiles,
+  updateTile,
+  getfilteredtiles,
+  deleteTile,
+} from '@/redux/slice/tiles/tileThunks';
 import { toast } from 'react-toastify';
 import { fetchColors } from '@/redux/slice/colors/colorThunks';
 import { fetchFinishes } from '@/redux/slice/finish/finishThunks';
@@ -20,6 +25,7 @@ import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
 import { fetchSuitablePlaces } from '@/redux/slice/suitablePlace/suitablePlaceThunks';
 import { MultiSelectDropdown } from '../common/MultiSelectDropdown';
 import { fetchSizes } from '@/redux/slice/sizes/sizeThunks';
+import Loader from '../common/Loader';
 
 const TileManagement = () => {
   const dispatch = useDispatch();
@@ -32,7 +38,6 @@ const TileManagement = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editFormData, setEditFormData] = useState({});
-  const [loading, setLoading] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     collections: true,
     categories: true,
@@ -42,7 +47,7 @@ const TileManagement = () => {
     materials: false,
     colors: false,
   });
-
+  const { loading } = useSelector(state => state.tiles);
   // Toast logic for navigation success message
   const toastShownRef = useRef(false);
   useEffect(() => {
@@ -67,7 +72,7 @@ const TileManagement = () => {
   const [tiles, setTiles] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const totalItems = useSelector(state => state.tiles.tiles?.totalItems ?? 0);  
+  const totalItems = useSelector(state => state.tiles.tiles?.totalItems ?? 0);
   const categories = useSelector(state => state.categories.list?.data ?? null);
   const sizes = useSelector(state => state.sizes.list?.data ?? []);
   const materials = useSelector(state => state.materials.list?.data ?? []);
@@ -115,31 +120,30 @@ const TileManagement = () => {
     if (search) {
       queryParams.tiles_name = search;
     }
-    setLoading(false);
-  // });
-}, [viewMode, page, dispatch, location.search, navigate]);
+    // });
+  }, [viewMode, page, dispatch, location.search, navigate]);
 
-useEffect(() => {
-  if (viewMode !== 'grid') return;
+  useEffect(() => {
+    if (viewMode !== 'grid') return;
 
-  const handleScroll = () => {
-    if (
-      window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
-      hasMore &&
-      !loading
-    ) {
-      setPage(prev => prev + 1);
-    }
-  };
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
+        hasMore &&
+        !loading
+      ) {
+        setPage(prev => prev + 1);
+      }
+    };
 
-  window.addEventListener('scroll', handleScroll);
-  return () => window.removeEventListener('scroll', handleScroll);
-}, [viewMode, hasMore, loading]);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [viewMode, hasMore, loading]);
 
-useEffect(() => {
-  setPage(1);
-  setHasMore(true);
-}, [activeFilters, searchTerm, viewMode]);
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+  }, [activeFilters, searchTerm, viewMode]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -164,12 +168,14 @@ useEffect(() => {
   }, [activeFilters, searchTerm, dispatch]);
 
   const getPriorityColor = useCallback(priority => {
-    switch (priority) {
-      case 'Low Priority':
+    const lowerPriority = priority?.toLowerCase() || '';
+
+    switch (true) {
+      case lowerPriority.includes('low'):
         return 'bg-[#2CC29A]';
-      case 'Medium Priority':
+      case lowerPriority.includes('medium'):
         return 'bg-[#EA9A3E]';
-      case 'High Priority':
+      case lowerPriority.includes('high'):
         return 'bg-[#EA3E3E]';
       default:
         return 'bg-gray-500';
@@ -182,11 +188,11 @@ useEffect(() => {
       dispatch(updateTile({ id, data: { priority: newPriority } }))
         .then(() => {
           // Update local tiles state immediately
-          setTiles(prev => prev.map(tile =>
-            (tile.id === id || tile._id === id)
-              ? { ...tile, priority: newPriority }
-              : tile
-          ));
+          setTiles(prev =>
+            prev.map(tile =>
+              tile.id === id || tile._id === id ? { ...tile, priority: newPriority } : tile || []
+            )
+          );
           // Optionally refresh from backend
           dispatch(fetchTiles());
           if (selectedTile && (selectedTile.id === id || selectedTile._id === id)) {
@@ -208,11 +214,11 @@ useEffect(() => {
       dispatch(updateTile({ id, data: { favorite: !tile.favorite } }))
         .then(() => {
           // Update local tiles state immediately
-          setTiles(prev => prev.map(t =>
-            (t.id === id || t._id === id)
-              ? { ...t, favorite: !t.favorite }
-              : t
-          ));
+          setTiles(
+            prev =>
+              prev.map(t => (t.id === id || t._id === id ? { ...t, favorite: !t.favorite } : t)) ||
+              []
+          );
           // Optionally refresh from backend
           dispatch(fetchTiles());
           if (selectedTile && (selectedTile.id === id || selectedTile._id === id)) {
@@ -235,11 +241,10 @@ useEffect(() => {
       dispatch(updateTile({ id, data: { status: newStatus } }))
         .then(() => {
           // Update local tiles state immediately
-          setTiles(prev => prev.map(t =>
-            (t.id === id || t._id === id)
-              ? { ...t, status: newStatus }
-              : t
-          ));
+          setTiles(
+            prev =>
+              prev.map(t => (t.id === id || t._id === id ? { ...t, status: newStatus } : t)) || []
+          );
           // Optionally refresh from backend
           dispatch(fetchTiles());
           if (selectedTile && (selectedTile.id === id || selectedTile._id === id)) {
@@ -266,7 +271,7 @@ useEffect(() => {
           }
           toast.success('Tile deleted successfully!');
         })
-        .catch((error) => {
+        .catch(error => {
           alert(error);
           toast.error('Failed to delete tile');
         });
@@ -288,22 +293,51 @@ useEffect(() => {
   }, []);
 
   // Map redux data to MultiSelectDropdown options
-  const materialOptions = (materials?.data || materials || []).map(mat => ({ label: mat.material, value: mat.material }));
-  const sizeOptions = (sizes?.data || sizes || []).map(sz => ({ label: sz.sizes, value: sz.sizes }));
-  const finishOptions = (finish?.data || finish || []).map(f => ({ label: f.finish, value: f.finish }));
-  const seriesOptions = (series?.data || series || []).map(s => ({ label: s.series, value: s.series }));
-  const colorOptions = (colors?.data || colors || []).map(c => ({ label: c.colors, value: c.colors }));
+  const materialOptions = (materials?.data || materials || []).map(mat => ({
+    label: mat.material,
+    value: mat.material,
+  }));
+  const sizeOptions = (sizes?.data || sizes || []).map(sz => ({
+    label: sz.sizes,
+    value: sz.sizes,
+  }));
+  const finishOptions = (finish?.data || finish || []).map(f => ({
+    label: f.finish,
+    value: f.finish,
+  }));
+  const seriesOptions = (series?.data || series || []).map(s => ({
+    label: s.series,
+    value: s.series,
+  }));
+  const colorOptions = (colors?.data || colors || []).map(c => ({
+    label: c.colors,
+    value: c.colors,
+  }));
 
   const openEditMode = useCallback(tile => {
     setSelectedTile(tile);
     setEditFormData({
       name: tile.name || tile.tiles_name || '',
       priority: (tile.priority || '').replace(' Priority', ''),
-      size: (Array.isArray(tile.size) ? tile.size : (tile.size ? [tile.size] : [])).map(val => ({ label: val, value: val })),
-      material: (Array.isArray(tile.material) ? tile.material : (tile.material ? [tile.material] : [])).map(val => ({ label: val, value: val })),
-      finish: (Array.isArray(tile.finish) ? tile.finish : (tile.finish ? [tile.finish] : [])).map(val => ({ label: val, value: val })),
-      series: (Array.isArray(tile.series) ? tile.series : (tile.series ? [tile.series] : [])).map(val => ({ label: val, value: val })),
-      color: (tile.color || (tile.tiles_color && tile.tiles_color.length > 0 ? tile.tiles_color[0].color_name : '')),
+      size: (Array.isArray(tile.size) ? tile.size : tile.size ? [tile.size] : []).map(val => ({
+        label: val,
+        value: val,
+      })),
+      material: (Array.isArray(tile.material)
+        ? tile.material
+        : tile.material
+          ? [tile.material]
+          : []
+      ).map(val => ({ label: val, value: val })),
+      finish: (Array.isArray(tile.finish) ? tile.finish : tile.finish ? [tile.finish] : []).map(
+        val => ({ label: val, value: val })
+      ),
+      series: (Array.isArray(tile.series) ? tile.series : tile.series ? [tile.series] : []).map(
+        val => ({ label: val, value: val })
+      ),
+      color:
+        tile.color ||
+        (tile.tiles_color && tile.tiles_color.length > 0 ? tile.tiles_color[0].color_name : ''),
     });
     setIsEditMode(true);
     setIsPopupOpen(false); // Close the view popup when opening edit mode
@@ -315,69 +349,85 @@ useEffect(() => {
 
   const handleSaveEdit = useCallback(() => {
     // Prepare arrays for backend (map to string values)
-    try{
-    const updatedTile = {
-      ...selectedTile,
-      tiles_name: editFormData.name,
-      priority: `${editFormData.priority}`,
-      size: (editFormData.size || []).map(opt => opt.value),
-      material: (editFormData.material || []).map(opt => opt.value),
-      finish: (editFormData.finish || []).map(opt => opt.value),
-      series: (editFormData.series || []).map(opt => opt.value),
-      tiles_color: editFormData.color ? [{ color_name: editFormData.color }] : [],
-    };
-    // Dispatch updateTile thunk
-    dispatch(updateTile({ id: selectedTile._id || selectedTile.id, data: updatedTile }));
-    dispatch(fetchTiles());
-    setSelectedTile(updatedTile);
-    setIsEditMode(false);
-    toast.success('Tile updated successfully!');
-  }catch(err){
-    toast.error('Failed to update tile.');
-  }
+    try {
+      const updatedTile = {
+        ...selectedTile,
+        tiles_name: editFormData.name,
+        priority: `${editFormData.priority}`,
+        size: (editFormData.size || []).map(opt => opt.value),
+        material: (editFormData.material || []).map(opt => opt.value),
+        finish: (editFormData.finish || []).map(opt => opt.value),
+        series: (editFormData.series || []).map(opt => opt.value),
+        tiles_color: editFormData.color ? [{ color_name: editFormData.color }] : [],
+      };
+      // Dispatch updateTile thunk
+      dispatch(updateTile({ id: selectedTile._id || selectedTile.id, data: updatedTile })).then(
+        () => {
+          // Update local tiles state immediately
+          setTiles(prev =>
+            prev.map(tile => {
+              const tileId = tile._id || tile.id;
+              const selectedId = selectedTile._id || selectedTile.id;
+              return tileId === selectedId ? { ...updatedTile } : tile;
+            })
+          );
+        }
+      );
+      setSelectedTile(updatedTile);
+      setIsEditMode(false);
+      toast.success('Tile updated successfully!');
+    } catch (err) {
+      toast.error('Failed to update tile.');
+    }
   }, [selectedTile, editFormData, dispatch]);
 
-  const handleFilterChange = useCallback((category, value) => {
-    setActiveFilters(prev => {
-      const updatedFilters = {
-        ...prev,
-        [category]: prev[category].includes(value)
-          ? prev[category].filter(item => item !== value)
-          : [...prev[category], value],
-      };
+  const handleFilterChange = useCallback(
+    (category, value) => {
+      setActiveFilters(prev => {
+        const updatedFilters = {
+          ...prev,
+          [category]: prev[category].includes(value)
+            ? prev[category].filter(item => item !== value)
+            : [...prev[category], value],
+        };
 
-      // Construct query parameters
-      const queryParams = { ...updatedFilters };
-      if (searchTerm) {
-        queryParams.search = searchTerm;
-      }
+        // Construct query parameters
+        const queryParams = { ...updatedFilters };
+        if (searchTerm) {
+          queryParams.search = searchTerm;
+        }
 
-      // Dispatch fetchTiles with query parameters
-      dispatch(fetchTiles(queryParams));
+        // Dispatch fetchTiles with query parameters
+        dispatch(fetchTiles(queryParams));
 
-      return updatedFilters;
-    });
-  }, [dispatch, searchTerm]);
+        return updatedFilters;
+      });
+    },
+    [dispatch, searchTerm]
+  );
 
-  const removeFilter = useCallback((category, value) => {
-    setActiveFilters(prev => {
-      const updatedFilters = {
-        ...prev,
-        [category]: prev[category].filter(item => item !== value),
-      };
+  const removeFilter = useCallback(
+    (category, value) => {
+      setActiveFilters(prev => {
+        const updatedFilters = {
+          ...prev,
+          [category]: prev[category].filter(item => item !== value),
+        };
 
-      // Update query parameters
-      const queryParams = { ...updatedFilters };
-      if (searchTerm) {
-        queryParams.search = searchTerm;
-      }
+        // Update query parameters
+        const queryParams = { ...updatedFilters };
+        if (searchTerm) {
+          queryParams.search = searchTerm;
+        }
 
-      // Fetch tiles with updated filters
-      dispatch(fetchTiles(queryParams));
+        // Fetch tiles with updated filters
+        dispatch(fetchTiles(queryParams));
 
-      return updatedFilters;
-    });
-  }, [dispatch, searchTerm]);
+        return updatedFilters;
+      });
+    },
+    [dispatch, searchTerm]
+  );
 
   const clearAllFilters = useCallback(() => {
     const cleared = {};
@@ -387,14 +437,17 @@ useEffect(() => {
     dispatch(fetchTiles({})); // Fetch all tiles when filters are cleared
   }, [activeFilters, dispatch]);
 
-  const handleSearchChange = useCallback((newSearchTerm) => {
-    setSearchTerm(newSearchTerm);
-    const queryParams = { ...activeFilters };
-    if (newSearchTerm) {
-      queryParams.search = newSearchTerm;
-    }
-    dispatch(fetchTiles(queryParams));
-  }, [activeFilters, dispatch]);
+  const handleSearchChange = useCallback(
+    newSearchTerm => {
+      setSearchTerm(newSearchTerm);
+      const queryParams = { ...activeFilters };
+      if (newSearchTerm) {
+        queryParams.search = newSearchTerm;
+      }
+      dispatch(fetchTiles(queryParams));
+    },
+    [activeFilters, dispatch]
+  );
 
   const getTotalFilters = useCallback(
     () => Object.values(activeFilters).flat().length,
@@ -413,38 +466,73 @@ useEffect(() => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Fetch tiles with page and append option
-  const fetchWithAllFilters = useCallback((pageToFetch = 1, append = false) => {
-    if (!append) setIsLoadingMore(false);
-    const queryParams = {
-      ...activeFilters,
-      tiles_name: searchTerm,
-      sort_by: sortBy === 'Name' ? 'name' : sortBy.toLowerCase(),
-      order: sortOrder === 'Descending' ? 'desc' : 'asc',
-      status: statusFilter === 'Active' ? 'active' : statusFilter === 'Inactive' ? 'inactive' : undefined,
-      priority: priorityFilter && priorityFilter !== 'All' ? priorityFilter.toLowerCase() : undefined,
-      favorite: favoriteFilter === 'Favorited' ? 'true' : favoriteFilter === 'Not Favorited' ? 'false' : undefined,
-      page: pageToFetch,
-    };
-    Object.keys(queryParams).forEach(key => queryParams[key] === undefined && delete queryParams[key]);
-    dispatch(fetchTiles(queryParams)).then(res => {
-      const data = res.payload?.data || res.payload || [];
-      if (append) {
-        setTiles(prev => [...prev, ...data]);
-        setIsLoadingMore(false);
-      } else {
-        setTiles(data);
-      }
-      const perPage = res.payload?.perPage || 12;
-      setHasMore(pageToFetch * perPage < (res.payload?.totalItems || totalItems));
-    });
-  }, [activeFilters, searchTerm, sortBy, sortOrder, statusFilter, priorityFilter, favoriteFilter, dispatch, totalItems]);
+  const fetchWithAllFilters = useCallback(
+    (pageToFetch = 1, append = false) => {
+      if (!append) setIsLoadingMore(false);
+      const queryParams = {
+        ...activeFilters,
+        tiles_name: searchTerm,
+        sort_by: sortBy === 'Name' ? 'name' : sortBy.toLowerCase(),
+        order: sortOrder === 'Descending' ? 'desc' : 'asc',
+        status:
+          statusFilter === 'Active'
+            ? 'active'
+            : statusFilter === 'Inactive'
+              ? 'inactive'
+              : undefined,
+        priority:
+          priorityFilter && priorityFilter !== 'All' ? priorityFilter.toLowerCase() : undefined,
+        favorite:
+          favoriteFilter === 'Favorited'
+            ? 'true'
+            : favoriteFilter === 'Not Favorited'
+              ? 'false'
+              : undefined,
+        page: pageToFetch,
+      };
+      Object.keys(queryParams).forEach(
+        key => queryParams[key] === undefined && delete queryParams[key]
+      );
+      dispatch(fetchTiles(queryParams)).then(res => {
+        const data = res.payload?.data || res.payload || [];
+        if (append) {
+          setTiles(prev => [...prev, ...data]);
+          setIsLoadingMore(false);
+        } else {
+          setTiles(data || []);
+        }
+        const perPage = res.payload?.perPage || 12;
+        setHasMore(pageToFetch * perPage < (res.payload?.totalItems || totalItems));
+      });
+    },
+    [
+      activeFilters,
+      searchTerm,
+      sortBy,
+      sortOrder,
+      statusFilter,
+      priorityFilter,
+      favoriteFilter,
+      dispatch,
+      totalItems,
+    ]
+  );
 
   // Reset tiles and page on filter/sort/search change
   useEffect(() => {
     setPage(1);
     setTiles([]); // Only reset here
     fetchWithAllFilters(1, false);
-  }, [activeFilters, searchTerm, sortBy, sortOrder, statusFilter, priorityFilter, favoriteFilter, fetchWithAllFilters]);
+  }, [
+    activeFilters,
+    searchTerm,
+    sortBy,
+    sortOrder,
+    statusFilter,
+    priorityFilter,
+    favoriteFilter,
+    fetchWithAllFilters,
+  ]);
 
   // Load more handler
   const fetchMoreData = () => {
@@ -458,7 +546,7 @@ useEffect(() => {
   const TileCard = ({ tile }) => {
     const tileId = tile.id || tile._id;
     const priorities = ['Low', 'Medium', 'High'];
-    const currentPriority = (tile.priority || '');
+    const currentPriority = tile.priority || '';
     return (
       <div className="w-full h-fit bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-200 overflow-hidden">
         <div
@@ -478,11 +566,11 @@ useEffect(() => {
               handleToggleFavorite(tileId);
             }}
             className={`absolute top-3 right-3 p-1.5 rounded-md shadow-md transition-all duration-200 cursor-pointer ${tile.favorite ? 'bg-white' : 'bg-[#6F4E37] bg-opacity-90 hover:bg-opacity-100'}`}
-          >            
+          >
             <Icon
               name="Heart"
               size={16}
-              className={`transition-all duration-300 ${ tile.favorite ? 'text-[#6F4E37] fill-[#6F4E37]' : 'text-white fill-white'}`}
+              className={`transition-all duration-300 ${tile.favorite ? 'text-[#6F4E37] fill-[#6F4E37]' : 'text-white fill-white'}`}
               colour={tile.favorite ? '#6F4E37' : '#fff'}
               // filled={tile.favorite}
             />
@@ -498,14 +586,16 @@ useEffect(() => {
                 label: 'Size',
                 value: (
                   <div className="flex flex-wrap gap-1">
-                    {(Array.isArray(tile.size) ? tile.size : tile.size ? [tile.size] : []).map((sz, i) => (
-                      <span
-                        key={i}
-                        className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700"
-                      >
-                        {sz}
-                      </span>
-                    ))}
+                    {(Array.isArray(tile.size) ? tile.size : tile.size ? [tile.size] : []).map(
+                      (sz, i) => (
+                        <span
+                          key={i}
+                          className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700"
+                        >
+                          {sz}
+                        </span>
+                      )
+                    )}
                   </div>
                 ),
               },
@@ -513,11 +603,18 @@ useEffect(() => {
                 label: 'Series',
                 value: (
                   <div className="flex flex-wrap gap-1">
-                    {(Array.isArray(tile.series) ? tile.series : tile.series ? [tile.series] : []).map((s, i) => (
-
-                    <span key={i} className="px-2  text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">
-                      {s}
-                    </span>
+                    {(Array.isArray(tile.series)
+                      ? tile.series
+                      : tile.series
+                        ? [tile.series]
+                        : []
+                    ).map((s, i) => (
+                      <span
+                        key={i}
+                        className="px-2  text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700"
+                      >
+                        {s}
+                      </span>
                     ))}
                   </div>
                 ),
@@ -542,8 +639,8 @@ useEffect(() => {
           <div className="flex items-center gap-2 animate-fade-in justify-between">
             <div className="flex gap-1 bg-[#e9d8cb] rounded-[8px] px-1 py-1 items-center w-fit transition-opacity duration-500">
               {priorities.map(p => {
-                const full = `${p}`;              
-                const isSelected = currentPriority === p.toLowerCase();
+                const full = `${p}`;
+                const isSelected = currentPriority.toLowerCase() === p.toLowerCase();
                 return (
                   <button
                     key={p}
@@ -571,7 +668,7 @@ useEffect(() => {
           <label className="inline-flex items-center gap-2 text-[#5C4033] text-sm font-semibold cursor-pointer hover:scale-105 transition-all duration-300">
             <Checkbox
               checked={tile.status === 'active'}
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 handleToggleActive(tileId);
               }}
@@ -684,31 +781,68 @@ useEffect(() => {
 
                   <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200 w-max-[105px] whitespace-normal">
                     <div className="flex flex-wrap gap-1">
-                      {(Array.isArray(tile.size) ? tile.size : tile.size ? [tile.size] : []).map((sz, i) => (
-                        <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700 mr-1 break-words">{sz}</span>
+                      {(Array.isArray(tile.size) ? tile.size : tile.size ? [tile.size] : []).map(
+                        (sz, i) => (
+                          <span
+                            key={i}
+                            className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700 mr-1 break-words"
+                          >
+                            {sz}
+                          </span>
+                        )
+                      )}
+                    </div>
+                  </td>
+
+                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200 whitespace-normal">
+                    <div className="flex flex-wrap gap-1">
+                      {(Array.isArray(tile.material)
+                        ? tile.material
+                        : tile.material
+                          ? [tile.material]
+                          : []
+                      ).map((mat, i) => (
+                        <span
+                          key={i}
+                          className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700 mr-1 break-words"
+                        >
+                          {mat}
+                        </span>
                       ))}
                     </div>
                   </td>
 
                   <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200 whitespace-normal">
                     <div className="flex flex-wrap gap-1">
-                      {(Array.isArray(tile.material) ? tile.material : tile.material ? [tile.material] : []).map((mat, i) => (
-                        <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700 mr-1 break-words">{mat}</span>
+                      {(Array.isArray(tile.finish)
+                        ? tile.finish
+                        : tile.finish
+                          ? [tile.finish]
+                          : []
+                      ).map((fin, i) => (
+                        <span
+                          key={i}
+                          className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700 mr-1 break-words"
+                        >
+                          {fin}
+                        </span>
                       ))}
                     </div>
                   </td>
-
                   <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200 whitespace-normal">
                     <div className="flex flex-wrap gap-1">
-                      {(Array.isArray(tile.finish) ? tile.finish : tile.finish ? [tile.finish] : []).map((fin, i) => (
-                        <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700 mr-1 break-words">{fin}</span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-2 sm:px-4 py-4 text-[16px] sm:text-sm text-gray-900 border-r border-gray-200 whitespace-normal">
-                    <div className="flex flex-wrap gap-1">
-                      {(Array.isArray(tile.series) ? tile.series : tile.series ? [tile.series] : []).map((ser, i) => (
-                        <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700 mr-1 break-words">{ser}</span>
+                      {(Array.isArray(tile.series)
+                        ? tile.series
+                        : tile.series
+                          ? [tile.series]
+                          : []
+                      ).map((ser, i) => (
+                        <span
+                          key={i}
+                          className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700 mr-1 break-words"
+                        >
+                          {ser}
+                        </span>
                       ))}
                     </div>
                   </td>
@@ -739,9 +873,7 @@ useEffect(() => {
                         name="Heart"
                         size={16}
                         className={`transition-all duration-300  ${
-                          tile.favorite
-                            ? 'text-[#6F4E37] fill-[#6F4E37]'
-                            : 'text-white fill-white'
+                          tile.favorite ? 'text-[#6F4E37] fill-[#6F4E37]' : 'text-white fill-white'
                         }`}
                       />
                     </button>
@@ -832,6 +964,8 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-white w-full">
+      {loading && <Loader />}
+
       <div className="flex w-full relative">
         {/* Sidebar Overlay for Mobile */}
         {sidebarOpen && (
@@ -880,7 +1014,7 @@ useEffect(() => {
           {/* Main Content */}
           <div className="flex-1 bg-white p-3 sm:p-4 lg:p-6 w-full relative">
             {/* Empty state */}
-            {tiles.length === 0 && (
+            {tiles?.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-gray-400 mb-4">
                   <Search size={48} className="mx-auto" />
@@ -898,14 +1032,12 @@ useEffect(() => {
             <div className="relative w-full min-h-[300px]">
               {/* Grid View */}
               <div
-                className={
-                  `${viewMode === 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+                className={`${viewMode === 'grid' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
                   transition-opacity duration-500 ease-in-out
-                  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full h-fit absolute inset-0`
-                }
+                  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full h-fit absolute inset-0`}
               >
                 <InfiniteScroll
-                  dataLength={tiles.length}
+                  dataLength={tiles?.length}
                   next={fetchMoreData}
                   hasMore={hasMore}
                   loader={
@@ -916,7 +1048,7 @@ useEffect(() => {
                   scrollThreshold={0.95}
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full h-fit min-h-[400px] absolute inset-0">
-                    {tiles.map(tile => (
+                    {tiles?.map(tile => (
                       <TileCard key={tile.id} tile={tile} />
                     ))}
                   </div>

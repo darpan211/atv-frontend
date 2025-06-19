@@ -27,7 +27,7 @@ const Hero = () => {
         autoPlay={true}
         autoPlayInterval={4000}
         buttonShow={true}
-        height={'70vh'}
+        height={'h-[650px]'}
       />
 
       <div className="absolute inset-0 flex items-center justify-center md:justify-end pr-0 md:pr-32 px-4">

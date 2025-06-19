@@ -97,16 +97,15 @@ const Series = () => {
     return seriesData?.data?.filter(series => series?.series?.toLowerCase().includes(lower));
   }, [searchQuery, seriesData]);
 
-    if (loading) {
+  if (loading) {
     return (
       <Layout>
         <div className="flex justify-center items-center h-64">
-          <Loader/>
+          <Loader />
         </div>
       </Layout>
     );
   }
-
 
   return (
     <Layout
