@@ -15,21 +15,25 @@ const Rooms = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { list: roomsList, loading } = useSelector(state => state.rooms);
+
+  const {
+    list: rooms,
+    currentPage: storePage,
+    totalPages,
+    totalItems,
+    loading,
+  } = useSelector(state => state.rooms);
 
   useEffect(() => {
-    dispatch(fetchRooms());
-  }, [dispatch]);
+    dispatch(fetchRooms({ page: currentPage, limit: rowsPerPage }));
+  }, [dispatch, currentPage, rowsPerPage]);
 
-  const roomsData = Array.isArray(roomsList)
-    ? roomsList
-    : Array.isArray(roomsList?.data)
-      ? roomsList.data
-      : [];
-  console.log(roomsData, 'RoomData');
+  const roomsData = Array.isArray(rooms?.data) ? rooms.data : Array.isArray(rooms) ? rooms : [];
   const handleDeleteClick = id => {
     setSelectedRoomId(id);
     setShowDeleteModal(true);
@@ -42,7 +46,7 @@ const Rooms = () => {
     try {
       await dispatch(deleteRoom(selectedRoomId)).unwrap();
       toast.success('Room deleted successfully!');
-      dispatch(fetchRooms());
+      dispatch(fetchRooms({ page: currentPage, limit: rowsPerPage }));
     } catch (err) {
       toast.error(err.message || 'Failed to delete room.');
     } finally {
@@ -61,6 +65,15 @@ const Rooms = () => {
     navigate(`/admin/roomform?id=${id}`);
   };
 
+  const handleAddRoom = () => {
+    navigate('/admin/roomform');
+  };
+
+  const handlePageChange = page => {
+    setCurrentPage(page);
+    dispatch(fetchRooms({ page, limit: rowsPerPage }));
+  };
+
   const columns = [
     {
       header: 'Room Image',
@@ -72,22 +85,10 @@ const Rooms = () => {
         />
       ),
     },
-    {
-      header: 'Template Name',
-      accessor: 'template_name',
-    },
-    {
-      header: 'Category',
-      accessor: 'category',
-    },
-    {
-      header: 'Room Type',
-      accessor: 'room_type',
-    },
-    {
-      header: 'Description',
-      accessor: 'description',
-    },
+    { header: 'Template Name', accessor: 'template_name' },
+    { header: 'Category', accessor: 'category' },
+    { header: 'Room Type', accessor: 'room_type' },
+    { header: 'Description', accessor: 'description' },
     {
       header: 'Created At',
       cell: row => {
@@ -142,19 +143,16 @@ const Rooms = () => {
   ];
 
   const handleSearch = query => {
-    console.log('Searching for:', query);
-  };
-
-  const handleAddSeller = () => {
-    navigate('/admin/roomform');
+    setCurrentPage(1);
+    dispatch(fetchRooms({ page: 1, limit: rowsPerPage, search: query }));
   };
 
   return (
     <div className="p-6 max-w-full sm:mx-10">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Add Room</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Rooms</h1>
         <Button
-          onClick={handleAddSeller}
+          onClick={handleAddRoom}
           className="bg-[#6F4E37] hover:bg-[#a98f7d] text-white cursor-pointer"
         >
           <Plus className="mr-2 h-4 w-4" /> Add Room
@@ -164,11 +162,20 @@ const Rooms = () => {
       <DataTable
         data={roomsData}
         columns={columns}
+        title="Rooms"
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        onPageChange={handlePageChange}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={limit => {
+          setRowsPerPage(limit);
+          setCurrentPage(1);
+          dispatch(fetchRooms({ page: 1, limit }));
+        }}
         onSearch={handleSearch}
-        onAddClick={handleAddSeller}
         searchPlaceholder="Search Room..."
-        addButtonText="Add Room"
-        emptyStateMessage="No sellers found. Add a Room to get started."
+        emptyStateMessage="No rooms found. Add a room to get started."
       />
 
       {showDeleteModal && (

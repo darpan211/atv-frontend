@@ -1,10 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { Input } from '../ui/input';
 
-export const MultiSelectDropdown = ({ label, options, selectedValues, onChange, heightClass = "h-11 w-full rounded-md" }) => {
+export const MultiSelectDropdown = ({
+  label,
+  options,
+  selectedValues,
+  onChange,
+  heightClass = 'h-11 w-full rounded-md',
+}) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const ref = useRef();
+  useEffect(() => {
+    const handleClickOutside = e => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = e => {
@@ -18,9 +32,9 @@ export const MultiSelectDropdown = ({ label, options, selectedValues, onChange, 
 
   const toggleDropdown = () => setShowDropdown(prev => !prev);
 
-  const handleCheckboxChange = option => {
+  const handleCheckboxChange = (option, event) => {
     // console.log(option, 'option====>>>');
-
+    // event.stopPropagation();
     const isSelected = selectedValues.some(item => item.value === option.value);
     const updatedValues = isSelected
       ? selectedValues.filter(item => item.value !== option.value)

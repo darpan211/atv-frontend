@@ -13,7 +13,7 @@ export const getTileColors = createAsyncThunk(
           'Content-Type': 'multipart/form-data',
         },
       });
-      
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: 'Failed to process images' });
@@ -44,7 +44,8 @@ export const fetchTiles = createAsyncThunk(
       // Normalize query parameters: convert arrays to comma-separated strings
       const normalizedParams = {};
       Object.entries(queryParams).forEach(([key, value]) => {
-        if (value) { // Only include non-empty values
+        if (value) {
+          // Only include non-empty values
           normalizedParams[key] = Array.isArray(value) ? value.join(',') : value;
         }
       });
@@ -118,16 +119,11 @@ export const updateTile = createAsyncThunk('tiles/updateTile', async ({ id, data
   }
 });
 
-export const getfilteredtiles = createAsyncThunk(
-  'tiles/getfilteredtiles',
-  async (_, thunkAPI) => {
-    try {
-      const response = await axiosHandler.get(`${BASE_URL}/api/v1/tiles/getfilteredtiles`);
-      console.log("Response ==> ",response);
-      
-      return response.data.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || error.message);
-    }
+export const getfilteredtiles = createAsyncThunk('tiles/getfilteredtiles', async (_, thunkAPI) => {
+  try {
+    const response = await axiosHandler.get(`${BASE_URL}/api/v1/tiles/getfilteredtiles`);
+    return response.data.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data || error.message);
   }
-);
+});

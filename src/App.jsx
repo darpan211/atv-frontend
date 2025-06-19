@@ -54,6 +54,7 @@ import AdminList from './pages/Admin/AdminList';
 
 import FinishPage from './components/Attributes/attributePage/FinishPage';
 import AddFinishPage from './components/Attributes/addAttribute/AddFinishPage';
+import NotAuthorized from './components/common/NotAuthorized';
 
 // ================== App Routes ==================
 const App = () => {
@@ -93,6 +94,15 @@ const App = () => {
         {/* Admin Dashboard */}
         <Route
           path="/admin/dashboard"
+          element={
+            <AppLayout>
+              <Dashboard />
+            </AppLayout>
+          }
+        />
+
+        <Route
+          path="/seller/dashboard"
           element={
             <AppLayout>
               <Dashboard />
@@ -156,7 +166,7 @@ const App = () => {
         />
 
         <Route
-          path="/admin/seller/profile"
+          path="/seller/profile"
           element={
             <AppLayout>
               <SellerProfile />
@@ -285,6 +295,14 @@ const App = () => {
           element={
             <AppLayout>
               <HeaderTilesCart />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/not-authorized"
+          element={
+            <AppLayout>
+              <NotAuthorized />
             </AppLayout>
           }
         />

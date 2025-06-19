@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Loader = ({ categoryName }) => {
+const Loader = () => {
   return (
     <div className="absolute inset-0 flex justify-center items-center z-10 bg-white bg-opacity-80">
       <div className="relative">
@@ -12,13 +12,11 @@ const Loader = ({ categoryName }) => {
               className="tile"
               style={{
                 animationDelay: `${i * 0.1}s`,
-                backgroundColor: i % 2 === 0 ? '#60a5fa' : '#93c5fd',
+                backgroundColor: i % 2 === 0 ? '#845d45' : '#edd5d5',
               }}
             />
           ))}
         </div>
-        <p className="mt-6 text-gray-600 font-medium">Loading {categoryName} tiles...</p>
-
         {/* CSS for the loader */}
         <style jsx>{`
           .tile-grid {

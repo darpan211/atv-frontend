@@ -68,7 +68,7 @@ const SizesPage = () => {
       dispatch(fetchSizes());
       toast.success('Size deleted successfully!');
     } catch (err) {
-      toast.error(err.message ||'Failed to delete size');
+      toast.error(err.message || 'Failed to delete size');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
@@ -92,15 +92,14 @@ const SizesPage = () => {
   // Filter sizes based on search query
   const filteredSizes = useMemo(() => {
     const lower = searchQuery.toLowerCase();
-    return sizesData?.data.filter(size => size?.sizes?.toLowerCase().includes(lower));
+    return sizesData?.data?.filter(size => size?.sizes?.toLowerCase().includes(lower));
   }, [searchQuery, sizesData]);
-
 
   if (loading) {
     return (
       <Layout>
         <div className="flex justify-center items-center h-64">
-          <Loader/>
+          <Loader />
         </div>
       </Layout>
     );

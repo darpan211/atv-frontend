@@ -6,59 +6,63 @@ import NavItem from './NavItem';
 import { useDispatch } from 'react-redux';
 import { logout } from '@/redux/slice/auth/authSlice';
 import { Icon } from './icons/index';
+import LogOutConfirmationModal from './LogOutConfirmationModal';
 const AdminHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLogOut, setIslogOut] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleLogout = () => {
+    setIslogOut(true);
+  };
+
+  const confirmLogOut = () => {
     dispatch(logout());
+    setIslogOut(false);
     navigate('/');
   };
 
   const navLinks = [
-    { label: 'Dashboard',
-      withDropdown: false,
-      onClick: () =>navigate('/') 
-    },
-    { 
+    { label: 'Dashboard', withDropdown: false, onClick: () => navigate('/') },
+    {
       label: 'Manage Users',
       withDropdown: true,
       dropdownItems: [
         { label: 'Manage Admin', path: '/admin/dashboard/list' },
         { label: 'Add Admin', path: '/admin/dashboard/create' },
-      ]
+      ],
     },
-    { 
+    {
       label: 'Manage Sellers',
       withDropdown: true,
       dropdownItems: [
         { label: 'Seller List', path: '/admin/seller/list' },
         { label: 'Add Seller', path: '/admin/seller/create' },
-      ]
+      ],
     },
-    { 
+    {
       label: 'Manage Rooms',
       withDropdown: true,
       dropdownItems: [
         { label: 'View All Room', path: '/admin/addroom/list' },
         { label: 'Add Room', path: '/admin/roomform' },
-      ]
-     },
-    { 
+      ],
+    },
+    {
       label: 'Manage Attributes',
       withDropdown: true,
-      dropdownItems : [
+      dropdownItems: [
         { label: 'Manage Categories', path: '/admin/categories' },
         { label: 'Manage Series', path: '/admin/series' },
         { label: 'Manage Materials', path: '/admin/materials' },
         { label: 'Manage Sizes', path: '/admin/sizes' },
         { label: 'Manage Colors', path: '/admin/colors' },
         { label: 'Manage Suitable Places', path: '/admin/places' },
-         { label: 'Manage Finish', path: '/admin/finish' },
-      ]
+        { label: 'Manage Finish', path: '/admin/finish' },
+      ],
     },
-    { 
+    {
       label: 'Admin Profile',
       withDropdown: false,
       onClick: () => navigate('/admin/profile'),
@@ -94,7 +98,7 @@ const AdminHeader = () => {
 
       <button
         onClick={handleLogout}
-        className="hidden lg:flex items-center space-x-2 gap-3 bg-white text-black px-3 py-2 rounded-md font-semibold hover:bg-gray-100 transition"
+        className="hidden cursor-pointer lg:flex items-center space-x-2 gap-3 bg-white text-black px-3 py-2 rounded-md font-semibold hover:bg-gray-100 transition"
       >
         <Icon name="Logout" className="w-5 h-5 text-[#6C4A34]" /> Logout
       </button>
@@ -118,12 +122,15 @@ const AdminHeader = () => {
               handleLogout();
               setMenuOpen(false);
             }}
-            className="w-[150px] flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-md font-medium hover:bg-gray-100"
+            className="w-[150px] cursor-pointer flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-md font-medium hover:bg-gray-100 "
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4 " />
             <span>Logout</span>
           </button>
         </div>
+      )}
+      {isLogOut && (
+        <LogOutConfirmationModal onCancel={() => setIslogOut(false)} onConfirm={confirmLogOut} />
       )}
     </header>
   );

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
@@ -11,7 +12,6 @@ import {
   updateMaterial,
 } from '@/redux/slice/material/materialThunks';
 import { clearSelectedMaterial } from '@/redux/slice/material/materialSlice';
-import { toast } from 'react-toastify';
 
 const AddMaterialPage = ({ onSubmit }) => {
   const dispatch = useDispatch();
@@ -48,7 +48,9 @@ const AddMaterialPage = ({ onSubmit }) => {
       if (!onSubmit) {
         navigate('/admin/materials', {
           state: {
-            toastMessage: isEdit ? 'Material updated successfully!' : 'Material added successfully!',
+            toastMessage: isEdit
+              ? 'Material updated successfully!'
+              : 'Material added successfully!',
           },
         });
       }

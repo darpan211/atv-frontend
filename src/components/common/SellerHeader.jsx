@@ -5,27 +5,30 @@ import { useNavigate } from 'react-router-dom';
 import NavItem from './NavItem';
 import { useDispatch } from 'react-redux';
 import { logout } from '@/redux/slice/auth/authSlice';
+import LogOutConfirmationModal from './LogOutConfirmationModal';
 
 const SellerHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLogOut, setIslogOut] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleLogout = () => {
+    setIslogOut(true);
+  };
+
+  const confirmLogOut = () => {
     dispatch(logout());
+    setIslogOut(false);
     navigate('/');
   };
 
   const navLinks = [
-    { label: 'Dashboard',
-      withDropdown: false,
-      onClick: () =>navigate('/') 
-    },
+    { label: 'Dashboard', withDropdown: false, onClick: () => navigate('/seller/dashboard') },
     {
       label: 'Manage Tiles',
       withDropdown: true,
       dropdownItems: [
-        { label: 'View All Design', hasDynamicChildren: true },
         { label: 'Tiles by Categories', hasDynamicChildren: true },
         { label: 'Tiles by Sizes', hasDynamicChildren: true },
         { label: 'Tiles by Finishes', hasDynamicChildren: true },
@@ -35,8 +38,16 @@ const SellerHeader = () => {
       ],
     },
     { label: 'All Tiles Design', withDropdown: false, onClick: () => navigate('/tiles/list') },
-    { label: '3D Visualization', withDropdown: false, onClick: () => navigate('/tiles/visualizer') },
-    { label: 'Company Profile', withDropdown: false, onClick: () => navigate("/admin/seller/profile") },
+    {
+      label: '3D Visualization',
+      withDropdown: false,
+      onClick: () => navigate('/tiles/visualizer'),
+    },
+    {
+      label: 'Company Profile',
+      withDropdown: false,
+      onClick: () => navigate('/seller/profile'),
+    },
   ];
 
   return (
@@ -74,7 +85,7 @@ const SellerHeader = () => {
       {/* Desktop Logout Button */}
       <button
         onClick={handleLogout}
-        className="hidden lg:flex items-center space-x-2 bg-white text-black px-3 py-2 rounded-md font-medium hover:bg-gray-100 transition"
+        className="hidden cursor-pointer lg:flex items-center space-x-2 bg-white text-black px-3 py-2 rounded-md font-medium hover:bg-gray-100 transition"
       >
         <LogOut className="w-4 h-4" />
         <span className="text-sm">Logout</span>
@@ -107,6 +118,9 @@ const SellerHeader = () => {
             <span>Logout</span>
           </button>
         </div>
+      )}
+      {isLogOut && (
+        <LogOutConfirmationModal onCancel={() => setIslogOut(false)} onConfirm={confirmLogOut} />
       )}
     </header>
   );

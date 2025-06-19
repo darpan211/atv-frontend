@@ -14,106 +14,120 @@ import { toCapitalize } from '@/helpers';
 import DeleteConfirmationModal from '../common/DeleteConfirmationModal';
 
 // EditFormPopup component
-const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave, onDelete, materialOptions, sizeOptions, finishOptions, seriesOptions, colorOptions }) => {
-  if (!isOpen || !tile) return null;
+const EditFormPopup = memo(
+  ({
+    tile,
+    isOpen,
+    onClose,
+    formData,
+    onChange,
+    onSave,
+    onDelete,
+    materialOptions,
+    sizeOptions,
+    finishOptions,
+    seriesOptions,
+    colorOptions,
+  }) => {
+    if (!isOpen || !tile) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-[#fdf0e6] rounded-md shadow-lg w-full max-w-2xl p-[25px]  relative  animate-slideUp">
-        <button
-          className="absolute top-0 right-0 z-10 cursor-pointer transition-colors duration-300 ease-in-out p-[11px] bg-[#6F4E37] rounded-tr-[5px] rounded-bl-[5px] text-gray-100 hover:text-white"
-          onClick={onClose}
-          aria-label="Close edit form"
-        >
-          <X size={30} className="text-white transition-all duration-300 ease-in-out" />
-        </button>
+    return (
+      <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 animate-fadeIn">
+        <div className="bg-[#fdf0e6] rounded-md shadow-lg w-full max-w-2xl p-[25px]  relative  animate-slideUp">
+          <button
+            className="absolute top-0 right-0 z-10 cursor-pointer transition-colors duration-300 ease-in-out p-[11px] bg-[#6F4E37] rounded-tr-[5px] rounded-bl-[5px] text-gray-100 hover:text-white"
+            onClick={onClose}
+            aria-label="Close edit form"
+          >
+            <X size={30} className="text-white transition-all duration-300 ease-in-out" />
+          </button>
 
-        <div className="overflow-y-auto max-h-max">
-          <div className="flex flex-col lg:flex-row  lg:gap-4">
-            <div className="aspect-square border border-[#BCBCBC] overflow-hidden  p-3 w-full max-w-[262px] h-[300px] sm:h-[369px] rounded-[10px] mx-auto md:mx-0 animate-fadeIn delay-100">
-              <img
-                src={tile.tiles_image || '/placeholder.svg'}
-                alt={tile.tiles_name}
-                className="w-full h-full object-cover rounded-[10px]  transition-transform duration-300 ease-in-out"
-              />
-            </div>
-
-            <div className="w-full lg:w-1/2 space-y-3">
-              <div>
-                <label className="text-[16px] font-semibold ">Name</label>
-                <input
-                  key={`name-${tile.id}`}
-                  type="text"
-                  placeholder="Enter name"
-                  value={formData.name || ''}
-                  onChange={e => onChange('name', e.target.value)}
-                  className="w-full mt-1 px-3 py-1.5 text-sm rounded focus:outline-none bg-white focus:ring-2 focus:ring-[#7b4f28] transition-all duration-300"
+          <div className="overflow-y-auto max-h-max">
+            <div className="flex flex-col lg:flex-row  lg:gap-4">
+              <div className="aspect-square border border-[#BCBCBC] overflow-hidden  p-3 w-full max-w-[262px] h-[300px] sm:h-[369px] rounded-[10px] mx-auto md:mx-0 animate-fadeIn delay-100">
+                <img
+                  src={tile.tiles_image || '/placeholder.svg'}
+                  alt={tile.tiles_name}
+                  className="w-full h-full object-cover rounded-[10px]  transition-transform duration-300 ease-in-out"
                 />
               </div>
 
-              <div>
-                <label className="text-[16px] font-semibold ">Priority</label>
-                <div className="mt-1 flex rounded overflow-hidden w-fit">
-                  {['Low', 'Medium', 'High'].map((level, idx) => (
-                    <div key={level} className="flex space-x-2 bg-[#E9D8CB] p-1">
-                      <button
-                        key={level}
-                        type="button"
-                        className={`px-1 sm:px-4 py-0.5 text-[11.23px] rounded font-medium transition-all duration-300 cursor-pointer ${
-                          formData.priority === level
-                            ? 'bg-[#7b4f28] text-white scale-105'
-                            : 'bg-white text-gray-800 hover:bg-gray-50 hover:scale-105'
-                        } ${idx === 0 ? 'rounded-l' : ''} ${idx === 2 ? 'rounded-r' : ''}`}
-                        onClick={() => onChange('priority', level)}
-                      >
-                        {level}
-                      </button>
-                    </div>
-                  ))}
+              <div className="w-full lg:w-1/2 space-y-3">
+                <div>
+                  <label className="text-[16px] font-semibold ">Name</label>
+                  <input
+                    key={`name-${tile.id}`}
+                    type="text"
+                    placeholder="Enter name"
+                    value={formData.name || ''}
+                    onChange={e => onChange('name', e.target.value)}
+                    className="w-full mt-1 px-3 py-1.5 text-sm rounded focus:outline-none bg-white focus:ring-2 focus:ring-[#7b4f28] transition-all duration-300"
+                  />
                 </div>
-              </div>
 
-              <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
-                <label className="text-base font-semibold block mb-1">Sizes</label>
-                <MultiSelectDropdown
-                  label="Sizes"
-                  options={sizeOptions}
-                  selectedValues={formData.size || []}
-                  onChange={vals => onChange('size', vals)}
-                />
-              </div>
+                <div>
+                  <label className="text-[16px] font-semibold ">Priority</label>
+                  <div className="mt-1 flex rounded overflow-hidden w-fit">
+                    {['Low', 'Medium', 'High'].map((level, idx) => (
+                      <div key={level} className="flex space-x-2 bg-[#E9D8CB] p-1">
+                        <button
+                          key={level}
+                          type="button"
+                          className={`px-1 sm:px-4 py-0.5 text-[11.23px] rounded font-medium transition-all duration-300 cursor-pointer ${
+                            formData.priority?.toLowerCase() === level?.toLowerCase()
+                              ? 'bg-[#7b4f28] text-white scale-105'
+                              : 'bg-white text-gray-800 hover:bg-gray-50 hover:scale-105'
+                          } ${idx === 0 ? 'rounded-l' : ''} ${idx === 2 ? 'rounded-r' : ''}`}
+                          onClick={() => onChange('priority', level)}
+                        >
+                          {level}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-              <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
-                <label className="text-base font-semibold block mb-1">Materials</label>
-                <MultiSelectDropdown
-                  label="Materials"
-                  options={materialOptions}
-                  selectedValues={formData.material || []}
-                  onChange={vals => onChange('material', vals)}
-                />
-              </div>
+                <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
+                  <label className="text-base font-semibold block mb-1">Sizes</label>
+                  <MultiSelectDropdown
+                    label="Sizes"
+                    options={sizeOptions}
+                    selectedValues={formData.size || []}
+                    onChange={vals => onChange('size', vals)}
+                  />
+                </div>
 
-              <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
-                <label className="text-base font-semibold block mb-1">Finishes</label>
-                <MultiSelectDropdown
-                  label="Finishes"
-                  options={finishOptions}
-                  selectedValues={formData.finish || []}
-                  onChange={vals => onChange('finish', vals)}
-                />
-              </div>
+                <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
+                  <label className="text-base font-semibold block mb-1">Materials</label>
+                  <MultiSelectDropdown
+                    label="Materials"
+                    options={materialOptions}
+                    selectedValues={formData.material || []}
+                    onChange={vals => onChange('material', vals)}
+                  />
+                </div>
 
-              <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
-                <label className="text-base font-semibold block mb-1">Series</label>
-                <MultiSelectDropdown
-                  label="Series"
-                  options={seriesOptions}
-                  selectedValues={formData.series || []}
-                  onChange={vals => onChange('series', vals)}
-                />
-              </div>
+                <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
+                  <label className="text-base font-semibold block mb-1">Finishes</label>
+                  <MultiSelectDropdown
+                    label="Finishes"
+                    options={finishOptions}
+                    selectedValues={formData.finish || []}
+                    onChange={vals => onChange('finish', vals)}
+                  />
+                </div>
 
-              {/* <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
+                <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
+                  <label className="text-base font-semibold block mb-1">Series</label>
+                  <MultiSelectDropdown
+                    label="Series"
+                    options={seriesOptions}
+                    selectedValues={formData.series || []}
+                    onChange={vals => onChange('series', vals)}
+                  />
+                </div>
+
+                {/* <div className="animate-fadeIn delay-150 w-full max-w-full xl:max-w-[420px] mb-6">
                 <label className="text-base font-semibold block mb-1">Color</label>
                 <Select value={formData.color || ''} onValueChange={value => onChange('color', value)}>
                   <SelectTrigger className="w-full">
@@ -130,42 +144,45 @@ const EditFormPopup = memo(({ tile, isOpen, onClose, formData, onChange, onSave,
                   </SelectContent>
                 </Select>
               </div> */}
+              </div>
             </div>
-          </div>
 
-          <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 animate-fadeIn delay-200">
-            <button
-              type="button"
-              onClick={() => onDelete(tile.id)}
-              className="cursor-pointer bg-white border border-gray-300 text-gray-700 py-2 px-6 rounded hover:bg-gray-100 text-sm font-medium transition-all duration-300 "
-            >
-              Delete
-            </button>
-            <button
-              type="button"
-              onClick={onSave}
-              className="cursor-pointer bg-[#6F4E37] text-white py-2 px-6 rounded hover:bg-[#6F4E37] text-sm font-medium transition-all duration-300"
-            >
-              Save
-            </button>
+            <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 animate-fadeIn delay-200">
+              <button
+                type="button"
+                onClick={() => onDelete(tile.id)}
+                className="cursor-pointer bg-white border border-gray-300 text-gray-700 py-2 px-6 rounded hover:bg-gray-100 text-sm font-medium transition-all duration-300 "
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                onClick={onSave}
+                className="cursor-pointer bg-[#6F4E37] text-white py-2 px-6 rounded hover:bg-[#6F4E37] text-sm font-medium transition-all duration-300"
+              >
+                Save
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 EditFormPopup.displayName = 'EditFormPopup';
 
 // TilePopup component
 const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
   const getPriorityColor = useCallback(priority => {
-    switch (priority) {
-      case 'Low Priority':
+    const lowerPriority = priority?.toLowerCase() || '';
+
+    switch (true) {
+      case lowerPriority.includes('low'):
         return 'bg-[#2CC29A]';
-      case 'Medium Priority':
+      case lowerPriority.includes('medium'):
         return 'bg-[#EA9A3E]';
-      case 'High Priority':
+      case lowerPriority.includes('high'):
         return 'bg-[#EA3E3E]';
       default:
         return 'bg-gray-500';
@@ -176,7 +193,7 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   if (!isOpen || !tile) return null;
-// console.log(tile,"==> tile");
+  // console.log(tile,"==> tile");
 
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">
@@ -223,7 +240,12 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
                   <label className="text-xs sm:text-sm font-semibold text-gray-700">Sizes</label>
                   <div className="flex flex-wrap gap-1">
                     {tile.size.map((sz, i) => (
-                      <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">{sz}</span>
+                      <span
+                        key={i}
+                        className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700"
+                      >
+                        {sz}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -232,10 +254,17 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
               {/* Materials */}
               {tile.material && tile.material.length > 0 && (
                 <div className="space-y-1">
-                  <label className="text-xs sm:text-sm font-semibold text-gray-700">Materials</label>
+                  <label className="text-xs sm:text-sm font-semibold text-gray-700">
+                    Materials
+                  </label>
                   <div className="flex flex-wrap gap-1">
                     {tile.material.map((mat, i) => (
-                      <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">{mat}</span>
+                      <span
+                        key={i}
+                        className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700"
+                      >
+                        {mat}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -247,7 +276,12 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
                   <label className="text-xs sm:text-sm font-semibold text-gray-700">Finishes</label>
                   <div className="flex flex-wrap gap-1">
                     {tile.finish.map((fin, i) => (
-                      <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">{fin}</span>
+                      <span
+                        key={i}
+                        className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700"
+                      >
+                        {fin}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -259,7 +293,12 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
                   <label className="text-xs sm:text-sm font-semibold text-gray-700">Series</label>
                   <div className="flex flex-wrap gap-1">
                     {tile.series.map((ser, i) => (
-                      <span key={i} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700">{ser}</span>
+                      <span
+                        key={i}
+                        className="px-2 py-0.5 text-xs bg-gray-100 rounded-full border border-gray-300 text-gray-700"
+                      >
+                        {ser}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -284,7 +323,7 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
                             background: c.color_code,
                             marginRight: 8,
                             border: '1px solid #ddd',
-                            verticalAlign: 'middle'
+                            verticalAlign: 'middle',
                           }}
                         />
                         <span className="text-xs sm:text-sm text-gray-700 font-semibold">

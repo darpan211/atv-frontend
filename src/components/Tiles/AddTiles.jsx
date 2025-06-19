@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { useNavigate, useLocation } from 'react-router-dom';
+import DropdownWithAdd from '../common/DropdownWithAdd';
 
 import { Icon } from '../common/icons';
 import TilesPreview from './TilesPreview';
@@ -30,11 +31,8 @@ import AddColorPage from '../Attributes/addAttribute/AddColorPage';
 import AddFinishPage from '../Attributes/addAttribute/AddFinishPage';
 import { fetchTiles, addTile, updateTile } from '@/redux/slice/tiles/tileThunks';
 
-
 const validationSchema = Yup.object().shape({
-  size: Yup.array()
-    .min(1, 'Please select at least one size')
-    .required('Size is required'),
+  size: Yup.array().min(1, 'Please select at least one size').required('Size is required'),
   material: Yup.array(),
   finish: Yup.array(),
   tileImages: Yup.array()
@@ -54,17 +52,14 @@ const AddTiles = () => {
   // Get category from URL query param
   const searchParams = new URLSearchParams(location.search);
   const categoryFromUrl = searchParams.get('category') || 'wall';
-  
+
   const { categories, series, sizes, suitablePlace, finish, materials, tiles } = useSelector(
     state => state
   );
 
-  
   const [showPreview, setShowPreview] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [tileImages, setTileImages] = useState([]); // [{ file, thickness, name, favorite }]
-  const [errors, setErrors] = useState({});
-  const [openPopup, setOpenPopup] = useState(null); // null or 'size' | 'series' | 'material' | 'finish' | 'suitablePlace' | etc.
 
   useEffect(() => {
     dispatch(fetchSuitablePlaces());
@@ -100,7 +95,9 @@ const AddTiles = () => {
         }
         // Validate that names and thicknesses are present for each image
         const missingName = tileImages.some(img => !img.name || img.name.trim() === '');
-        const missingThickness = tileImages.some(img => !img.thickness || String(img.thickness).trim() === '');
+        const missingThickness = tileImages.some(
+          img => !img.thickness || String(img.thickness).trim() === ''
+        );
         if (missingName || missingThickness) {
           toast.error('Each image must have a name and thickness.');
           return;
@@ -125,13 +122,13 @@ const AddTiles = () => {
         const tileNames = tileImages.map(img => img.name).join(',');
         const tileThicknesses = tileImages.map(img => img.thickness).join(',');
         const tileColors = tileImages.map(img => img.color).join(',');
-        const tileFavorites = tileImages.map(img => img.favorite ? 'true' : 'false').join(',');
+        const tileFavorites = tileImages.map(img => (img.favorite ? 'true' : 'false')).join(',');
         formData.append('tiles_name', tileNames);
         formData.append('thickness', tileThicknesses);
         formData.append('tiles_color', tileColors);
         formData.append('favorite', tileFavorites);
         // Add all tile images as files only (not as string or name)
-        tileImages.forEach((image) => {
+        tileImages.forEach(image => {
           formData.append('tiles_image', image.file);
         });
         const resultAction = await dispatch(addTile(formData));
@@ -144,7 +141,7 @@ const AddTiles = () => {
           setTileImages([]);
           // Navigate to tiles list with toast message in state
           navigate('/tiles/list', {
-            state: { toastMessage: 'Tile added successfully!' }
+            state: { toastMessage: 'Tile added successfully!' },
           });
         }
       } catch (error) {
@@ -187,40 +184,6 @@ const AddTiles = () => {
       value: place.suitablePlace,
     })) || [];
 
-  const DropdownWithAdd = ({ label, options, selectedValues, onChange, error }) => (
-    <div className="w-full">
-      <label className="text-sm font-semibold block text-gray-800 mb-1">{label}</label>
-      <div className="flex gap-1 items-center space-between">
-        <div className="flex-1">
-          <MultiSelectDropdown
-            label={label}
-            options={options}
-            selectedValues={selectedValues}
-            onChange={onChange}
-            heightClass="h-10 w-full rounded-md"
-          />
-          {error && <div className="text-red-600 text-sm mt-1">{error}</div>}
-        </div>
-        <button
-          type="button"
-          className="h-10 w-10 rounded-md p-0 bg-[#7b4f28] text-white flex items-center justify-center hover:bg-[#633e1f] border border-gray-300"
-          // style={{ minWidth: '44px', minHeight: '44px' }}
-          onClick={() => {
-            if (label === 'Size') setOpenPopup('size');
-            else if (label === 'Series') setOpenPopup('series');
-            else if (label === 'Material') setOpenPopup('material');
-            else if (label === 'Finish') setOpenPopup('finish');
-            else if (label === 'Suitable Place') setOpenPopup('suitablePlace');
-            else if (label === 'Category') setOpenPopup('category');
-            else if (label === 'Color') setOpenPopup('color');
-          }}
-        >
-          <Icon name="Plus" width={20} height={20} />
-        </button>
-      </div>
-    </div>
-  );
-
   const handleUploadComplete = newImages => {
     // Add favorite: false by default
     const imagesWithFavorite = newImages.map(img => ({ ...img, favorite: false }));
@@ -243,7 +206,10 @@ const AddTiles = () => {
 
   const handleDeleteImage = index => {
     setTileImages(prev => prev.filter((_, i) => i !== index));
-    formik.setFieldValue('tileImages', tileImages.filter((_, i) => i !== index));
+    formik.setFieldValue(
+      'tileImages',
+      tileImages.filter((_, i) => i !== index)
+    );
   };
 
   const canSubmit =
@@ -256,83 +222,6 @@ const AddTiles = () => {
         String(img.thickness).trim() !== ''
     ) &&
     formik.values.size.length > 0;
-
-  // Overlay popup rendering
-  const renderPopup = () => {
-    if (!openPopup) return null;
-    let PopupComponent = null;
-    if (openPopup === 'size') PopupComponent = AddSizePage;
-    else if (openPopup === 'series') PopupComponent = AddSeriesPage;
-    else if (openPopup === 'material') PopupComponent = AddMaterialPage;
-    else if (openPopup === 'suitablePlace') PopupComponent = AddPlacePage;
-    else if (openPopup === 'category') PopupComponent = AddCategoryPage;
-    else if (openPopup === 'color') PopupComponent = AddColorPage;
-    else if (openPopup === 'finish') PopupComponent = AddFinishPage;
-    // For finish, you may need a separate component if available
-    if (!PopupComponent) return null;
-
-    const handlePopupSubmit = async (values) => {
-      try {
-        // Dispatch the appropriate action based on the popup type
-        let action;
-        switch (openPopup) {
-          case 'size':
-            action = addSize({ height: values.height, width: values.width, sizes: `${values.height} X ${values.width}` });
-            break;
-          case 'series':
-            action = addSeries({ series: values.name });
-            break;
-          case 'material':
-            action = addMaterial({ material: values.name });
-            break;
-          case 'suitablePlace':
-            action = addSuitablePlace({ suitablePlace: values.name });
-            break;
-          case 'category':
-            action = addCategory({ category: values.name });
-            break;
-          case 'color':
-            action = addColor({ color: values.name });
-            break;
-          case 'finish':
-            action = addFinish({ finish: values.name });
-            break;
-          default:
-            return;
-        }
-
-        const result = await dispatch(action).unwrap();
-        if (result) {
-          // Refresh the data
-          dispatch(fetchSuitablePlaces());
-          dispatch(fetchSizes());
-          dispatch(fetchSeries());
-          dispatch(fetchCategories());
-          dispatch(fetchMaterials());
-          dispatch(fetchFinishes());
-          
-          // Close the popup
-          setOpenPopup(null);
-          toast.success(`${openPopup.charAt(0).toUpperCase() + openPopup.slice(1)} added successfully!`);
-        }
-      } catch (error) {
-        toast.error(error?.message || `Failed to add ${openPopup}`);
-      }
-    };
-
-    return (
-      <div className="absolute left-1/2 top-10 z-50 transform -translate-x-1/2 bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-        <button
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl font-bold"
-          onClick={() => setOpenPopup(null)}
-          aria-label="Close"
-        >
-          &times;
-        </button>
-        <PopupComponent onSubmit={handlePopupSubmit} />
-      </div>
-    );
-  };
 
   return (
     <div className="w-full  px-4 sm:px-6 lg:px-8 py-6">
@@ -413,8 +302,8 @@ const AddTiles = () => {
                     }
                   }}
                   className={`font-semibold text-white text-xs px-5 py-2.5 rounded-md flex items-center gap-2 transition-colors duration-200 h-10 ${
-                    formik.values.size.length > 0 
-                      ? 'bg-[#7b4f28] hover:bg-[#633e1f] cursor-pointer' 
+                    formik.values.size.length > 0
+                      ? 'bg-[#7b4f28] hover:bg-[#633e1f] cursor-pointer'
                       : 'bg-gray-400 cursor-not-allowed'
                   }`}
                 >
@@ -474,7 +363,7 @@ const AddTiles = () => {
           </div>
         </>
       )}
-      {renderPopup()}
+      {/* {renderPopup()} */}
     </div>
   );
 };

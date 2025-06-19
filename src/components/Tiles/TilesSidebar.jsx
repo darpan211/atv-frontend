@@ -29,7 +29,11 @@ const TilesSidebar = ({
           aria-controls={`filter-section-${filterKey}`}
         >
           <span className="text-sm sm:text-base">{title}</span>
-          {isExpanded ? <ChevronUp className="w-6 h-6 cursor-pointer" /> : <ChevronDown className="w-6 h-6 cursor-pointer" />}
+          {isExpanded ? (
+            <ChevronUp className="w-6 h-6 cursor-pointer" />
+          ) : (
+            <ChevronDown className="w-6 h-6 cursor-pointer" />
+          )}
         </button>
 
         <div
@@ -132,7 +136,7 @@ const TilesSidebar = ({
       )}
 
       {/* Filter Sections */}
-      <div className="flex-1 bg-[#E0E0E0] px-2.5 pt-3 space-y-4 overflow-y-auto">
+      <div className="flex-1 bg-[#E0E0E0] px-2.5 py-3 space-y-4 overflow-y-auto">
         <div className="space-y-1">
           {[
             // { title: 'Collections', key: 'collections' },
@@ -154,4 +158,3 @@ const TilesSidebar = ({
 };
 
 export default TilesSidebar;
-      

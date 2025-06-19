@@ -4,8 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toCapitalize } from '../../helpers';
 import { fetchSidebarFilters } from '@/redux/slice/sidebarfilter/filterThunks';
+import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
 
-const NavItem = ({ label, withDropdown, dropdownItems = [], onClick, enableDynamicNested = false }) => {
+const NavItem = ({
+  label,
+  withDropdown,
+  dropdownItems = [],
+  onClick,
+  enableDynamicNested = false,
+}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
@@ -16,8 +23,9 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], onClick, enableDynam
   const [activeMainKey, setActiveMainKey] = useState(null);
   const [nestedItems, setNestedItems] = useState([]);
 
-  const filters = useSelector((state) => state.filters.list ?? {});
+  const filters = useSelector(state => state.filters.list ?? {});
   const { categories, size, color, finish, material, series } = filters;
+  const categoryList = useSelector(state => state.categories.list?.data ?? null);
 
   const sourceMap = useMemo(
     () => ({
@@ -27,62 +35,67 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], onClick, enableDynam
       materials: material,
       series,
       finish,
-      addtiles: categories,
+      addtiles: categoryList,
     }),
-    [categories, size, color, finish, material, series]
+    [categories, size, color, finish, material, series, categoryList]
   );
 
-  const getLabelValue = (entry) => {
+  const getLabelValue = entry => {
     if (typeof entry === 'string') return entry;
     const possibleKeys = ['name', 'category', 'material', 'size', 'color', 'series', 'finish'];
     for (const key of possibleKeys) {
       if (entry?.[key]) return entry[key];
     }
-    return Object.values(entry).find((v) => typeof v === 'string') || 'Unknown';
+    return Object.values(entry).find(v => typeof v === 'string') || 'Unknown';
   };
 
-  const buildNestedItems = useCallback((matchedKey) => {
-    const list = sourceMap[matchedKey];
-    return list.map((entry) => {
-      const labelValue = getLabelValue(entry);
-      const paramValue = encodeURIComponent(labelValue);
-      const isAdd = matchedKey === 'addtiles';
-      return {
-        label: toCapitalize(labelValue),
-        path: `/tiles/${isAdd ? 'add' : 'list'}?${isAdd ? 'category' : matchedKey}=${paramValue}`,
-      };
-    });
-  }, [sourceMap]);
+  const buildNestedItems = useCallback(
+    matchedKey => {
+      const list = sourceMap[matchedKey] || [];
+      return list.map(entry => {
+        const labelValue = getLabelValue(entry);
+        const paramValue = encodeURIComponent(labelValue);
+        const isAdd = matchedKey === 'addtiles';
+        return {
+          label: toCapitalize(labelValue),
+          path: `/tiles/${isAdd ? 'add' : 'list'}?${isAdd ? 'category' : matchedKey}=${paramValue}`,
+        };
+      });
+    },
+    [sourceMap]
+  );
 
-  const handleMainHover = useCallback((item) => {
-    if (!enableDynamicNested) return;
+  const handleMainHover = useCallback(
+    item => {
+      if (!enableDynamicNested) return;
 
-    const normalizedLabel = item.label?.toLowerCase().replace(/\s+/g, '');
-    const matchedKey = Object.keys(sourceMap).find((key) => normalizedLabel.includes(key));
-    if (!matchedKey || !sourceMap[matchedKey]?.length) {
-      setNestedItems([]);
-      setActiveMainKey(null);
-      return;
-    }
+      const normalizedLabel = item.label?.toLowerCase().replace(/\s+/g, '');
+      const matchedKey = Object.keys(sourceMap).find(key => normalizedLabel.includes(key));
 
-    const cacheKey = `${item.label.toLowerCase()}-${matchedKey}`;
-    if (nestedCacheRef.current.has(cacheKey)) {
-      const cached = nestedCacheRef.current.get(cacheKey);
-      setNestedItems(cached);
       setActiveMainKey(matchedKey);
-    } else {
-      const formatted = buildNestedItems(matchedKey);
-      nestedCacheRef.current.set(cacheKey, formatted);
-      setNestedItems(formatted);
-      setActiveMainKey(matchedKey);
-    }
-  }, [buildNestedItems, sourceMap, enableDynamicNested]);
+
+      if (!matchedKey || !sourceMap[matchedKey]?.length) {
+        setNestedItems([]);
+        return;
+      }
+
+      const cacheKey = `${item.label.toLowerCase()}-${matchedKey}`;
+      if (nestedCacheRef.current.has(cacheKey)) {
+        setNestedItems(nestedCacheRef.current.get(cacheKey));
+      } else {
+        const formatted = buildNestedItems(matchedKey);
+        nestedCacheRef.current.set(cacheKey, formatted);
+        setNestedItems(formatted);
+      }
+    },
+    [buildNestedItems, sourceMap, enableDynamicNested]
+  );
 
   const handleClick = () => {
-    if (withDropdown) setIsOpen((prev) => !prev);
+    if (withDropdown) setIsOpen(prev => !prev);
   };
 
-  const handleItemClick = (path) => {
+  const handleItemClick = path => {
     if (path) {
       navigate(path);
       setIsOpen(false);
@@ -91,14 +104,15 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], onClick, enableDynam
   };
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = event => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
         setActiveMainKey(null);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    dispatch(fetchSidebarFilters())
+    dispatch(fetchSidebarFilters());
+    dispatch(fetchCategories());
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
@@ -109,9 +123,7 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], onClick, enableDynam
         className={`flex items-center space-x-1 cursor-pointer px-3 py-2 rounded-md transition duration-150 
           ${isOpen ? 'bg-white text-[#6C4A34]' : 'hover:bg-white hover:text-[#6C4A34] text-white'}`}
       >
-      <span onClick={!withDropdown ? onClick : undefined}>
-        {label}
-      </span>
+        <span onClick={!withDropdown ? onClick : undefined}>{label}</span>
         {withDropdown && <ChevronDown className="w-4 h-4" />}
       </div>
 
@@ -120,17 +132,17 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], onClick, enableDynam
           <ul className="py-2 text-sm">
             {dropdownItems.map((item, idx) => {
               const normalizedLabel = item.label.toLowerCase().replace(/\s+/g, '');
-              const matchedKey = Object.keys(sourceMap).find((key) =>
-                normalizedLabel.includes(key)
-              );
-              const showNested = matchedKey === activeMainKey && nestedItems.length > 0;
+              const matchedKey = Object.keys(sourceMap).find(key => normalizedLabel.includes(key));
+              const isHovered = matchedKey === activeMainKey;
+              const isEmpty = isHovered && nestedItems.length === 0;
+              const isPopulated = isHovered && nestedItems.length > 0;
 
               return (
                 <li
                   key={idx}
                   onMouseEnter={() => {
                     clearTimeout(hoverTimeoutRef.current);
-                    hoverTimeoutRef.current = setTimeout(() => handleMainHover(item), 100); // Debounce hover
+                    hoverTimeoutRef.current = setTimeout(() => handleMainHover(item), 100);
                   }}
                   onMouseLeave={() => {
                     hoverTimeoutRef.current = setTimeout(() => {
@@ -145,16 +157,16 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], onClick, enableDynam
                 >
                   <div className="flex justify-between items-center">
                     {item.label}
-                    {(item.hasDynamicChildren || !item.path) && (
+                    {(item.hasDynamicChildren || isHovered) && (
                       <ChevronRight
                         className={`w-4 h-4 ml-2 transition-transform duration-200 ease-in-out ${
-                          showNested ? 'rotate-90' : ''
+                          isPopulated ? 'rotate-90' : ''
                         }`}
                       />
                     )}
                   </div>
 
-                  {showNested && (
+                  {isHovered && (
                     <ul
                       className="absolute top-0 left-full ml-1 w-56 bg-white text-black shadow-lg rounded-lg py-2 text-sm z-50"
                       onMouseEnter={() => clearTimeout(hoverTimeoutRef.current)}
@@ -165,15 +177,21 @@ const NavItem = ({ label, withDropdown, dropdownItems = [], onClick, enableDynam
                         }, 300);
                       }}
                     >
-                      {nestedItems.map((subItem, subIdx) => (
-                        <li
-                          key={subIdx}
-                          className="px-4 py-2 hover:bg-gray-100 border-b last:border-none hover:text-[#6C4A34] transition cursor-pointer"
-                          onClick={() => handleItemClick(subItem.path)}
-                        >
-                          {subItem.label}
+                      {isPopulated ? (
+                        nestedItems.map((subItem, subIdx) => (
+                          <li
+                            key={subIdx}
+                            className="px-4 py-2 hover:bg-gray-100 border-b last:border-none hover:text-[#6C4A34] transition cursor-pointer"
+                            onClick={() => handleItemClick(subItem.path)}
+                          >
+                            {subItem.label}
+                          </li>
+                        ))
+                      ) : (
+                        <li className="px-4 py-2 text-gray-500 italic cursor-default">
+                          No items available
                         </li>
-                      ))}
+                      )}
                     </ul>
                   )}
                 </li>
