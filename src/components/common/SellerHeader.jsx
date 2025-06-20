@@ -29,6 +29,7 @@ const SellerHeader = () => {
       label: 'Manage Tiles',
       withDropdown: true,
       dropdownItems: [
+        // { label: 'View All Design', hasDynamicChildren: true },
         { label: 'Tiles by Categories', hasDynamicChildren: true },
         { label: 'Tiles by Sizes', hasDynamicChildren: true },
         { label: 'Tiles by Finishes', hasDynamicChildren: true },
