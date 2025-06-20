@@ -46,7 +46,7 @@ const AppLayout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col overflow-auto">
+    <div className="min-h-screen flex flex-col">
       {renderHeader()}
       <main className="flex-grow">{children}</main>
     </div>

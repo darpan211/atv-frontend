@@ -13,7 +13,6 @@ const TilesSidebar = ({
   clearAllFilters,
   getTotalFilters,
   filterOptions,
-  filteredTiles,
   totalDesigns,
 }) => {
   const FilterSection = ({ title, filterKey, options }) => {
@@ -67,13 +66,11 @@ const TilesSidebar = ({
   };
 
   // Determine if filters are applied
-  const filtersApplied = Object.values(activeFilters).some(arr => arr.length > 0);
-
   return (
     <div
       className={`${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } fixed lg:static top-0 left-0 z-40 w-[250px] bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transition-none flex flex-col`}
+      } fixed lg:static top-0 left-0 h-screen z-40 w-[250px] bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transition-none flex flex-col`}
     >
       {/* Mobile Close Button */}
       <div className="lg:hidden flex justify-end p-4 border-b border-gray-200">
@@ -98,7 +95,6 @@ const TilesSidebar = ({
           </button>
         </div>
         <p className="text-sm text-gray-800 font-medium">
-          {/* Total Designs: <span className="text-amber-800 font-bold">{filtersApplied ? filteredTiles.length : totalDesigns}</span> */}
           Total Designs: <span className="text-amber-800 font-bold">{totalDesigns}</span>
         </p>
         {getTotalFilters() > 0 && (

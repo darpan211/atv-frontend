@@ -25,8 +25,8 @@ const Header = ({
   const [selectedValues] = useState({});
 
   const filterOptions = [
-    { label: 'Sort by', options: ['Name', 'Priority', 'Size'], width: 'w-[160px]' },
-    { label: 'Order', options: ['Ascending', 'Descending'], width: 'w-[160px]' },
+    { label: 'Sort by', options: ['All', 'Name', 'Priority', 'Size'], width: 'w-[160px]' },
+    { label: 'Order', options: ['All', 'Ascending', 'Descending'], width: 'w-[160px]' },
     { label: 'Status', options: ['All', 'Active', 'Inactive'], width: 'w-[135px]' },
     { label: 'Priority', options: ['All', 'Low', 'Medium', 'High'], width: 'w-[148px]' },
     { label: 'Favorites', options: ['All', 'Favorited', 'Not Favorited'], width: 'w-[131px]' },

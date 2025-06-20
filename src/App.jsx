@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -6,7 +6,6 @@ import { AuthProvider } from './hooks/AuthContext';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Layout
-import Header from './components/common/Header';
 
 // Auth & Dashboard Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -44,7 +43,6 @@ import AddPlacePage from './components/Attributes/addAttribute/AddPlacePage';
 import AddSeriesPage from './components/Attributes/addAttribute/AddSeriesPage';
 
 // Add Tiles
-import HeaderTilesCart from './components/Tiles/HeaderTilesCart';
 import AddTiles from './components/Tiles/AddTiles';
 import AppLayout from './hooks/AppLayout';
 import AuthSync from './hooks/AuthSync';
@@ -55,9 +53,23 @@ import AdminList from './pages/Admin/AdminList';
 import FinishPage from './components/Attributes/attributePage/FinishPage';
 import AddFinishPage from './components/Attributes/addAttribute/AddFinishPage';
 import NotAuthorized from './components/common/NotAuthorized';
+import { useDispatch } from 'react-redux';
+import { fetchSidebarFilters } from './redux/slice/sidebarfilter/filterThunks';
+import { fetchCategories } from './redux/slice/categories/categoryThunks';
+import TileManagement from './components/Tiles/TilesManagement';
 
 // ================== App Routes ==================
 const App = () => {
+  const dispatch = useDispatch();
+  const isAuthenticated = localStorage.getItem('authToken') ? true : false;
+  const isUser = localStorage.getItem('user') ? true : false;
+  
+  useEffect(() => {
+    if (isAuthenticated && isUser) {
+      dispatch(fetchSidebarFilters());
+      dispatch(fetchCategories());
+    }
+  }, [dispatch]);
   return (
     <AuthProvider>
       <ToastContainer
@@ -290,11 +302,19 @@ const App = () => {
           }
         />
 
-        <Route
+        {/* <Route
           path="/tiles/list/:slug?"
           element={
             <AppLayout>
               <HeaderTilesCart />
+            </AppLayout>
+          }
+        /> */}
+        <Route
+          path="/tiles/list/:slug?"
+          element={
+            <AppLayout>
+              <TileManagement />
             </AppLayout>
           }
         />

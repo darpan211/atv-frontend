@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { toCapitalize } from '../../helpers';
-import { fetchSidebarFilters } from '@/redux/slice/sidebarfilter/filterThunks';
-import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
 
 const NavItem = ({
   label,
@@ -13,7 +11,6 @@ const NavItem = ({
   onClick,
   enableDynamicNested = false,
 }) => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const hoverTimeoutRef = useRef(null);
@@ -111,8 +108,6 @@ const NavItem = ({
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    dispatch(fetchSidebarFilters());
-    dispatch(fetchCategories());
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
@@ -134,7 +129,6 @@ const NavItem = ({
               const normalizedLabel = item.label.toLowerCase().replace(/\s+/g, '');
               const matchedKey = Object.keys(sourceMap).find(key => normalizedLabel.includes(key));
               const isHovered = matchedKey === activeMainKey;
-              const isEmpty = isHovered && nestedItems.length === 0;
               const isPopulated = isHovered && nestedItems.length > 0;
 
               return (
