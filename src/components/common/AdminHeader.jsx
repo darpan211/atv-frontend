@@ -45,8 +45,8 @@ const AdminHeader = () => {
       label: 'Manage Rooms',
       withDropdown: true,
       dropdownItems: [
-        { label: 'View All Room', path: '/admin/addroom/list' },
-        { label: 'Add Room', path: '/admin/roomform' },
+        { label: 'View All Room', path: '/admin/room/list' },
+        { label: 'Add Room', path: '/admin/room/add' },
       ],
     },
     {

@@ -196,7 +196,7 @@ const App = () => {
           }
         />
         <Route
-          path="/admin/roomform"
+          path="/admin/room/:mode"
           element={
             <AppLayout>
               <RoomForm />
