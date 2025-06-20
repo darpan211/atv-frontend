@@ -26,7 +26,6 @@ const Rooms = () => {
     currentPage: storePage,
     totalPages,
     totalItems,
-    loading,
   } = useSelector(state => state.rooms);
 
   useEffect(() => {
@@ -62,11 +61,11 @@ const Rooms = () => {
   };
 
   const handleEdit = id => {
-    navigate(`/admin/roomform?id=${id}`);
+    navigate(`/admin/room/edit?id=${id}`);
   };
 
   const handleAddRoom = () => {
-    navigate('/admin/roomform');
+    navigate('/admin/room/add');
   };
 
   const handlePageChange = page => {

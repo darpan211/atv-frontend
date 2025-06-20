@@ -32,9 +32,7 @@ export const MultiSelectDropdown = ({
 
   const toggleDropdown = () => setShowDropdown(prev => !prev);
 
-  const handleCheckboxChange = (option, event) => {
-    // console.log(option, 'option====>>>');
-    // event.stopPropagation();
+  const handleCheckboxChange = (option) => {
     const isSelected = selectedValues.some(item => item.value === option.value);
     const updatedValues = isSelected
       ? selectedValues.filter(item => item.value !== option.value)

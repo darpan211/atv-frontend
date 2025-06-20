@@ -51,11 +51,9 @@ const AddNewRoom = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const id = searchParams.get('id'); // ← works with ?id=...
-  // const { id } = useParams();
-  console.log(id, 'id=>>>>>>');
   const isEditMode = Boolean(id);
   // Get loading state from Redux store
-  const { loading, error } = useSelector(state => state.rooms);
+  const { loading } = useSelector(state => state.rooms);
 
   const formik = useFormik({
     initialValues: {
@@ -154,6 +152,7 @@ const AddNewRoom = () => {
             description: room.description || '',
             image: null, // Image upload remains empty
           });
+          setPreviewUrl(room.upload_image || null);          
         })
         .catch(() => {
           toast.error('Failed to fetch room details');

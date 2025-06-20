@@ -16,7 +16,7 @@ const Materials = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { list: materials, loading, error } = useSelector(state => state.materials);
+  const { list: materials, loading } = useSelector(state => state.materials);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState(null);

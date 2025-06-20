@@ -13,7 +13,7 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout(state) {
-      localStorage.removeItem('authToken');
+      localStorage.clear();
       state.user = null;
       state.error = null;
       state.success = false;
