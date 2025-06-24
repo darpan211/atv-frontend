@@ -24,18 +24,15 @@ const NavItem = ({
   const { categories, size, color, finish, material, series } = filters;
   const categoryList = useSelector(state => state.categories.list?.data ?? null);
 
-  const sourceMap = useMemo(
-    () => ({
-      categories,
-      sizes: size,
-      colors: color,
-      materials: material,
-      series,
-      finish,
-      addtiles: categoryList,
-    }),
-    [categories, size, color, finish, material, series, categoryList]
-  );
+  const sourceMap = useMemo(() => ({
+    categories,
+    sizes: size,
+    colors: color,
+    materials: material,
+    series,
+    finish,
+    addtiles: categoryList
+  }), [categories, size, color, finish, material, series, categoryList]);
 
   const getLabelValue = entry => {
     if (typeof entry === 'string') return entry;
@@ -46,47 +43,44 @@ const NavItem = ({
     return Object.values(entry).find(v => typeof v === 'string') || 'Unknown';
   };
 
-  const buildNestedItems = useCallback(
-    matchedKey => {
-      const list = sourceMap[matchedKey] || [];
-      return list.map(entry => {
-        const labelValue = getLabelValue(entry);
-        const paramValue = encodeURIComponent(labelValue);
-        const isAdd = matchedKey === 'addtiles';
-        return {
-          label: toCapitalize(labelValue),
-          path: `/tiles/${isAdd ? 'add' : 'list'}?${isAdd ? 'category' : matchedKey}=${paramValue}`,
-        };
-      });
-    },
-    [sourceMap]
-  );
+  const buildNestedItems = useCallback((matchedKey) => {
+    const list = sourceMap[matchedKey] || [];
+    return list.map((entry) => {
+      const labelValue = getLabelValue(entry);
+      const paramValue = encodeURIComponent(labelValue);
+      const isAdd = matchedKey === 'addtiles';
+      return {
+        label: toCapitalize(labelValue),
+        path: `/tiles/${isAdd ? 'add' : 'list'}?${isAdd ? 'category' : matchedKey}=${paramValue}`,
+      };
+    });
+  }, [sourceMap]);
 
   const handleMainHover = useCallback(
     item => {
       if (!enableDynamicNested) return;
 
-      const normalizedLabel = item.label?.toLowerCase().replace(/\s+/g, '');
-      const matchedKey = Object.keys(sourceMap).find(key => normalizedLabel.includes(key));
+    const normalizedLabel = item.label?.toLowerCase().replace(/\s+/g, '');
+    const matchedKey = Object.keys(sourceMap).find((key) =>
+      normalizedLabel.includes(key)
+    );
 
-      setActiveMainKey(matchedKey);
+    setActiveMainKey(matchedKey);
 
-      if (!matchedKey || !sourceMap[matchedKey]?.length) {
-        setNestedItems([]);
-        return;
-      }
+    if (!matchedKey || !sourceMap[matchedKey]?.length) {
+      setNestedItems([]);
+      return;
+    }
 
-      const cacheKey = `${item.label.toLowerCase()}-${matchedKey}`;
-      if (nestedCacheRef.current.has(cacheKey)) {
-        setNestedItems(nestedCacheRef.current.get(cacheKey));
-      } else {
-        const formatted = buildNestedItems(matchedKey);
-        nestedCacheRef.current.set(cacheKey, formatted);
-        setNestedItems(formatted);
-      }
-    },
-    [buildNestedItems, sourceMap, enableDynamicNested]
-  );
+    const cacheKey = `${item.label.toLowerCase()}-${matchedKey}`;
+    if (nestedCacheRef.current.has(cacheKey)) {
+      setNestedItems(nestedCacheRef.current.get(cacheKey));
+    } else {
+      const formatted = buildNestedItems(matchedKey);
+      nestedCacheRef.current.set(cacheKey, formatted);
+      setNestedItems(formatted);
+    }
+  }, [buildNestedItems, sourceMap, enableDynamicNested]);
 
   const handleClick = () => {
     if (withDropdown) setIsOpen(prev => !prev);
@@ -118,7 +112,9 @@ const NavItem = ({
         className={`flex items-center space-x-1 cursor-pointer px-3 py-2 rounded-md transition duration-150 
           ${isOpen ? 'bg-white text-[#6C4A34]' : 'hover:bg-white hover:text-[#6C4A34] text-white'}`}
       >
-        <span onClick={!withDropdown ? onClick : undefined}>{label}</span>
+        <span onClick={!withDropdown ? onClick : undefined}>
+          {label}
+        </span>
         {withDropdown && <ChevronDown className="w-4 h-4" />}
       </div>
 
@@ -127,7 +123,9 @@ const NavItem = ({
           <ul className="py-2 text-sm">
             {dropdownItems.map((item, idx) => {
               const normalizedLabel = item.label.toLowerCase().replace(/\s+/g, '');
-              const matchedKey = Object.keys(sourceMap).find(key => normalizedLabel.includes(key));
+              const matchedKey = Object.keys(sourceMap).find((key) =>
+                normalizedLabel.includes(key)
+              );
               const isHovered = matchedKey === activeMainKey;
               const isPopulated = isHovered && nestedItems.length > 0;
 
@@ -182,7 +180,9 @@ const NavItem = ({
                           </li>
                         ))
                       ) : (
-                        <li className="px-4 py-2 text-gray-500 italic cursor-default">
+                        <li 
+                          className="px-4 py-2 text-gray-500 italic cursor-default"
+                        >
                           No items available
                         </li>
                       )}

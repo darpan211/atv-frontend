@@ -29,6 +29,7 @@ const SellerHeader = () => {
       label: 'Manage Tiles',
       withDropdown: true,
       dropdownItems: [
+        // { label: 'View All Design', hasDynamicChildren: true },
         { label: 'Tiles by Categories', hasDynamicChildren: true },
         { label: 'Tiles by Sizes', hasDynamicChildren: true },
         { label: 'Tiles by Finishes', hasDynamicChildren: true },
@@ -42,6 +43,11 @@ const SellerHeader = () => {
       label: '3D Visualization',
       withDropdown: false,
       onClick: () => navigate('/tiles/visualizer'),
+    },
+    {
+      label: 'Configure Tiles',
+      withDropdown: false,
+      onClick: () => navigate('/seller/configure'),
     },
     {
       label: 'Company Profile',

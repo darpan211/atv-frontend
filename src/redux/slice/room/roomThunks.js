@@ -3,16 +3,6 @@ import axiosHandler from '../../../services/axiosHandler';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// 🔹 Fetch all rooms
-// export const fetchRooms = createAsyncThunk('rooms/fetchRooms', async (_, thunkAPI) => {
-//   try {
-//     const response = await axiosHandler.get(`${BASE_URL}/api/v1/rooms/getroom`);
-//     return response.data.data;
-//   } catch (error) {
-//     return thunkAPI.rejectWithValue(error.response?.data || error.message);
-//   }
-// });
-
 export const fetchRooms = createAsyncThunk(
   'rooms/fetchRooms',
   async ({ page = 1, limit = 10 }, thunkAPI) => {

@@ -30,19 +30,6 @@ const roomSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      // Fetch Rooms
-      // .addCase(fetchRooms.pending, (state) => {
-      //   state.loading = true;
-      //   state.error = null;
-      // })
-      // .addCase(fetchRooms.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.list = action.payload;
-      // })
-      // .addCase(fetchRooms.rejected, (state, action) => {
-      //   state.loading = false;
-      //   state.error = action.payload || 'Failed to fetch rooms.';
-      // })
 
       .addCase(fetchRooms.pending, state => {
         state.loading = true;
