@@ -45,6 +45,11 @@ const SellerHeader = () => {
       onClick: () => navigate('/tiles/visualizer'),
     },
     {
+      label: 'Configure Tiles',
+      withDropdown: false,
+      onClick: () => navigate('/seller/configure'),
+    },
+    {
       label: 'Company Profile',
       withDropdown: false,
       onClick: () => navigate('/seller/profile'),

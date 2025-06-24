@@ -1,7 +1,14 @@
-'use client';
-import { useState } from 'react';
-import { ChevronDown, Pencil } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { Icon } from '../common/icons';
+import axiosHandler from '@/services/axiosHandler';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import { Formik, Form, Field } from 'formik';
+import * as Yup from 'yup';
+import { useMemo } from 'react';
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Card = ({ children, className = '' }) => (
   <div className={`rounded-lg border bg-[#FFF5EE] text-black shadow-sm ${className}`}>
@@ -26,21 +33,30 @@ const Label = ({ children, className = '', ...props }) => (
   </label>
 );
 
-const Select = ({ placeholder, value, onChange, className = '' }) => {
+const Select = ({ name, placeholder, value, onChange, className = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState(value || '');
 
-  const options = [
+  const options = useMemo(() => [
     { value: 'active', label: 'Active' },
     { value: 'inactive', label: 'Inactive' },
     { value: 'pending', label: 'Pending' },
     { value: 'suspended', label: 'Suspended' },
-  ];
+  ], []);
+
+  useEffect(() => {
+    const matchedOption = options.find(option => option.value === value);
+    if (matchedOption) {
+      setSelectedValue(matchedOption.label);
+    } else {
+      setSelectedValue('');
+    }
+  }, [value, options]);
 
   const handleSelect = (val, label) => {
     setSelectedValue(label);
     setIsOpen(false);
-    if (onChange) onChange(val);
+    if (onChange) onChange({ target: { name, value: val } });
   };
 
   return (
@@ -73,8 +89,42 @@ const Select = ({ placeholder, value, onChange, className = '' }) => {
   );
 };
 
+const validationSchema = Yup.object({
+  sellerName: Yup.string()
+    .required('Seller Name is required')
+    .min(2, 'Seller Name must be at least 2 characters'),
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required'),
+  address: Yup.string()
+    .required('Address is required')
+    .min(5, 'Address must be at least 5 characters'),
+  mobile: Yup.string()
+    .matches(/^[0-9]{10}$/, 'Mobile number must be 10 digits')
+    .required('Mobile number is required'),
+  gst: Yup.string()
+    .matches(/^[0-9A-Z]{15}$/, 'GST number must be 15 alphanumeric characters')
+    .required('GST number is required'),
+  city: Yup.string()
+    .required('City is required')
+    .min(2, 'City must be at least 2 characters'),
+  ownerName: Yup.string()
+    .required('Owner Name is required')
+    .min(2, 'Owner Name must be at least 2 characters'),
+  status: Yup.string()
+    .required('Status is required')
+    .oneOf(['active', 'inactive', 'pending', 'suspended'], 'Invalid status'),
+});
+
 export default function SellerProfile() {
-  const [formData, setFormData] = useState({
+  const [imageUrl, setImageUrl] = useState(
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&h=160&fit=crop&crop=face'
+  );
+  const [fetchedData, setFetchedData] = useState(null);
+  const fileInputRef = useRef();
+  const { user } = useSelector(state => state.auth.user);
+
+  const initialValues = fetchedData || {
     sellerName: '',
     email: '',
     address: '',
@@ -83,149 +133,269 @@ export default function SellerProfile() {
     city: '',
     ownerName: '',
     status: '',
-  });
+  };
 
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
+  useEffect(() => {
+    const fetchSellerData = async () => {
+      try {
+        const res = await axiosHandler.get(`${BASE_URL}/api/v1/auth/getUserById/${user.id}`);
+        const data = res.data?.data;
+        setFetchedData({
+          sellerName: data.company_name || '',
+          email: data.email || '',
+          address: data.metadata?.address || '',
+          mobile: data.mobile || '',
+          gst: data.metadata?.gst || '',
+          city: data.metadata?.city || '',
+          ownerName: data.owner_name || '',
+          status: data.status || '',
+        });
+      } catch (err) {
+        console.error('Error fetching seller data:', err.message);
+        toast.error('Failed to fetch seller data.');
+        setFetchedData({
+          sellerName: '',
+          email: '',
+          address: '',
+          mobile: '',
+          gst: '',
+          city: '',
+          ownerName: '',
+          status: '',
+        });
+      }
+    };
+
+    if (user?.id) {
+      fetchSellerData();
+    }
+  }, [user]);
+
+  const handleImageChange = e => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImageUrl(url);
+    }
+  };
+
+  const handleEditClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      const payload = {
+        company_name: values.sellerName,
+        email: values.email,
+        mobile: values.mobile,
+        owner_name: values.ownerName,
+        status: values.status,
+        metadata: {
+          address: values.address,
+          gst: values.gst,
+          city: values.city,
+        },
+      };
+
+      const res = await axiosHandler.put(`${BASE_URL}/api/v1/auth/updateUser/${user.id}`, payload);
+
+      if (res.status === 200) {
+        toast.success('Profile updated successfully!');
+      } else {
+        toast.error('Failed to update profile.');
+      }
+    } catch (err) {
+      console.error('Update error:', err.message);
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="relative min-h-screen">
-      {/* Split background - responsive positioning */}
       <div className="absolute top-0 left-0 w-full h-1/3 sm:h-1/2 bg-[#6F4E37] z-0"></div>
       <div className="absolute top-1/3 sm:top-1/2 left-0 w-full h-2/3 sm:h-1/2 bg-white z-0"></div>
 
-      {/* Content over split background */}
       <div className="relative z-10 flex items-start sm:items-center justify-center p-4 sm:p-6 min-h-screen pt-8 sm:pt-6">
         <div className="w-full max-w-7xl">
-          {/* Header - responsive text size */}
           <div className="mb-4 sm:mb-6">
             <h1 className="text-white text-xl sm:text-2xl lg:text-3xl font-semibold">
               Seller Profile
             </h1>
           </div>
 
-          <Card className="border border-gray-200 shadow-lg">
-            <CardContent>
-              {/* Responsive layout: stack on mobile, side-by-side on larger screens */}
-              <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-                {/* Profile Image Section */}
-                <div className="flex justify-center lg:justify-start flex-shrink-0">
-                  <div className="relative">
-                    <div className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-lg overflow-hidden relative">
-                      <img
-                        src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&h=160&fit=crop&crop=face"
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                      {/* Edit Icon - positioned INSIDE the image at bottom right */}
-                      <div className="absolute bottom-0 right-0 bg-white p-1.5 rounded-tl-lg rounded-br-lg cursor-pointer hover:bg-gray-50 transition-colors shadow-sm">
-                        <Icon name="EditPencil" size={16} />
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            enableReinitialize
+            onSubmit={handleSubmit}
+          >
+            {({ values, errors, touched, handleChange, setFieldValue, isSubmitting }) => (
+              <Form>
+                <Card className="border border-gray-200 shadow-lg">
+                  <CardContent>
+                    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+                      <div className="flex justify-center lg:justify-start flex-shrink-0">
+                        <div className="relative">
+                          <div className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-lg overflow-hidden relative">
+                            <img src={imageUrl} alt="Profile" className="w-full h-full object-cover" />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              ref={fileInputRef}
+                              onChange={e => handleImageChange(e)}
+                              className="hidden"
+                            />
+                            <div
+                              className="absolute bottom-0 right-0 bg-white p-1.5 rounded-tl-lg rounded-br-lg cursor-pointer hover:bg-gray-50 transition-colors shadow-sm"
+                              onClick={handleEditClick}
+                            >
+                              <Icon name="EditPencil" size={16} />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                          <div className="space-y-4 sm:space-y-6">
+                            <div className="space-y-2">
+                              <Label htmlFor="sellerName">Seller Name</Label>
+                              <Field
+                                as={Input}
+                                id="sellerName"
+                                name="sellerName"
+                                placeholder="Enter company name"
+                                value={values.sellerName}
+                                onChange={handleChange}
+                              />
+                              {touched.sellerName && errors.sellerName && (
+                                <div className="text-red-500 text-sm">{errors.sellerName}</div>
+                              )}
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="email">Email</Label>
+                              <Field
+                                as={Input}
+                                id="email"
+                                name="email"
+                                type="email"
+                                placeholder="Enter email address"
+                                value={values.email}
+                                onChange={handleChange}
+                              />
+                              {touched.email && errors.email && (
+                                <div className="text-red-500 text-sm">{errors.email}</div>
+                              )}
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="address">Address</Label>
+                              <Field
+                                as={Input}
+                                id="address"
+                                name="address"
+                                placeholder="Enter address"
+                                value={values.address}
+                                onChange={handleChange}
+                              />
+                              {touched.address && errors.address && (
+                                <div className="text-red-500 text-sm">{errors.address}</div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="space-y-4 sm:space-y-6">
+                            <div className="space-y-2">
+                              <Label htmlFor="mobile">Seller Mobile</Label>
+                              <Field
+                                as={Input}
+                                id="mobile"
+                                name="mobile"
+                                placeholder="Enter mobile number"
+                                value={values.mobile}
+                                onChange={handleChange}
+                              />
+                              {touched.mobile && errors.mobile && (
+                                <div className="text-red-500 text-sm">{errors.mobile}</div>
+                              )}
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="gst">GST Number</Label>
+                              <Field
+                                as={Input}
+                                id="gst"
+                                name="gst"
+                                placeholder="Enter GST number"
+                                value={values.gst}
+                                onChange={handleChange}
+                              />
+                              {touched.gst && errors.gst && (
+                                <div className="text-red-500 text-sm">{errors.gst}</div>
+                              )}
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="city">City</Label>
+                              <Field
+                                as={Input}
+                                id="city"
+                                name="city"
+                                placeholder="Enter city"
+                                value={values.city}
+                                onChange={handleChange}
+                              />
+                              {touched.city && errors.city && (
+                                <div className="text-red-500 text-sm">{errors.city}</div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="space-y-4 sm:space-y-6 sm:col-span-2 lg:col-span-1">
+                            <div className="space-y-2">
+                              <Label htmlFor="ownerName">Owner Name</Label>
+                              <Field
+                                as={Input}
+                                id="ownerName"
+                                name="ownerName"
+                                placeholder="Enter owner name"
+                                value={values.ownerName}
+                                onChange={handleChange}
+                              />
+                              {touched.ownerName && errors.ownerName && (
+                                <div className="text-red-500 text-sm">{errors.ownerName}</div>
+                              )}
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="status">Status</Label>
+                              <Select
+                                name="status"
+                                placeholder="Select status"
+                                value={values.status}
+                                onChange={e => setFieldValue('status', e.target.value)}
+                              />
+                              {touched.status && errors.status && (
+                                <div className="text-red-500 text-sm">{errors.status}</div>
+                              )}
+                            </div>
+                            <div className="mt-12 text-right">
+                              <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="px-6 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition disabled:opacity-50"
+                              >
+                                {isSubmitting ? 'Updating...' : 'Update Profile'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* Form Fields Section - Responsive Grid */}
-                <div className="flex-1">
-                  {/* Mobile: Single column, Tablet: 2 columns, Desktop: 3 columns */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                    {/* Column 1 */}
-                    <div className="space-y-4 sm:space-y-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="seller-name">Seller Name</Label>
-                        <Input
-                          id="seller-name"
-                          placeholder="Enter company name"
-                          value={formData.sellerName}
-                          onChange={e => handleInputChange('sellerName', e.target.value)}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email Name</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="Enter email address"
-                          value={formData.email}
-                          onChange={e => handleInputChange('email', e.target.value)}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="address">Address</Label>
-                        <Input
-                          id="address"
-                          placeholder="Enter address"
-                          value={formData.address}
-                          onChange={e => handleInputChange('address', e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Column 2 */}
-                    <div className="space-y-4 sm:space-y-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="mobile">Seller Mobile</Label>
-                        <Input
-                          id="mobile"
-                          placeholder="Enter mobile number"
-                          value={formData.mobile}
-                          onChange={e => handleInputChange('mobile', e.target.value)}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="gst">GST Number</Label>
-                        <Input
-                          id="gst"
-                          placeholder="Enter GST number"
-                          value={formData.gst}
-                          onChange={e => handleInputChange('gst', e.target.value)}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="city">City</Label>
-                        <Input
-                          id="city"
-                          placeholder="Enter city"
-                          value={formData.city}
-                          onChange={e => handleInputChange('city', e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Column 3 - On mobile, this will stack below the first two columns */}
-                    <div className="space-y-4 sm:space-y-6 sm:col-span-2 lg:col-span-1">
-                      <div className="space-y-2">
-                        <Label htmlFor="owner-name">Owner Name</Label>
-                        <Input
-                          id="owner-name"
-                          placeholder="Enter owner name"
-                          value={formData.ownerName}
-                          onChange={e => handleInputChange('ownerName', e.target.value)}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
-                        <Select
-                          placeholder="Select status"
-                          value={formData.status}
-                          onChange={value => handleInputChange('status', value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                  </CardContent>
+                </Card>
+              </Form>
+            )}
+          </Formik>
         </div>
       </div>
     </div>
