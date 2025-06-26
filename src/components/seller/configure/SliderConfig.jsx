@@ -59,6 +59,7 @@ const SliderConfig = () => {
   const fileInputRef = useRef();
 
   const saveImages = async (images) => {
+    console.log('Slider images:', images);
     return new Promise((resolve) => {
       setTimeout(() => resolve({ status: 200 }), 1000);
     });
@@ -93,12 +94,13 @@ const SliderConfig = () => {
         onSubmit={async (values, { setSubmitting }) => {
           try {
             const res = await saveImages(values.images);
+            console.log('saveImages response:', values);
             if (res.status === 200) {
               toast.success('Slider images saved successfully!');
             } else {
               toast.error('Failed to save images.');
             }
-          } catch (err) {
+          } catch {
             toast.error('Something went wrong. Please try again.');
           } finally {
             setSubmitting(false);
@@ -110,7 +112,7 @@ const SliderConfig = () => {
             {/* Drag-and-Drop Area */}
             <div
               className={`border-2 border-dashed rounded-lg p-6 mb-6 text-center ${
-                isDraggingOver ? 'border-[#6F4E37] bg-[#6F4E37]/10' : 'border-gray-300'
+                isDraggingOver ? 'border-[#6F4E37] bg-[#312ee2]/10' : 'border-[#6F4E37] bg-white'
               } transition-all duration-300`}
               onDragOver={(e) => {
                 e.preventDefault();

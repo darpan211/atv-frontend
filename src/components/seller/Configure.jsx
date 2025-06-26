@@ -2,36 +2,10 @@ import React, { useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { Menu, X, Image, LayoutGrid, Contact } from 'lucide-react';
 import SliderConfig from './configure/SliderConfig';
-
-const TilesConfig = () => (
-  <div className="p-6">
-    <h2 className="text-2xl font-bold text-black mb-4">Tile Images</h2>
-    <p className="text-gray-600">Configure seller tile images here (placeholder).</p>
-    <div className="text-right mt-6">
-      <button
-        type="button"
-        className="px-6 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition"
-      >
-        Save Tiles
-      </button>
-    </div>
-  </div>
-);
-
-const ContactConfig = () => (
-  <div className="p-6">
-    <h2 className="text-2xl font-bold text-black mb-4">Contact Information</h2>
-    <p className="text-gray-600">Configure contact details here (placeholder).</p>
-    <div className="text-right mt-6">
-      <button
-        type="button"
-        className="px-6 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition"
-      >
-        Save Contact Info
-      </button>
-    </div>
-  </div>
-);
+import TilesPlaceConfig from './configure/TilesPlaceConfig';
+import FeaturedImage from './configure/FeaturedImage';
+import ContactConfig from './configure/ContactConfig';
+import ProductFeaturesConfig from './configure/TilesInfoConfig';
 
 const Configure = () => {
   const [activeTab, setActiveTab] = useState('slider');
@@ -39,13 +13,15 @@ const Configure = () => {
 
   const tabs = [
     { id: 'slider', label: 'Slider Images', icon: Image, component: <SliderConfig /> },
-    { id: 'tiles', label: 'Tile Images', icon: LayoutGrid, component: <TilesConfig /> },
+    { id: 'tiles', label: 'Tiles Places ', icon: LayoutGrid, component: <TilesPlaceConfig /> },
+    { id: 'featuredImage', label: 'Featured Images', icon: LayoutGrid, component: <FeaturedImage /> },
+    { id: 'ProductfeaturesImage', label: 'Product Features Images', icon: LayoutGrid, component: <ProductFeaturesConfig/> },
     { id: 'contact', label: 'Contact Info', icon: Contact, component: <ContactConfig /> },
   ];
 
   return (
-    <div className="relative min-h-screen">
-      <div className="absolute top-0 left-0 w-full h-1/3 sm:h-1/2 bg-[#6F4E37] z-0"></div>
+    <div className="relative  bg-[#FFF5EE] h-full">
+      {/* <div className="absolute top-0 left-0 w-full h-1/3 sm:h-1/2 bg-[#6F4E37] z-0"></div> */}
       <div className="absolute top-1/3 left-0 w-full h-2/3 sm:h-1/2 #6F4E37 z-0"></div>
 
       {/* Mobile Header */}
@@ -58,10 +34,10 @@ const Configure = () => {
         </button>
       </div>
 
-      <div className="relative flex min-h-screen">
+      <div className="relative flex h-full bg-white">
         {/* Sidebar */}
         <div
-          className={`sidebar fixed sm:static inset-y-0 left-0 w-64 bg-[#FFF5EE] border-r border-gray-200 transform ${
+          className={`sidebar fixed sm:h-[calc(100vh-4rem)] sm:z-10 sm:mt-[4em] inset-y-0 left-0 w-64 bg-[#FFF5EE] border-r border-gray-200 transform ${
             isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } sm:translate-x-0 transition-transform duration-300 z-50 animate-slide-in`}
         >
@@ -98,7 +74,7 @@ const Configure = () => {
         )}
 
         {/* Main Content */}
-        <div className="flex-1 p-4">
+        <div className="flex-1 p-4 bg-white">
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-lg border border-gray-200 shadow-lg animate-fade-in">
               {tabs.find((tab) => tab.id === activeTab)?.component}
