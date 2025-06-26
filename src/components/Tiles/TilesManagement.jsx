@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import Sidebar from './TilesSidebar';
 import Header from './TilesHeader';
-import { fetchTiles, updateTile, deleteTile } from '@/redux/slice/tiles/tileThunks';
+import { fetchTiles, updateTile, deleteTile, getfilteredtiles } from '@/redux/slice/tiles/tileThunks';
 import { toast } from 'react-toastify';
 import { fetchColors } from '@/redux/slice/colors/colorThunks';
 import { fetchFinishes } from '@/redux/slice/finish/finishThunks';
@@ -82,6 +82,7 @@ const TileManagement = () => {
     dispatch(fetchMaterials());
     dispatch(fetchCategories());
     dispatch(fetchSuitablePlaces());
+    dispatch(getfilteredtiles())
   }, [dispatch]);
 
   const filterOptions = {
