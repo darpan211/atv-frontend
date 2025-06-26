@@ -57,7 +57,7 @@ import { useDispatch } from 'react-redux';
 import { fetchSidebarFilters } from './redux/slice/sidebarfilter/filterThunks';
 import { fetchCategories } from './redux/slice/categories/categoryThunks';
 import TileManagement from './components/Tiles/TilesManagement';
-import Configure from './components/seller/Configure';
+import Configure from './components/seller/MultiStepConfigure';
 
 // ================== App Routes ==================
 const App = () => {
