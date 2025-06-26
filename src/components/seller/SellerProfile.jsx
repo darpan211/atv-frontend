@@ -138,7 +138,7 @@ export default function SellerProfile() {
   useEffect(() => {
     const fetchSellerData = async () => {
       try {
-        const res = await axiosHandler.get(`${BASE_URL}/api/v1/auth/getUserById/${user.id}`);
+        const res = await axiosHandler.get(`${BASE_URL}/api/v1/profile/getprofile/${user.id}`);
         const data = res.data?.data;
         setFetchedData({
           sellerName: data.company_name || '',
@@ -196,6 +196,7 @@ export default function SellerProfile() {
           gst: values.gst,
           city: values.city,
         },
+        // profile_image: imageUrl,
       };
 
       const res = await axiosHandler.put(`${BASE_URL}/api/v1/auth/updateUser/${user.id}`, payload);
