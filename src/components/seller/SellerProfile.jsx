@@ -20,12 +20,19 @@ const CardContent = ({ children, className = '' }) => (
   <div className={`p-4 sm:p-6 lg:p-8 ${className}`}>{children}</div>
 );
 
-const Input = ({ className = '', ...props }) => (
-  <input
-    className={`flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6F4E37] focus:border-[#6F4E37] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
-    {...props}
-  />
-);
+const Input = ({ className = '', type, disabled, ...props }) => {
+  const isEmail = type === 'email';
+
+  return (
+    <input
+      type={type}
+      disabled={isEmail || disabled}
+      className={`flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6F4E37] focus:border-[#6F4E37] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      {...props}
+    />
+  );
+};
+
 
 const Label = ({ children, className = '', ...props }) => (
   <label className={`text-sm font-medium text-gray-700 ${className}`} {...props}>
@@ -40,8 +47,7 @@ const Select = ({ name, placeholder, value, onChange, className = '' }) => {
   const options = useMemo(() => [
     { value: 'active', label: 'Active' },
     { value: 'inactive', label: 'Inactive' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'suspended', label: 'Suspended' },
+
   ], []);
 
   useEffect(() => {
@@ -118,12 +124,12 @@ const validationSchema = Yup.object({
 
 export default function SellerProfile() {
   const [imageUrl, setImageUrl] = useState(
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&h=160&fit=crop&crop=face'
+    '/assests/Profileimage.png' 
   );
   const [fetchedData, setFetchedData] = useState(null);
   const fileInputRef = useRef();
   const { user } = useSelector(state => state.auth.user);
-
+  const [selectedFile, setSelectedFile] = useState(null);
   const initialValues = fetchedData || {
     sellerName: '',
     email: '',
@@ -140,6 +146,7 @@ export default function SellerProfile() {
       try {
         const res = await axiosHandler.get(`${BASE_URL}/api/v1/profile/getprofile/${user.id}`);
         const data = res.data?.data;
+     
         setFetchedData({
           sellerName: data.company_name || '',
           email: data.email || '',
@@ -149,7 +156,9 @@ export default function SellerProfile() {
           city: data.metadata?.city || '',
           ownerName: data.owner_name || '',
           status: data.status || '',
+
         });
+        setImageUrl(data.profile_image);
       } catch (err) {
         console.error('Error fetching seller data:', err.message);
         toast.error('Failed to fetch seller data.');
@@ -174,6 +183,7 @@ export default function SellerProfile() {
   const handleImageChange = e => {
     const file = e.target.files[0];
     if (file) {
+      setSelectedFile(file);
       const url = URL.createObjectURL(file);
       setImageUrl(url);
     }
@@ -185,24 +195,33 @@ export default function SellerProfile() {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const payload = {
-        company_name: values.sellerName,
-        email: values.email,
-        mobile: values.mobile,
-        owner_name: values.ownerName,
-        status: values.status,
-        metadata: {
-          address: values.address,
-          gst: values.gst,
-          city: values.city,
-        },
-        // profile_image: imageUrl,
-      };
+      const payload = new FormData();
+  
+      payload.append('company_name', values.sellerName);
+      // payload.append('email', values.email); // if needed
+      payload.append('mobile', values.mobile);
+      payload.append('owner_name', values.ownerName);
+      payload.append('status', values.status);
 
-      const res = await axiosHandler.put(`${BASE_URL}/api/v1/auth/updateUser/${user.id}`, payload);
+      payload.append('address', values.address);
+      payload.append('gst', values.gst);
+      payload.append('city', values.city);
+      if (selectedFile) {
+        payload.append('profile_image', selectedFile);
+      }
+
+      const res = await axiosHandler.put(`${BASE_URL}/api/v1/profile/updateprofile/${user.id}`, payload, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
 
       if (res.status === 200) {
+       
+        // alert('Profile updated successfully!');
         toast.success('Profile updated successfully!');
+        window.location.reload(); // Reload to fetch updated data
       } else {
         toast.error('Failed to update profile.');
       }
@@ -242,6 +261,7 @@ export default function SellerProfile() {
                         <div className="relative">
                           <div className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-lg overflow-hidden relative">
                             <img src={imageUrl} alt="Profile" className="w-full h-full object-cover" />
+
                             <input
                               type="file"
                               accept="image/*"
@@ -276,9 +296,10 @@ export default function SellerProfile() {
                                 <div className="text-red-500 text-sm">{errors.sellerName}</div>
                               )}
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-2" >
                               <Label htmlFor="email">Email</Label>
                               <Field
+
                                 as={Input}
                                 id="email"
                                 name="email"
@@ -286,6 +307,7 @@ export default function SellerProfile() {
                                 placeholder="Enter email address"
                                 value={values.email}
                                 onChange={handleChange}
+
                               />
                               {touched.email && errors.email && (
                                 <div className="text-red-500 text-sm">{errors.email}</div>

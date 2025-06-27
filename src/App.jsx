@@ -91,7 +91,8 @@ const App = () => {
           path="/"
           element={
             <AppLayout>
-              <LoginPage />
+              {/* <LoginPage /> */}
+              <Dashboard/>
             </AppLayout>
           }
         />
@@ -102,10 +103,9 @@ const App = () => {
               <LoginPage />
             </AppLayout>
           }
-        />
-
-        {/* Admin Dashboard */}
-        <Route
+          />
+          {/* Admin Dashboard */}
+   <Route
           path="/admin/dashboard"
           element={
             <AppLayout>
@@ -113,7 +113,6 @@ const App = () => {
             </AppLayout>
           }
         />
-
         <Route
           path="/seller/dashboard"
           element={

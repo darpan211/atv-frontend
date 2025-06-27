@@ -1,17 +1,38 @@
-import React, { useState } from 'react';
-import { LogOut, Menu } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { LogOut, Menu, User, User2Icon } from 'lucide-react';
 import { Icon } from './icons';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import NavItem from './NavItem';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '@/redux/slice/auth/authSlice';
 import LogOutConfirmationModal from './LogOutConfirmationModal';
 
+import axiosHandler from '@/services/axiosHandler';
+import { Logout } from './icons/svgs/Logout';
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const SellerHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLogOut, setIslogOut] = useState(false);
+  const [fetchedData, setFetchedData] = useState({
+   sellerName:"",
+   sellerEmail:"",
+   sellerimage:""
+  });
+ const [desktopDropdownOpen, setDesktopDropdownOpen] = useState(false);
+const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
+
+   
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  
+  const { user } = useSelector(state => state.auth.user);
+
+const [dropdownOpen, setDropdownOpen] = useState(false);
+const dropdownRef = useRef(null);
+const mobileDropdownRef = useRef(null);
+
+const avatarRef = useRef(null);
 
   const handleLogout = () => {
     setIslogOut(true);
@@ -49,13 +70,61 @@ const SellerHeader = () => {
       withDropdown: false,
       onClick: () => navigate('/seller/configure'),
     },
-    {
-      label: 'Company Profile',
-      withDropdown: false,
-      onClick: () => navigate('/seller/profile'),
-    },
+   
+     
   ];
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(event.target) &&
+      avatarRef.current &&
+      !avatarRef.current.contains(event.target)
+    ) {
+      setDesktopDropdownOpen(false);
+    }
 
+    if (
+      mobileDropdownRef.current &&
+      !mobileDropdownRef.current.contains(event.target) &&
+      avatarRef.current &&
+      !avatarRef.current.contains(event.target)
+    ) {
+      setMobileDropdownOpen(false);
+    }
+  };
+
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, []);
+
+  useEffect(() => {
+    const fetchSellerData = async () => {
+      try {
+        const res = await axiosHandler.get(`${BASE_URL}/api/v1/profile/getprofile/${user.id}`);
+        const data = res.data?.data;
+        
+    setFetchedData({
+        sellerName: data.owner_name || '',
+        sellerEmail: data.email || '',
+        sellerimage: data.profile_image || ''
+    })
+       
+       
+      } catch (err) {
+        console.error('Error fetching seller data:', err.message);
+        toast.error('Failed to fetch seller data.');
+     
+      }
+    };
+
+    if (user?.id) {
+      fetchSellerData();
+    }
+  }, [user]);
+  
   return (
     <header className="bg-[#6C4A34] text-white px-4 md:px-6 py-3 flex justify-between items-center shadow sticky top-0 z-50">
       {/* Logo */}
@@ -88,14 +157,57 @@ const SellerHeader = () => {
         <Menu className="w-6 h-6" />
       </button>
 
-      {/* Desktop Logout Button */}
+    
+      
+<img
+  ref={avatarRef}
+  onClick={() => setDesktopDropdownOpen(prev => !prev)}
+  className="w-10 h-10  rounded-full cursor-pointer hidden lg:block"
+  src={fetchedData.sellerimage}
+  alt="User dropdown"
+/>
+
+{desktopDropdownOpen && (
+  <div
+    ref={dropdownRef}
+    className="absolute  right-4 top-14 z-50 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44"
+  >
+    <div className=" py-3 px-6 font-bold text-sm text-gray-900 ml-4 flex items-center ">
+      
+      <div>{fetchedData.sellerName||""}</div>
+    </div>
+    <ul className="py-2 text-sm text-gray-700">
+      <li>
+        <Link
+          to="/seller/profile"
+          onClick={() => setDropdownOpen(false)}
+          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+        >
+       <User/>
+       <span>Profile</span> 
+        </Link>
+      </li>
+      
+    </ul>
+    <div className=" p-4S flex items-center gap-[-20px]">
+      
       <button
-        onClick={handleLogout}
-        className="hidden cursor-pointer lg:flex items-center space-x-2 bg-white text-black px-3 py-2 rounded-md font-medium hover:bg-gray-100 transition"
+        onClick={() => {
+          setDropdownOpen(false);
+          handleLogout();
+        }}
+        className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 "
       >
-        <LogOut className="w-4 h-4" />
-        <span className="text-sm">Logout</span>
+        <Logout className={"  pl-1.5"}/>Sign out
+        
       </button>
+      
+    </div>
+  </div>
+)}
+
+
+
 
       {/* Mobile Dropdown Menu */}
       {menuOpen && (
@@ -113,16 +225,51 @@ const SellerHeader = () => {
               enableDynamicNested={true}
             />
           ))}
-          <button
-            onClick={() => {
-              handleLogout();
-              setMenuOpen(false);
-            }}
-            className="w-[150px] flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-md font-medium hover:bg-gray-100"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Logout</span>
-          </button>
+         <div className="relative flex justify-start">
+  <img
+    ref={avatarRef}
+    onClick={() => setMobileDropdownOpen(prev => !prev)}
+    className="w-10 h-10 rounded-full cursor-pointer border border-white"
+    src={fetchedData.sellerimage}
+    alt="User dropdown"
+  />
+
+  {mobileDropdownOpen && (
+    <div
+      ref={mobileDropdownRef}
+      className="absolute left-0 top-8 mt-2 w-44 bg-white rounded-lg shadow divide-y divide-gray-100 text-gray-700 z-50"
+    >
+      <div className="px-4 py-3 text-sm">
+        <div className="font-medium text-gray-900">{fetchedData.sellerName || ''}</div>
+      </div>
+      <ul className="py-1 text-sm">
+        <li>
+          <Link
+          to="/seller/profile"
+          onClick={() => setDropdownOpen(false)}
+          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
+        >
+       <User/>
+       <span>Profile</span> 
+        </Link>
+        </li>
+      </ul>
+      <div className="py-1">
+         <button
+        onClick={() => {
+          setDropdownOpen(false);
+          handleLogout();
+        }}
+        className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 "
+      >
+        <Logout className={"  pl-1.5"}/>Sign out
+        
+      </button>
+      </div>
+    </div>
+  )}
+</div>
+
         </div>
       )}
       {isLogOut && (

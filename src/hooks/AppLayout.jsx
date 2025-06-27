@@ -22,7 +22,7 @@ const AppLayout = ({ children }) => {
 
   useEffect(() => {
     // Redirect if no token
-    if (!authToken) {
+    if (!authToken && !isLoginPage) {
       navigate('/', { replace: true });
     }
 
@@ -33,16 +33,16 @@ const AppLayout = ({ children }) => {
   }, [authToken, navigate, isAdminRoute, userRole]);
 
   const renderHeader = () => {
-    if (isLoginPage) return null;
+    // if (isLoginPage) return null;
 
-    switch (userRole) {
-      case 'admin':
-        return <AdminHeader />;
-      case 'seller':
-        return <SellerHeader />;
-      default:
-        return <Header />;
-    }
+   
+  if (userRole === 'admin') return <AdminHeader />;
+  if (userRole === 'seller') return <SellerHeader />;
+
+  // show default Header ONLY on "/"
+  if (location.pathname === '/') return <Header />;
+
+  return null;
   };
 
   return (
