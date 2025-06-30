@@ -55,7 +55,7 @@ const Tile = ({ tile, index, moveTile, handleRemove }) => {
   );
 };
 
-const TilesPlaceConfig = () => {
+const TilesPlaceConfig = ({ onDataChange, initialData }) => {
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -64,8 +64,9 @@ const TilesPlaceConfig = () => {
   const [editName, setEditName] = useState('');
   const [tileUrls, setTileUrls] = useState({}); // Track URLs for cleanup
   const fileInputRef = useRef(null);
+  const [formValues, setFormValues] = useState(initialData?.images || [])
 
-  // Mock API call to save tiles
+
   const saveTiles = async (tiles) => {
     console.log('tiles places images', tiles);
     return new Promise((resolve) => {
@@ -216,6 +217,8 @@ const TilesPlaceConfig = () => {
             const res = await saveTiles(values.tiles);
             if (res.status === 200) {
               toast.success('Tile images saved successfully!');
+              onDataChange?.(values);
+              setFormValues(values.tiles);
             } else {
               toast.error('Failed to save tiles.');
             }
@@ -226,7 +229,7 @@ const TilesPlaceConfig = () => {
           }
         }}
       >
-        {({ values, setFieldValue, isSubmitting, errors, touched }) => (
+        {({ values, setFieldValue, isSubmitting, errors, touched, isValid, dirty }) => (
           <Form>
             {/* Tabs and Add Tab */}
             <div className="mb-6 flex flex-wrap items-center space-x-2 sm:space-x-4 border-b border-gray-200">
@@ -256,10 +259,10 @@ const TilesPlaceConfig = () => {
                         setEditingTab(tab);
                         setEditName(tab);
                       }}
-                      className={`pb-2 px-4 text-sm font-medium transition-colors ${
+                      className={`p-2 text-sm font-medium rounded-lg transition-colors ${
                         activeTab === tab
-                          ? 'text-white bg-[#6F4E37] rounded-t-md'
-                          : 'text-gray-600 hover:text-[#6F4E37]'
+                          ? 'text-white bg-[#6F4E37] rounded-lg'
+                          : 'text-gray-600 hover:text-[#6F4E37] border border-[#6F4E37]'
                       }`}
                     >
                       {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -270,7 +273,7 @@ const TilesPlaceConfig = () => {
                       <button
                         type="button"
                         onClick={() => handleRemoveTab(tab, setFieldValue)}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 hidden group-hover:block p-0.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition"
+                        className="absolute right-1 top-[-15px] -translate-y-1/2 hidden group-hover:block p-0.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -280,7 +283,7 @@ const TilesPlaceConfig = () => {
                           setEditingTab(tab);
                           setEditName(tab);
                         }}
-                        className="absolute right-6 top-1/2 -translate-y-1/2 hidden group-hover:block p-0.5 bg-[#6F4E37] text-white rounded-full hover:bg-[#5c3f2c] transition"
+                        className="absolute right-6 top-[-8px] -translate-y-1/2 hidden group-hover:block p-0.5 bg-[#6F4E37] text-white rounded-full hover:bg-[#5c3f2c] transition"
                       >
                         <Edit2 className="w-3 h-3" />
                       </button>
@@ -378,7 +381,7 @@ const TilesPlaceConfig = () => {
             <div className="text-right mt-4">
               <button
                 type="submit"
-                disabled={isSubmitting || !activeTab}
+                disabled={isSubmitting || !activeTab || !isValid || !dirty}
                 className="px-4 sm:px-6 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition disabled:opacity-50 text-sm sm:text-base"
               >
                 {isSubmitting ? 'Saving...' : 'Save Tiles'}

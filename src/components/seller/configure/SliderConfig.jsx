@@ -10,6 +10,7 @@ const validationSchema = Yup.object({
   images: Yup.array()
     .of(Yup.string().required("Image is required"))
     .min(3, "At least 3 images are required")
+    .max(10, "A maximum of 10 images is allowed")
     .required("Images are required"),
 })
 
@@ -52,18 +53,12 @@ const Thumbnail = ({ image, index, moveImage, handleRemove }) => {
   )
 }
 
-const EnhancedSliderConfig = ({ onDataChange, initialData }) => {
+const SliderConfig = ({ onDataChange, initialData }) => {
   const [isDraggingOver, setIsDraggingOver] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
   const [animationDirection, setAnimationDirection] = useState(null)
   const fileInputRef = useRef()
   const [formValues, setFormValues] = useState(initialData?.images || [])
-
-  useEffect(() => {
-    if (formValues.length > 0) {
-      onDataChange?.({ images: formValues })
-    }
-  }, [formValues, onDataChange])
 
   const saveImages = async (images) => {
     console.log("Slider images:", images)
@@ -114,7 +109,7 @@ const EnhancedSliderConfig = ({ onDataChange, initialData }) => {
           }
         }}
       >
-        {({ values, setFieldValue, isSubmitting, errors, touched }) => {
+        {({ values, setFieldValue, isSubmitting, errors, touched, isValid, dirty }) => {
           return (
             <Form>
               {/* Drag-and-Drop Area */}
@@ -222,7 +217,7 @@ const EnhancedSliderConfig = ({ onDataChange, initialData }) => {
               <div className="text-right">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !isValid || !dirty}
                   className="flex items-center px-6 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition disabled:opacity-50"
                 >
                   <Save className="w-4 h-4 mr-2" />
@@ -237,4 +232,4 @@ const EnhancedSliderConfig = ({ onDataChange, initialData }) => {
   )
 }
 
-export default EnhancedSliderConfig
+export default SliderConfig
