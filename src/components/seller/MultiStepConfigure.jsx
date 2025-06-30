@@ -1,6 +1,4 @@
-"use client"
-
-import React, { useState, useCallback } from "react"
+import React, { useState, useCallback, useMemo } from "react"
 import { ToastContainer, toast } from "react-toastify"
 import {
   ChevronLeft,
@@ -18,8 +16,9 @@ import TilesPlaceConfig from "./configure/TilesPlaceConfig"
 import FeaturedImage from "./configure/FeaturedImage"
 import ContactConfig from "./configure/ContactConfig"
 import TilesInfoConfig from "./configure/TilesInfoConfig"
-// import TilesInfoConfig from ".configure/TilesInfoConfig"
-TilesInfoConfig
+import axiosHandler from "@/services/axiosHandler"
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const MultiStepConfigure = () => {
   const [currentStep, setCurrentStep] = useState(0)
@@ -28,12 +27,12 @@ const MultiStepConfigure = () => {
     slider: null,
     tiles: null,
     featured: null,
-    productFeatures: null,
+    tilesInfo: null,
     contact: null,
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const steps = [
+  const steps = useMemo(() => [
     {
       id: "slider",
       title: "Slider Images",
@@ -56,9 +55,9 @@ const MultiStepConfigure = () => {
       component: FeaturedImage,
     },
     {
-      id: "productFeatures",
-      title: "Product Features",
-      description: "Configure product features and images",
+      id: "tilesInfo",
+      title: "Tiles Information",
+      description: "Configure tiles features and images",
       icon: FileText,
       component: TilesInfoConfig,
     },
@@ -69,46 +68,127 @@ const MultiStepConfigure = () => {
       icon: Contact,
       component: ContactConfig,
     },
-  ]
+  ], [])
 
   const handleStepData = useCallback(
     (stepId, data) => {
-      setFormData((prev) => ({
-        ...prev,
-        [stepId]: data,
-      }))
-      setCompletedSteps((prev) => new Set([...prev, currentStep]))
+      if (data) {
+        setFormData((prev) => ({
+          ...prev,
+          [stepId]: data,
+        }))
+        setCompletedSteps((prev) => {
+          const newSet = new Set(prev)
+          const stepIndex = steps.findIndex((s) => s.id === stepId)
+          newSet.add(stepIndex)
+          return newSet
+        })
+      }
     },
-    [currentStep],
+    [steps]
   )
 
-  const handleNext = () => {
-    if (currentStep < steps.length) {
+  const handleNext = useCallback(() => {
+    const currentStepId = steps[currentStep].id
+    if (currentStep < steps.length && formData[currentStepId] && completedSteps.has(currentStep)) {
       setCurrentStep((prev) => prev + 1)
+    } else {
+      toast.error("Please save the current step before proceeding")
     }
-  }
+  }, [currentStep, formData, completedSteps, steps])
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     if (currentStep > 0) {
       setCurrentStep((prev) => prev - 1)
     }
-  }
+  }, [currentStep])
 
-  const handleStepClick = (stepIndex) => {
-    setCurrentStep(stepIndex)
-  }
+  const handleStepClick = useCallback(
+    (stepIndex) => {
+      if (isStepAccessible(stepIndex)) {
+        setCurrentStep(stepIndex)
+      }
+    },
+    [completedSteps]
+  )
 
   const handleFinalSubmit = async () => {
+    if (completedSteps.size < steps.length) {
+      toast.error("Please complete all steps before submitting")
+      return
+    }
+
     setIsSubmitting(true)
     try {
-      // Simulate API call with all form data
-      console.log("Final submission data:", formData)
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const formDataToSend = new FormData()
 
-      toast.success("Configuration saved successfully!")
-      // Reset form or redirect as needed
+      // Contact info
+      if (formData.contact) {
+        formDataToSend.append("name", formData.contact.name)
+        formDataToSend.append("email", formData.contact.email)
+        formDataToSend.append("phone", formData.contact.phone)
+        formDataToSend.append("address", formData.contact.address)
+        formDataToSend.append("website", formData.contact.website)
+        formDataToSend.append("socialMediaURL", formData.contact.socialMedia)
+      }
+
+      // Tiles info
+      if (formData.tilesInfo) {
+        formDataToSend.append("title", formData.tilesInfo.title)
+        formDataToSend.append("description", formData.tilesInfo.description)
+        formDataToSend.append("features", JSON.stringify(formData.tilesInfo.features))
+
+        // Tiles images
+        for (let i = 0; i < formData.tilesInfo.tiles.length; i++) {
+          const tile = formData.tilesInfo.tiles[i];
+          if (tile.file) {
+            formDataToSend.append("tiles", tile.file, `tile${i}.jpg`);
+          }
+        }
+      }
+
+      // Slider images
+      if (formData.slider && formData.slider.images) {
+        for (let i = 0; i < formData.slider.images.length; i++) {
+          const img = formData.slider.images[i];
+          if (img.file) {
+            formDataToSend.append("slider_image", img.file, `slider_image${i}.jpg`);
+          }
+        }
+      }
+
+      // Tiles (combine tab1 and tab2 into tiles)
+      if (formData.tiles) {
+        const allTiles = [...(formData.tiles.tab1 || []), ...(formData.tiles.tab2 || [])]
+        for (let i = 0; i < allTiles.length; i++) {
+          const blob = await fetch(allTiles[i]).then((res) => res.blob())
+          formDataToSend.append("tiles", blob, `tile${i}.jpg`)
+        }
+      }
+
+      // Featured images (assuming featured is an array of { name, image, description })
+      if (formData.featured && Array.isArray(formData.featured)) {
+        for (let i = 0; i < formData.featured.length; i++) {
+          const feature = formData.featured[i]
+          if (feature.image && feature.name && feature.description) {
+            const blob = await fetch(feature.image).then((res) => res.blob())
+            formDataToSend.append(`image${i + 1}`, blob, `feature${i + 1}.jpg`)
+            formDataToSend.append(`name${i + 1}`, feature.name)
+            formDataToSend.append(`description${i + 1}`, feature.description)
+          }
+        }
+      }
+
+      const response = await axiosHandler.post(`${BASE_URL}/api/v1/configure/addslider`, formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+
+      toast.success(response.data.message || "Configuration saved successfully!")
     } catch (error) {
-      toast.error("Failed to save configuration. Please try again.")
+      console.error("Submission Error:", error)
+      toast.error(error.response?.data?.message || "Failed to save configuration. Please try again.")
     } finally {
       setIsSubmitting(false)
     }
@@ -116,11 +196,13 @@ const MultiStepConfigure = () => {
 
   const isStepCompleted = (stepIndex) => completedSteps.has(stepIndex)
   const isCurrentStep = (stepIndex) => currentStep === stepIndex
-  const isStepAccessible = (stepIndex) => stepIndex <= currentStep
+  const isStepAccessible = (stepIndex) => {
+    if (stepIndex === 0) return true
+    return completedSteps.has(stepIndex - 1)
+  }
 
-  const progressPercentage = (completedSteps.size / steps.length) * 100
+  const progressPercentage = (completedSteps.size / (steps.length + 1)) * 100
 
-  // Final Review Step
   const FinalReview = () => (
     <div className="p-6 bg-[#FFF5EE] min-h-screen">
       <div className="max-w-4xl mx-auto">
@@ -172,7 +254,6 @@ const MultiStepConfigure = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header with Progress */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-4">
@@ -183,15 +264,13 @@ const MultiStepConfigure = () => {
               </div>
             </div>
 
-            {/* Progress Bar */}
             <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
               <div
                 className="bg-[#6F4E37] h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(currentStep / steps.length) * 100}%` }}
+                style={{ width: `${progressPercentage}%` }}
               />
             </div>
 
-            {/* Step Indicators */}
             <div className="flex items-center justify-between">
               {steps.map((step, index) => (
                 <button
@@ -219,7 +298,7 @@ const MultiStepConfigure = () => {
               ))}
               <button
                 onClick={() => setCurrentStep(steps.length)}
-                disabled={currentStep < steps.length}
+                disabled={completedSteps.size < steps.length}
                 className={`flex flex-col items-center p-2 rounded-lg transition-all ${
                   currentStep === steps.length
                     ? "bg-[#6F4E37] text-white"
@@ -234,7 +313,6 @@ const MultiStepConfigure = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {currentStep < steps.length ? (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -264,7 +342,6 @@ const MultiStepConfigure = () => {
         )}
       </div>
 
-      {/* Navigation Footer */}
       {currentStep < steps.length && (
         <div className="bg-white border-t border-gray-200 sticky bottom-0">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -286,7 +363,8 @@ const MultiStepConfigure = () => {
 
               <button
                 onClick={handleNext}
-                className="flex items-center px-6 py-2 bg-[#6F4E37] text-white rounded-lg hover:bg-[#5c3f2c] transition"
+                disabled={!formData[steps[currentStep].id] || !completedSteps.has(currentStep)}
+                className="flex items-center px-6 py-2 bg-[#6F4E37] text-white rounded-lg hover:bg-[#5c3f2c] transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {currentStep === steps.length - 1 ? "Review" : "Next"}
                 <ChevronRight className="w-4 h-4 ml-1" />

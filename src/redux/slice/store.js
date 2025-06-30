@@ -15,6 +15,7 @@ import finishReducer from './finish/finishSlice';
 import adminReducer from './admin/adminSlice';
 import roomsReducer from './room/roomSlice';
 import filterReducer from './sidebarfilter/filterSlice';
+import configReducer from './config/configSlice';
 
 const encryptor = encryptTransform({
   secretKey: import.meta.env.VITE_SECRET_KEY,
@@ -42,7 +43,8 @@ const rootReducer = combineReducers({
   admin: adminReducer,
   finish: finishReducer,
   rooms: roomsReducer,
-  filters: filterReducer
+  filters: filterReducer,
+  config: configReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

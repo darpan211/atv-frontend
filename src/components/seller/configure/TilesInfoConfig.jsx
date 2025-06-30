@@ -15,24 +15,20 @@ const validationSchema = Yup.object().shape({
     .min(1, 'At least one tile image is required'),
 });
 
-const TilesInfoConfig = () => {
-  const [tileImages, setTileImages] = useState(['']);
+const TilesInfoConfig = ({ onDataChange, initialData }) => {
+  const [tileImages, setTileImages] = useState(initialData?.tiles || ['']);
   const fileInputRefs = useRef([]);
 
-  // Initialize refs for the initial tile
   useEffect(() => {
     fileInputRefs.current = tileImages.map((_, i) => fileInputRefs.current[i] || React.createRef());
   }, [tileImages]);
 
-  // Mock API call to save product features
   const saveTilesInfo = async (data) => {
-    console.log('TilesInfo ', data);
     return new Promise((resolve) => {
       setTimeout(() => resolve({ status: 200 }), 1000);
     });
   };
 
-  // Handle image upload for a specific tile
   const handleImageUpload = (index, file, setFieldValue) => {
     if (file && file.type.startsWith('image/')) {
       const imageUrl = URL.createObjectURL(file);
@@ -91,13 +87,13 @@ const TilesInfoConfig = () => {
 
   return (
     <div className="p-4 sm:p-6 bg-[#FFF5EE] bg-grid-white-[0.2] min-h-screen">
-      <h2 className="text-xl sm:text-2xl font-bold text-black mb-4">Product Features Configuration</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-black mb-4">Tiles Information Configuration</h2>
       <Formik
         initialValues={{
-          title: '',
-          description: '',
-          features: [''],
-          tiles: [''],
+          title: initialData?.title || '',
+          description: initialData?.description || '',
+          features: initialData?.features || [''],
+          tiles: initialData?.tiles || [''],
         }}
         validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting }) => {
@@ -105,6 +101,8 @@ const TilesInfoConfig = () => {
             const res = await saveTilesInfo(values);
             if (res.status === 200) {
               toast.success('Product features saved successfully!');
+              onDataChange?.(values);
+              
             } else {
               toast.error('Failed to save product features.');
             }
@@ -115,7 +113,7 @@ const TilesInfoConfig = () => {
           }
         }}
       >
-        {({ values, setFieldValue, isSubmitting, errors, touched }) => (
+        {({ values, setFieldValue, isSubmitting, errors, touched, isValid, dirty }) => (
           <Form>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Left Side - Text Content */}
@@ -198,7 +196,7 @@ const TilesInfoConfig = () => {
                                 ? 'border-gray-300'
                                 : 'border-[#6F4E37] hover:border-[#5c3f2c]'
                             } transition-all duration-300 cursor-pointer`}
-                            onClick={() => fileInputRefs.current[index]?.current?.click()}
+                            onClick={() => fileInputRefs.current[index]?.click()}
                             onDrop={(e) => handleDrop(index, e, setFieldValue)}
                             onDragOver={handleDragOver}
                           >
@@ -229,7 +227,7 @@ const TilesInfoConfig = () => {
                             <input
                               type="file"
                               accept="image/*"
-                              ref={fileInputRefs.current[index]}
+                              ref={el => (fileInputRefs.current[index] = el)}
                               className="hidden"
                               onChange={(e) => handleFileInputChange(index, e, setFieldValue)}
                             />
@@ -259,10 +257,10 @@ const TilesInfoConfig = () => {
             <div className="text-right mt-4 sm:mt-6">
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isValid || !dirty}
                 className="px-4 sm:px-6 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition disabled:opacity-50 text-sm sm:text-base"
               >
-                {isSubmitting ? 'Saving...' : 'Save Product Features'}
+                {isSubmitting ? 'Saving...' : 'Save Step'}
               </button>
             </div>
           </Form>

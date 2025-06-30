@@ -4,7 +4,6 @@ import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import { Check } from 'lucide-react';
 
-// Yup validation schema
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Name is required').max(50, 'Name must be 50 characters or less'),
   email: Yup.string()
@@ -18,11 +17,9 @@ const validationSchema = Yup.object().shape({
   socialMedia: Yup.string().url('Invalid URL format').nullable(),
 });
 
-// ContactConfig Component
-const ContactConfig = () => {
-  // Mock API call to save contact info
+const ContactConfig = ({ onDataChange, initialData }) => {
   const saveContactInfo = async (contact) => {
-    console.log('Saving contact info:', contact);
+    console.log('Saving contact information:', contact);
     return new Promise((resolve) => {
       setTimeout(() => resolve({ status: 200 }), 1000);
     });
@@ -33,12 +30,12 @@ const ContactConfig = () => {
       <h2 className="text-2xl font-bold text-black mb-4">Contact Information Configuration</h2>
       <Formik
         initialValues={{
-          name: '',
-          email: '',
-          phone: '',
-          address: '',
-          website: '',
-          socialMedia: '',
+          name: initialData?.name || '',
+          email: initialData?.email || '',
+          phone: initialData?.phone || '',
+          address: initialData?.address || '',
+          website: initialData?.website || '',
+          socialMedia: initialData?.socialMedia || '',
         }}
         validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting }) => {
@@ -46,6 +43,7 @@ const ContactConfig = () => {
             const res = await saveContactInfo(values);
             if (res.status === 200) {
               toast.success('Contact information saved successfully!');
+              onDataChange?.(values); // <-- Only call after successful save
             } else {
               toast.error('Failed to save contact information.');
             }
@@ -56,7 +54,7 @@ const ContactConfig = () => {
           }
         }}
       >
-        {({ values, setFieldValue, isSubmitting, errors, touched }) => (
+        {({ values, setFieldValue, isSubmitting, errors, touched, isValid, dirty }) => (
           <Form>
             <div className="bg-white border border-gray-200 shadow-md rounded-lg p-6">
               {/* Name */}
@@ -141,10 +139,10 @@ const ContactConfig = () => {
               <div className="text-right">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !isValid || !dirty}
                   className="px-6 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Saving...' : 'Save Contact Info'}
+                  {isSubmitting ? 'Saving...' : 'Save Step'}
                 </button>
               </div>
             </div>
