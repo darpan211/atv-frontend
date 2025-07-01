@@ -11,12 +11,23 @@ const validationSchema = Yup.object().shape({
     .of(Yup.string().max(50, 'Feature must be 50 characters or less'))
     .min(1, 'At least one feature is required'),
   tiles: Yup.array()
-    .of(Yup.string().required('Image is required'))
+    .of(
+      Yup.object({
+        url: Yup.string().required('Image preview is required'),
+        file: Yup.mixed()
+          .required('Image file is required')
+          .test('fileType', 'Only image files are allowed', (value) => value && value.type && value.type.startsWith('image/')),
+      })
+    )
     .min(1, 'At least one tile image is required'),
 });
 
 const TilesInfoConfig = ({ onDataChange, initialData }) => {
-  const [tileImages, setTileImages] = useState(initialData?.tiles || ['']);
+  const [tileImages, setTileImages] = useState(
+    initialData?.tiles?.map((tile) =>
+      typeof tile === 'object' && tile.url ? tile : { url: tile || '', file: null }
+    ) || [{ url: '', file: null }]
+  );
   const fileInputRefs = useRef([]);
 
   useEffect(() => {
@@ -34,10 +45,10 @@ const TilesInfoConfig = ({ onDataChange, initialData }) => {
       const imageUrl = URL.createObjectURL(file);
       setTileImages((prev) => {
         const newImages = [...prev];
-        newImages[index] = imageUrl;
+        newImages[index] = { url: imageUrl, file };
         return newImages;
       });
-      setFieldValue(`tiles[${index}]`, imageUrl);
+      setFieldValue(`tiles[${index}]`, { url: imageUrl, file });
     } else {
       toast.error('Please select a valid image file (e.g., JPG, PNG)!');
     }
@@ -69,11 +80,11 @@ const TilesInfoConfig = ({ onDataChange, initialData }) => {
     if (window.confirm('Remove this image?')) {
       setTileImages((prev) => {
         const newImages = [...prev];
-        newImages[index] = '';
+        if (newImages[index]?.url) URL.revokeObjectURL(newImages[index].url);
+        newImages[index] = { url: '', file: null };
         return newImages;
       });
-      setFieldValue(`tiles[${index}]`, '');
-      URL.revokeObjectURL(tileImages[index]);
+      setFieldValue(`tiles[${index}]`, { url: '', file: null });
       remove(index);
     }
   };
@@ -81,7 +92,7 @@ const TilesInfoConfig = ({ onDataChange, initialData }) => {
   // Cleanup URLs on unmount
   useEffect(() => {
     return () => {
-      tileImages.forEach((url) => url && URL.revokeObjectURL(url));
+      tileImages.forEach((img) => img?.url && URL.revokeObjectURL(img.url));
     };
   }, [tileImages]);
 
@@ -93,7 +104,10 @@ const TilesInfoConfig = ({ onDataChange, initialData }) => {
           title: initialData?.title || '',
           description: initialData?.description || '',
           features: initialData?.features || [''],
-          tiles: initialData?.tiles || [''],
+          tiles:
+            initialData?.tiles?.map((tile) =>
+              typeof tile === 'object' && tile.url ? tile : { url: tile || '', file: null }
+            ) || [{ url: '', file: null }],
         }}
         validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting }) => {
@@ -102,7 +116,6 @@ const TilesInfoConfig = ({ onDataChange, initialData }) => {
             if (res.status === 200) {
               toast.success('Product features saved successfully!');
               onDataChange?.(values);
-              
             } else {
               toast.error('Failed to save product features.');
             }
@@ -192,7 +205,7 @@ const TilesInfoConfig = ({ onDataChange, initialData }) => {
                         <div key={index} className="mb-4 last:mb-0">
                           <div
                             className={`border-2 border-dashed rounded-lg p-4 text-center ${
-                              tileImages[index]
+                              tile.url
                                 ? 'border-gray-300'
                                 : 'border-[#6F4E37] hover:border-[#5c3f2c]'
                             } transition-all duration-300 cursor-pointer`}
@@ -200,10 +213,10 @@ const TilesInfoConfig = ({ onDataChange, initialData }) => {
                             onDrop={(e) => handleDrop(index, e, setFieldValue)}
                             onDragOver={handleDragOver}
                           >
-                            {tileImages[index] ? (
+                            {tile.url ? (
                               <div className="relative">
                                 <img
-                                  src={tileImages[index]}
+                                  src={tile.url}
                                   alt={`Tile ${index + 1}`}
                                   className="w-full h-32 sm:h-40 object-cover rounded-md"
                                 />
@@ -233,15 +246,15 @@ const TilesInfoConfig = ({ onDataChange, initialData }) => {
                             />
                           </div>
                           {touched.tiles?.[index] && errors.tiles?.[index] && (
-                            <div className="text-red-500 text-sm mt-1">{errors.tiles[index]}</div>
+                            <div className="text-red-500 text-sm mt-1">{errors.tiles[index]?.url || errors.tiles[index]}</div>
                           )}
                         </div>
                       ))}
                       <button
                         type="button"
                         onClick={() => {
-                          push('');
-                          setTileImages((prev) => [...prev, '']);
+                          push({ url: '', file: null });
+                          setTileImages((prev) => [...prev, { url: '', file: null }]);
                         }}
                         className="mt-2 px-4 py-1 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition text-sm"
                       >

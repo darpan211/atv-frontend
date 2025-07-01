@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react"
+import { useState, useCallback, useRef} from "react"
 import { Formik, Form } from "formik"
 import * as Yup from "yup"
 import { toast } from "react-toastify"
@@ -8,7 +8,16 @@ import { Upload, X, ChevronLeft, ChevronRight, Save } from "lucide-react"
 
 const validationSchema = Yup.object({
   images: Yup.array()
-    .of(Yup.string().required("Image is required"))
+    .of(
+      Yup.object({
+        url: Yup.string().required("Image preview is required"),
+        file: Yup.mixed()
+          .required("Image file is required")
+          .test("fileType", "Only image files are allowed", (value) =>
+            value && value.type && value.type.startsWith("image/")
+          ),
+      })
+    )
     .min(3, "At least 3 images are required")
     .max(10, "A maximum of 10 images is allowed")
     .required("Images are required"),
@@ -41,7 +50,7 @@ const Thumbnail = ({ image, index, moveImage, handleRemove }) => {
         isDragging ? "opacity-50" : "opacity-100"
       } ${index === 0 ? "border-[#6F4E37]" : "border-gray-300"}`}
     >
-      <img src={image || "/placeholder.svg"} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+      <img src={image.url || "/placeholder.svg"} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
       <button
         type="button"
         onClick={() => handleRemove(index)}
@@ -141,7 +150,10 @@ const SliderConfig = ({ onDataChange, initialData }) => {
                   className="hidden"
                   onChange={(e) => {
                     const files = Array.from(e.target.files)
-                    const newImages = files.map((file) => URL.createObjectURL(file))
+                    const newImages = files.map((file) => ({
+                      url: URL.createObjectURL(file),
+                      file: file,
+                    }))
                     setFieldValue("images", [...values.images, ...newImages])
                   }}
                 />
@@ -166,7 +178,7 @@ const SliderConfig = ({ onDataChange, initialData }) => {
                       key={currentSlide}
                     >
                       <img
-                        src={values.images[currentSlide] || "/placeholder.svg"}
+                        src={values.images[currentSlide]?.url || "/placeholder.svg"}
                         alt={`Slide ${currentSlide + 1}`}
                         className="w-full h-full object-cover"
                       />
@@ -201,7 +213,7 @@ const SliderConfig = ({ onDataChange, initialData }) => {
                           handleRemove={(idx) => {
                             if (window.confirm("Remove this image?")) {
                               const updatedImages = values.images.filter((_, i) => i !== idx)
-                              URL.revokeObjectURL(values.images[idx])
+                              URL.revokeObjectURL(values.images[idx].url)
                               setFieldValue("images", updatedImages)
                               setCurrentSlide((prev) => (prev >= updatedImages.length ? 0 : prev))
                             }

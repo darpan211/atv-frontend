@@ -8,7 +8,14 @@ const validationSchema = Yup.object().shape({
   tiles: Yup.array()
     .of(
       Yup.object().shape({
-        image: Yup.string().required("Image is required"),
+        image: Yup.object({
+          url: Yup.string().required("Image preview is required"),
+          file: Yup.mixed()
+            .required("Image file is required")
+            .test("fileType", "Only image files are allowed", (value) =>
+              value && value.type && value.type.startsWith("image/")
+            ),
+        }).required("Image is required"),
         name: Yup.string().max(50, "Name must be 50 characters or less"),
         description: Yup.string().max(150, "Description must be 150 characters or less"),
       })
@@ -19,21 +26,36 @@ const validationSchema = Yup.object().shape({
 
 const FeaturedImage = ({ onDataChange, initialData }) => {
   const [formValues, setFormValues] = useState({
-    tiles: initialData?.tiles || [{ image: "", name: "", description: "" }],
+    tiles:
+      initialData?.tiles?.map((tile) => ({
+        ...tile,
+        image:
+          typeof tile.image === "object"
+            ? tile.image
+            : { url: tile.image || "", file: null },
+      })) || [{ image: { url: "", file: null }, name: "", description: "" }],
   })
   const fileInputRefs = useRef([])
 
   // Cleanup URLs on unmount
   useEffect(() => {
     return () => {
-      formValues.tiles.forEach((tile) => tile.image && URL.revokeObjectURL(tile.image))
+      formValues.tiles.forEach((tile) => tile.image?.url && URL.revokeObjectURL(tile.image.url))
     }
   }, [formValues.tiles])
 
   // Sync with initialData
   useEffect(() => {
     if (initialData?.tiles && JSON.stringify(initialData.tiles) !== JSON.stringify(formValues.tiles)) {
-      setFormValues({ tiles: initialData.tiles })
+      setFormValues({
+        tiles: initialData.tiles.map((tile) => ({
+          ...tile,
+          image:
+            typeof tile.image === "object"
+              ? tile.image
+              : { url: tile.image || "", file: null },
+        })),
+      })
     }
   }, [initialData])
 
@@ -55,7 +77,7 @@ const FeaturedImage = ({ onDataChange, initialData }) => {
       return
     }
     const imageUrl = URL.createObjectURL(file)
-    setFieldValue(`tiles[${index}].image`, imageUrl)
+    setFieldValue(`tiles[${index}].image`, { url: imageUrl, file })
   }, [])
 
   // Handle file input change
@@ -89,9 +111,9 @@ const FeaturedImage = ({ onDataChange, initialData }) => {
   const handleImageRemove = useCallback(
     (index, setFieldValue, values) => {
       if (window.confirm("Remove this image?")) {
-        const removedUrl = values.tiles[index].image
+        const removedUrl = values.tiles[index].image?.url
         if (removedUrl) URL.revokeObjectURL(removedUrl)
-        setFieldValue(`tiles[${index}].image`, "")
+        setFieldValue(`tiles[${index}].image`, { url: "", file: null })
       }
     },
     []
@@ -105,7 +127,7 @@ const FeaturedImage = ({ onDataChange, initialData }) => {
         return
       }
       if (window.confirm("Delete this tile?")) {
-        const removedUrl = values.tiles[index].image
+        const removedUrl = values.tiles[index].image?.url
         if (removedUrl) URL.revokeObjectURL(removedUrl)
         setFieldValue(
           "tiles",
@@ -124,7 +146,10 @@ const FeaturedImage = ({ onDataChange, initialData }) => {
         toast.error("Maximum 6 images allowed!")
         return
       }
-      setFieldValue("tiles", [...values.tiles, { image: "", name: "", description: "" }])
+      setFieldValue("tiles", [
+        ...values.tiles,
+        { image: { url: "", file: null }, name: "", description: "" },
+      ])
       fileInputRefs.current[values.tiles.length] = React.createRef()
     },
     []
@@ -135,7 +160,14 @@ const FeaturedImage = ({ onDataChange, initialData }) => {
       <h2 className="text-xl sm:text-2xl font-bold text-black mb-4">Featured Image Configuration</h2>
       <Formik
         initialValues={{
-          tiles: initialData?.tiles || [{ image: "", name: "", description: "" }],
+          tiles:
+            initialData?.tiles?.map((tile) => ({
+              ...tile,
+              image:
+                typeof tile.image === "object"
+                  ? tile.image
+                  : { url: tile.image || "", file: null },
+            })) || [{ image: { url: "", file: null }, name: "", description: "" }],
         }}
         validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting }) => {
@@ -182,7 +214,7 @@ const FeaturedImage = ({ onDataChange, initialData }) => {
                     </label>
                     <div
                       className={`border-2 border-dashed rounded-lg p-4 text-center ${
-                        values.tiles[index].image
+                        tile.image?.url
                           ? "border-gray-300"
                           : "border-[#6F4E37] hover:border-[#5c3f2c]"
                       } transition-all duration-300 cursor-pointer`}
@@ -192,10 +224,10 @@ const FeaturedImage = ({ onDataChange, initialData }) => {
                       role="region"
                       aria-label={`Upload image for tile ${index + 1}`}
                     >
-                      {values.tiles[index].image ? (
+                      {tile.image?.url ? (
                         <div className="relative">
                           <img
-                            src={values.tiles[index].image}
+                            src={tile.image.url}
                             alt={`Image ${index + 1}`}
                             className="w-full h-32 object-cover rounded-md"
                           />
@@ -226,7 +258,7 @@ const FeaturedImage = ({ onDataChange, initialData }) => {
                       />
                     </div>
                     {touched.tiles?.[index]?.image && errors.tiles?.[index]?.image && (
-                      <div className="text-red-500 text-sm mt-1">{errors.tiles[index].image}</div>
+                      <div className="text-red-500 text-sm mt-1">{errors.tiles[index].image?.url || errors.tiles[index].image}</div>
                     )}
                   </div>
 

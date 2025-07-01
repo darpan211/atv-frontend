@@ -25,7 +25,7 @@ const MultiStepConfigure = () => {
   const [completedSteps, setCompletedSteps] = useState(new Set())
   const [formData, setFormData] = useState({
     slider: null,
-    tiles: null,
+    tilePlaces: null,
     featured: null,
     tilesInfo: null,
     contact: null,
@@ -41,7 +41,7 @@ const MultiStepConfigure = () => {
       component: SliderConfig,
     },
     {
-      id: "tiles",
+      id: "tilePlaces",
       title: "Tiles Places",
       description: "Set up your tile placement configuration",
       icon: LayoutGrid,
@@ -122,27 +122,27 @@ const MultiStepConfigure = () => {
     try {
       const formDataToSend = new FormData()
 
-      // Contact info
-      if (formData.contact) {
-        formDataToSend.append("name", formData.contact.name)
-        formDataToSend.append("email", formData.contact.email)
-        formDataToSend.append("phone", formData.contact.phone)
-        formDataToSend.append("address", formData.contact.address)
-        formDataToSend.append("website", formData.contact.website)
-        formDataToSend.append("socialMediaURL", formData.contact.socialMedia)
-      }
+      // Contact info (nested)
+      formDataToSend.append("contact_info[name]", formData.contact.name)
+      formDataToSend.append("contact_info[email]", formData.contact.email)
+      formDataToSend.append("contact_info[phone]", formData.contact.phone)
+      formDataToSend.append("contact_info[address]", formData.contact.address)
+      formDataToSend.append("contact_info[website]", formData.contact.website)
+      formDataToSend.append("contact_info[socialMediaURL]", formData.contact.socialMedia)
 
-      // Tiles info
-      if (formData.tilesInfo) {
-        formDataToSend.append("title", formData.tilesInfo.title)
-        formDataToSend.append("description", formData.tilesInfo.description)
-        formDataToSend.append("features", JSON.stringify(formData.tilesInfo.features))
+      // Tiles info (nested)
+      formDataToSend.append("tiles_info[title]", formData.tilesInfo.title)
+      formDataToSend.append("tiles_info[description]", formData.tilesInfo.description)
+      formDataToSend.append("tiles_info[features]", JSON.stringify(formData.tilesInfo.features))
 
-        // Tiles images
+      // Tiles images (from tilesInfo step)
+      if (formData.tilesInfo && Array.isArray(formData.tilesInfo.tiles)) {
         for (let i = 0; i < formData.tilesInfo.tiles.length; i++) {
           const tile = formData.tilesInfo.tiles[i];
-          if (tile.file) {
+          if (tile && tile.file) {
             formDataToSend.append("tiles", tile.file, `tile${i}.jpg`);
+          } else if (tile && tile.url) {
+            formDataToSend.append("tiles_urls", tile.url);
           }
         }
       }
@@ -153,16 +153,22 @@ const MultiStepConfigure = () => {
           const img = formData.slider.images[i];
           if (img.file) {
             formDataToSend.append("slider_image", img.file, `slider_image${i}.jpg`);
+          } else if (img.url) {
+            formDataToSend.append("slider_image_urls", img.url);
           }
         }
       }
 
-      // Tiles (combine tab1 and tab2 into tiles)
-      if (formData.tiles) {
-        const allTiles = [...(formData.tiles.tab1 || []), ...(formData.tiles.tab2 || [])]
+      // Tiles (combine tab1 and tab2 into tiles) from tilePlaces step
+      if (formData.tilePlaces) {
+        const allTiles = [...(formData.tilePlaces.tab1 || []), ...(formData.tilePlaces.tab2 || [])]
         for (let i = 0; i < allTiles.length; i++) {
-          const blob = await fetch(allTiles[i]).then((res) => res.blob())
-          formDataToSend.append("tiles", blob, `tile${i}.jpg`)
+          const tile = allTiles[i];
+          if (tile && tile.file) {
+            formDataToSend.append("tiles", tile.file, `tilePlaces${i}.jpg`)
+          } else if (tile && tile.url) {
+            formDataToSend.append("tiles_urls", tile.url)
+          }
         }
       }
 
@@ -170,13 +176,18 @@ const MultiStepConfigure = () => {
       if (formData.featured && Array.isArray(formData.featured)) {
         for (let i = 0; i < formData.featured.length; i++) {
           const feature = formData.featured[i]
-          if (feature.image && feature.name && feature.description) {
-            const blob = await fetch(feature.image).then((res) => res.blob())
-            formDataToSend.append(`image${i + 1}`, blob, `feature${i + 1}.jpg`)
+          if (feature.image && feature.image.file && feature.name && feature.description) {
+            formDataToSend.append(`image${i + 1}`, feature.image.file, `feature${i + 1}.jpg`)
             formDataToSend.append(`name${i + 1}`, feature.name)
             formDataToSend.append(`description${i + 1}`, feature.description)
           }
         }
+      }
+
+      console.log("Submitting form data:", formData)
+      console.log("FormData content:");
+      for (let pair of formDataToSend.entries()) {
+        console.log(pair[0], pair[1]);
       }
 
       const response = await axiosHandler.post(`${BASE_URL}/api/v1/configure/addslider`, formDataToSend, {
