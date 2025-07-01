@@ -11,7 +11,7 @@ const validationSchema = Yup.object().shape({
     'at-least-one-image-per-tab',
     'At least 1 image is required for each tab',
     function (value) {
-      return Object.values(value).every((images) => images.length > 0);
+      return Object.values(value).every((images) => images.length > 0 && images.every(img => img.file));
     }
   ),
 });
@@ -43,7 +43,7 @@ const Tile = ({ tile, index, moveTile, handleRemove }) => {
         isDragging ? 'opacity-50' : 'opacity-100'
       } ${index === 0 ? 'border-[#6F4E37]' : 'border-gray-300'} animate-fade-in`}
     >
-      <img src={tile} alt={`Tile ${index + 1}`} className="w-full h-full object-cover" />
+      <img src={tile.url} alt={`Tile ${index + 1}`} className="w-full h-full object-cover" />
       <button
         type="button"
         onClick={() => handleRemove(index)}
@@ -91,12 +91,15 @@ const TilesPlaceConfig = ({ onDataChange, initialData }) => {
         toast.error('Please select valid image files (e.g., JPG, PNG)!');
         return;
       }
-      const newTileUrls = validImages.map((file) => URL.createObjectURL(file));
+      const newTiles = validImages.map((file) => ({
+        url: URL.createObjectURL(file),
+        file,
+      }));
       setTileUrls((prev) => ({
         ...prev,
-        [activeTab]: [...(prev[activeTab] || []), ...newTileUrls],
+        [activeTab]: [...(prev[activeTab] || []), ...newTiles.map(t => t.url)],
       }));
-      setFieldValue(`tiles.${activeTab}`, [...(values.tiles[activeTab] || []), ...newTileUrls]);
+      setFieldValue(`tiles.${activeTab}`, [...(values.tiles[activeTab] || []), ...newTiles]);
       if (e.target) e.target.value = null;
     },
     [activeTab]
@@ -183,7 +186,7 @@ const TilesPlaceConfig = ({ onDataChange, initialData }) => {
       if (window.confirm('Remove this tile?')) {
         const updatedTiles = values.tiles[activeTab].filter((_, i) => i !== index);
         const removedUrl = values.tiles[activeTab][index];
-        URL.revokeObjectURL(removedUrl);
+        URL.revokeObjectURL(removedUrl.url);
         setTileUrls((prev) => ({
           ...prev,
           [activeTab]: prev[activeTab].filter((_, i) => i !== index),
@@ -365,7 +368,7 @@ const TilesPlaceConfig = ({ onDataChange, initialData }) => {
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                     {values.tiles[activeTab].map((tile, index) => (
                       <Tile
-                        key={`${tile}-${index}`}
+                        key={tile.url || index}
                         tile={tile}
                         index={index}
                         moveTile={(from, to) => moveTile(from, to, setFieldValue, values)}
