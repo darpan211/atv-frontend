@@ -114,78 +114,85 @@ const MultiStepConfigure = () => {
 
   const handleFinalSubmit = async () => {
     if (completedSteps.size < steps.length) {
-      toast.error("Please complete all steps before submitting")
-      return
+      toast.error("Please complete all steps before submitting");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const formDataToSend = new FormData()
+      const formDataToSend = new FormData();
 
-      // Contact info (nested)
-      formDataToSend.append("contact_info[name]", formData.contact.name)
-      formDataToSend.append("contact_info[email]", formData.contact.email)
-      formDataToSend.append("contact_info[phone]", formData.contact.phone)
-      formDataToSend.append("contact_info[address]", formData.contact.address)
-      formDataToSend.append("contact_info[website]", formData.contact.website)
-      formDataToSend.append("contact_info[socialMediaURL]", formData.contact.socialMedia)
+      //Contact Info (flat keys)
+      formDataToSend.append("name", formData.contact.name);
+      formDataToSend.append("email", formData.contact.email);
+      formDataToSend.append("phone", formData.contact.phone);
+      formDataToSend.append("address", formData.contact.address);
+      formDataToSend.append("website", formData.contact.website);
+      formDataToSend.append("socialMediaURL", formData.contact.socialMedia);
 
-      // Tiles info (nested)
-      formDataToSend.append("tiles_info[title]", formData.tilesInfo.title)
-      formDataToSend.append("tiles_info[description]", formData.tilesInfo.description)
-      formDataToSend.append("tiles_info[features]", JSON.stringify(formData.tilesInfo.features))
+      //Tiles Info (flat keys)
+      formDataToSend.append("title", formData.tilesInfo.title);
+      formDataToSend.append("description", formData.tilesInfo.description);
+      formDataToSend.append("features", JSON.stringify(formData.tilesInfo.features));
 
-      // Tiles images (from tilesInfo step)
+      //Tiles from tilesInfo.tiles
       if (formData.tilesInfo && Array.isArray(formData.tilesInfo.tiles)) {
-        for (let i = 0; i < formData.tilesInfo.tiles.length; i++) {
-          const tile = formData.tilesInfo.tiles[i];
-          if (tile && tile.file) {
-            formDataToSend.append("tiles", tile.file, `tile${i}.jpg`);
-          } else if (tile && tile.url) {
+        formData.tilesInfo.tiles.forEach((tile, i) => {
+          if (tile?.file) {
+            formDataToSend.append("tiles", tile.file, `tileInfo${i}.jpg`);
+          } else if (tile?.url) {
             formDataToSend.append("tiles_urls", tile.url);
           }
-        }
+        });
       }
 
-      // Slider images
-      if (formData.slider && formData.slider.images) {
-        for (let i = 0; i < formData.slider.images.length; i++) {
-          const img = formData.slider.images[i];
-          if (img.file) {
+      //Slider Images
+      if (formData.slider?.images) {
+        formData.slider.images.forEach((img, i) => {
+          if (img?.file) {
             formDataToSend.append("slider_image", img.file, `slider_image${i}.jpg`);
-          } else if (img.url) {
+          } else if (img?.url) {
             formDataToSend.append("slider_image_urls", img.url);
           }
-        }
+        });
       }
 
-      // Tiles (combine tab1 and tab2 into tiles) from tilePlaces step
-      if (formData.tilePlaces) {
-        const allTiles = [...(formData.tilePlaces.tab1 || []), ...(formData.tilePlaces.tab2 || [])]
-        for (let i = 0; i < allTiles.length; i++) {
-          const tile = allTiles[i];
-          if (tile && tile.file) {
-            formDataToSend.append("tiles", tile.file, `tilePlaces${i}.jpg`)
-          } else if (tile && tile.url) {
-            formDataToSend.append("tiles_urls", tile.url)
+      //Tiles from tilePlaces.tab1 and tab2
+      if (formData.tilePlaces?.tiles) {
+        const tileGroups = formData.tilePlaces.tiles;
+
+        Object.entries(tileGroups).forEach(([groupName, groupFiles]) => {
+          if (Array.isArray(groupFiles)) {
+            groupFiles.forEach((tile, index) => {
+              if (tile?.file) {
+                formDataToSend.append(groupName, tile.file, `${groupName}_${index}.jpg`);
+              } else if (tile?.url) {
+                formDataToSend.append(`${groupName}_urls`, tile.url);
+              }
+            });
           }
-        }
+        });
       }
 
-      // Featured images (assuming featured is an array of { name, image, description })
-      if (formData.featured && Array.isArray(formData.featured)) {
-        for (let i = 0; i < formData.featured.length; i++) {
-          const feature = formData.featured[i]
-          if (feature.image && feature.image.file && feature.name && feature.description) {
-            formDataToSend.append(`image${i + 1}`, feature.image.file, `feature${i + 1}.jpg`)
-            formDataToSend.append(`name${i + 1}`, feature.name)
-            formDataToSend.append(`description${i + 1}`, feature.description)
+      //Featured Images (strictly indexed format image1, name1, description1...)
+      if (Array.isArray(formData.featured?.tiles)) {
+        let validIndex = 1;
+        formData.featured.tiles.forEach((feature, i) => {
+          const name = feature?.name?.trim();
+          const description = feature?.description?.trim();
+          const file = feature?.image?.file;
+
+          if (file && name && description) {
+            formDataToSend.append(`image${validIndex}`, file, `feature${validIndex}.jpg`);
+            formDataToSend.append(`name${validIndex}`, name);
+            formDataToSend.append(`description${validIndex}`, description);
+            validIndex++;
+          } else {
+            console.warn(`Skipped featured.tiles[${i}] — missing file, name, or description`);
           }
-        }
+        });
       }
 
-      console.log("Submitting form data:", formData)
-      console.log("FormData content:");
       for (let pair of formDataToSend.entries()) {
         console.log(pair[0], pair[1]);
       }
@@ -194,16 +201,16 @@ const MultiStepConfigure = () => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      })
+      });
 
-      toast.success(response.data.message || "Configuration saved successfully!")
+      toast.success(response.data.message || "Configuration saved successfully!");
     } catch (error) {
-      console.error("Submission Error:", error)
-      toast.error(error.response?.data?.message || "Failed to save configuration. Please try again.")
+      console.error("Submission Error:", error);
+      toast.error(error.response?.data?.message || "Failed to save configuration. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const isStepCompleted = (stepIndex) => completedSteps.has(stepIndex)
   const isCurrentStep = (stepIndex) => currentStep === stepIndex
@@ -288,15 +295,14 @@ const MultiStepConfigure = () => {
                   key={step.id}
                   onClick={() => handleStepClick(index)}
                   disabled={!isStepAccessible(index)}
-                  className={`flex flex-col items-center p-2 rounded-lg transition-all ${
-                    isCurrentStep(index)
-                      ? "bg-[#6F4E37] text-white"
-                      : isStepCompleted(index)
-                        ? "bg-green-100 text-green-700 hover:bg-green-200"
-                        : isStepAccessible(index)
-                          ? "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                          : "bg-gray-50 text-gray-400 cursor-not-allowed"
-                  }`}
+                  className={`flex flex-col items-center p-2 rounded-lg transition-all ${isCurrentStep(index)
+                    ? "bg-[#6F4E37] text-white"
+                    : isStepCompleted(index)
+                      ? "bg-green-100 text-green-700 hover:bg-green-200"
+                      : isStepAccessible(index)
+                        ? "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        : "bg-gray-50 text-gray-400 cursor-not-allowed"
+                    }`}
                 >
                   <div className="relative">
                     <step.icon className="w-5 h-5" />
@@ -310,11 +316,10 @@ const MultiStepConfigure = () => {
               <button
                 onClick={() => setCurrentStep(steps.length)}
                 disabled={completedSteps.size < steps.length}
-                className={`flex flex-col items-center p-2 rounded-lg transition-all ${
-                  currentStep === steps.length
-                    ? "bg-[#6F4E37] text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                className={`flex flex-col items-center p-2 rounded-lg transition-all ${currentStep === steps.length
+                  ? "bg-[#6F4E37] text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
               >
                 <CheckCircle className="w-5 h-5" />
                 <span className="text-xs mt-1 hidden sm:block">Review</span>
