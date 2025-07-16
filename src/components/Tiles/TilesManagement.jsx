@@ -4,7 +4,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import Sidebar from './TilesSidebar';
 import Header from './TilesHeader';
-import { fetchTiles, updateTile, deleteTile, getfilteredtiles } from '@/redux/slice/tiles/tileThunks';
+import {
+  fetchTiles,
+  updateTile,
+  deleteTile,
+  getfilteredtiles,
+} from '@/redux/slice/tiles/tileThunks';
 import { toast } from 'react-toastify';
 import { fetchColors } from '@/redux/slice/colors/colorThunks';
 import { fetchFinishes } from '@/redux/slice/finish/finishThunks';
@@ -82,7 +87,7 @@ const TileManagement = () => {
     dispatch(fetchMaterials());
     dispatch(fetchCategories());
     dispatch(fetchSuitablePlaces());
-    dispatch(getfilteredtiles())
+    dispatch(getfilteredtiles());
   }, [dispatch]);
 
   const filterOptions = {
@@ -460,7 +465,7 @@ const TileManagement = () => {
       [section]: !prev[section],
     }));
   }, []);
-
+  // console.log(selectedTile,"seleelelee")
   return (
     <div className="h-screen w-full flex overflow-hidden">
       {loading && <Loader />}
@@ -563,6 +568,7 @@ const TileManagement = () => {
       {/* Popups */}
       {!isEditMode && (
         <ViewTilePopup
+          // data={selectedTile}
           tile={selectedTile}
           isOpen={isPopupOpen}
           onClose={closeTilePopup}

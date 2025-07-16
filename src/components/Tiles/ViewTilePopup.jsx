@@ -2,10 +2,21 @@ import { memo, useState, useCallback } from 'react';
 import { X } from 'lucide-react';
 import { toCapitalize } from '@/helpers';
 import DeleteConfirmationModal from '../common/DeleteConfirmationModal';
+import { useNavigate } from 'react-router-dom';
 
-const ViewTilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
+const ViewTilePopup = memo(({ data, tile, isOpen, onClose, onEdit, onDelete }) => {
+  console.log('tile', tile);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const navigate = useNavigate();
+  const handleClickQRImage = () => {
+    navigate(`/tile/qr-code/${tile._id}`, {
+      state: {
+        fullUrl: tile?.qr_url,
+        title: tile?.tiles_name,
+      },
+    });
+  };
 
   const getPriorityColor = useCallback(priority => {
     const lowerPriority = priority?.toLowerCase() || '';
@@ -30,12 +41,22 @@ const ViewTilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
 
         <div className="p-3 sm:p-4 md:p-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-            <div className="aspect-square border border-[#BCBCBC] w-full max-w-[200px] sm:max-w-[250px] md:max-w-[300px] lg:max-w-none h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] rounded-lg p-3 mx-auto lg:mx-0 animate-in slide-in-from-left-5 duration-700 delay-200">
-              <img
-                src={tile.tiles_image || '/placeholder.svg'}
-                alt={tile.tiles_name}
-                className="w-full h-full object-cover rounded-lg transition-all duration-300 hover:scale-105"
-              />
+            <div className="flex flex-col items-center lg:items-start">
+              <div className="aspect-square border border-[#BCBCBC] w-full max-w-[200px] sm:max-w-[250px] md:max-w-[300px] lg:max-w-none h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] rounded-lg p-3 mx-auto lg:mx-0 animate-in slide-in-from-left-5 duration-700 delay-200">
+                <img
+                  src={tile.tiles_image || '/placeholder.svg'}
+                  alt={tile.tiles_name}
+                  className="w-full h-full object-cover rounded-lg transition-all duration-300 hover:scale-105"
+                />
+              </div>
+
+              <button
+                onClick={handleClickQRImage}
+                className="mt-4 w-[150px] px-3 py-2 bg-white text-black rounded-md font-medium transition-all duration-200 border border-gray-300 hover:bg-gray-50 hover:shadow-lg active:scale-95 transform text-sm sm:text-base cursor-pointer"
+                style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)' }}
+              >
+                Get QR Image
+              </button>
             </div>
 
             <div className="space-y-2 sm:space-y-3 md:space-y-4 animate-in slide-in-from-right-5 duration-700 delay-300">

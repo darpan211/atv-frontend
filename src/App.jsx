@@ -41,6 +41,7 @@ import AddSizePage from './components/Attributes/addAttribute/AddSizePage';
 import AddColorPage from './components/Attributes/addAttribute/AddColorPage';
 import AddPlacePage from './components/Attributes/addAttribute/AddPlacePage';
 import AddSeriesPage from './components/Attributes/addAttribute/AddSeriesPage';
+import TilesQrImage from './components/Tiles/TilesQrImage';
 
 // Add Tiles
 import AddTiles from './components/Tiles/AddTiles';
@@ -64,7 +65,7 @@ const App = () => {
   const dispatch = useDispatch();
   const isAuthenticated = localStorage.getItem('authToken') ? true : false;
   const isUser = localStorage.getItem('user') ? true : false;
-  
+
   useEffect(() => {
     if (isAuthenticated && isUser) {
       dispatch(fetchSidebarFilters());
@@ -92,7 +93,7 @@ const App = () => {
           element={
             <AppLayout>
               {/* <LoginPage /> */}
-              <Dashboard/>
+              <Dashboard />
             </AppLayout>
           }
         />
@@ -103,9 +104,9 @@ const App = () => {
               <LoginPage />
             </AppLayout>
           }
-          />
-          {/* Admin Dashboard */}
-   <Route
+        />
+        {/* Admin Dashboard */}
+        <Route
           path="/admin/dashboard"
           element={
             <AppLayout>
@@ -323,6 +324,15 @@ const App = () => {
           element={
             <AppLayout>
               <TileManagement />
+            </AppLayout>
+          }
+        />
+
+        <Route
+          path="/tile/qr-code/:slug?"
+          element={
+            <AppLayout>
+              <TilesQrImage />
             </AppLayout>
           }
         />
