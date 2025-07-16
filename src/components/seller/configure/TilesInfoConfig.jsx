@@ -3,6 +3,8 @@ import { Formik, Form, Field, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import { Upload, X, Plus, Trash } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchDashboards } from '@/redux/slice/dashboard/dashboardThunk';
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Title is required').max(100, 'Title must be 100 characters or less'),
@@ -22,13 +24,42 @@ const validationSchema = Yup.object().shape({
     .min(1, 'At least one tile image is required'),
 });
 
-const TilesInfoConfig = ({ onDataChange, initialData }) => {
-  const [tileImages, setTileImages] = useState(
-    initialData?.tiles?.map((tile) =>
-      typeof tile === 'object' && tile.url ? tile : { url: tile || '', file: null }
-    ) || [{ url: '', file: null }]
-  );
+const TilesInfoConfig = ({ onDataChange }) => {
+  const [tileImages, setTileImages] = useState([{ url: '', file: null }]);
   const fileInputRefs = useRef([]);
+  const dispatch = useDispatch();
+  const { dashboardData } = useSelector((state) => state.dashboard);
+
+  const [initialValues, setInitialValues] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchDashboards());
+  }, [dispatch]);
+
+  useEffect(() => {
+  const info = dashboardData?.[0]?.tiles_info;
+
+  const formattedTiles =
+    info?.tiles?.length > 0
+      ? info.tiles.map((img) => ({
+          url: img,
+          file: null,
+        }))
+      : [{ url: '', file: null }];
+
+  const formatted = {
+    title: info?.title || '',
+    description: info?.description || '',
+    features: info?.features?.length ? info.features : [''],
+    tiles: formattedTiles,
+  };
+
+  setInitialValues(formatted);
+  setTileImages(formattedTiles);
+
+  // Auto pass data up if no edit
+  onDataChange?.(formatted);
+}, [dashboardData]);
 
   useEffect(() => {
     fileInputRefs.current = tileImages.map((_, i) => fileInputRefs.current[i] || React.createRef());
@@ -50,32 +81,22 @@ const TilesInfoConfig = ({ onDataChange, initialData }) => {
       });
       setFieldValue(`tiles[${index}]`, { url: imageUrl, file });
     } else {
-      toast.error('Please select a valid image file (e.g., JPG, PNG)!');
+      toast.error('Please select a valid image file!');
     }
   };
 
-  // Handle file input change
   const handleFileInputChange = (index, e, setFieldValue) => {
     const file = e.target.files?.[0];
     handleImageUpload(index, file, setFieldValue);
     e.target.value = null;
   };
 
-  // Handle drag and drop
   const handleDrop = (index, e, setFieldValue) => {
     e.preventDefault();
-    e.stopPropagation();
     const file = e.dataTransfer.files?.[0];
     handleImageUpload(index, file, setFieldValue);
   };
 
-  // Handle drag over
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  // Handle image removal
   const handleImageRemove = (index, setFieldValue, remove) => {
     if (window.confirm('Remove this image?')) {
       setTileImages((prev) => {
@@ -89,27 +110,21 @@ const TilesInfoConfig = ({ onDataChange, initialData }) => {
     }
   };
 
-  // Cleanup URLs on unmount
   useEffect(() => {
     return () => {
       tileImages.forEach((img) => img?.url && URL.revokeObjectURL(img.url));
     };
   }, [tileImages]);
 
+  if (!initialValues) return <div className="p-4">Loading...</div>;
+
   return (
-    <div className="p-4 sm:p-6 bg-[#FFF5EE] bg-grid-white-[0.2] min-h-screen">
-      <h2 className="text-xl sm:text-2xl font-bold text-black mb-4">Tiles Information Configuration</h2>
+    <div className="p-4 sm:p-6 bg-[#FFF5EE] min-h-screen">
+      <h2 className="text-xl font-bold mb-4">Tiles Information Configuration</h2>
       <Formik
-        initialValues={{
-          title: initialData?.title || '',
-          description: initialData?.description || '',
-          features: initialData?.features || [''],
-          tiles:
-            initialData?.tiles?.map((tile) =>
-              typeof tile === 'object' && tile.url ? tile : { url: tile || '', file: null }
-            ) || [{ url: '', file: null }],
-        }}
+        initialValues={initialValues}
         validationSchema={validationSchema}
+        enableReinitialize
         onSubmit={async (values, { setSubmitting }) => {
           try {
             const res = await saveTilesInfo(values);
@@ -117,10 +132,10 @@ const TilesInfoConfig = ({ onDataChange, initialData }) => {
               toast.success('Product features saved successfully!');
               onDataChange?.(values);
             } else {
-              toast.error('Failed to save product features.');
+              toast.error('Failed to save.');
             }
           } catch {
-            toast.error('Something went wrong. Please try again.');
+            toast.error('Something went wrong.');
           } finally {
             setSubmitting(false);
           }
@@ -128,97 +143,84 @@ const TilesInfoConfig = ({ onDataChange, initialData }) => {
       >
         {({ values, setFieldValue, isSubmitting, errors, touched, isValid, dirty }) => (
           <Form>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              {/* Left Side - Text Content */}
-              <div className="bg-white border border-gray-200 shadow-md rounded-lg p-4 sm:p-6">
-                {/* Title */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                  <Field
-                    name="title"
-                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#6F4E37] text-sm"
-                  />
-                  {touched.title && errors.title && (
-                    <div className="text-red-500 text-sm mt-1">{errors.title}</div>
-                  )}
-                </div>
+            {/* TITLE & DESCRIPTION */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="bg-white p-4 rounded-lg border shadow">
+                <label className="block text-sm font-medium">Title</label>
+                <Field name="title" className="w-full p-2 border rounded mt-1" />
+                {touched.title && errors.title && (
+                  <div className="text-red-500 text-sm mt-1">{errors.title}</div>
+                )}
 
-                {/* Description */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <Field
-                    name="description"
-                    as="textarea"
-                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#6F4E37] text-sm min-h-[150px]"
-                    rows="6"
-                  />
-                  {touched.description && errors.description && (
-                    <div className="text-red-500 text-sm mt-1">{errors.description}</div>
-                  )}
-                </div>
+                <label className="block text-sm font-medium mt-4">Description</label>
+                <Field
+                  name="description"
+                  as="textarea"
+                  className="w-full p-2 border rounded mt-1"
+                  rows="4"
+                />
+                {touched.description && errors.description && (
+                  <div className="text-red-500 text-sm mt-1">{errors.description}</div>
+                )}
 
-                {/* Features */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Features</label>
-                  <FieldArray name="features">
-                    {({ push, remove }) => (
-                      <div>
-                        {values.features.map((feature, index) => (
-                          <div key={index} className="flex items-center mb-2">
-                            <Field
-                              name={`features[${index}]`}
-                              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#6F4E37] text-sm"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => remove(index)}
-                              disabled={values.features.length <= 1}
-                              className="ml-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition disabled:opacity-50"
-                            >
-                              <Trash className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
-                        {touched.features && errors.features && (
-                          <div className="text-red-500 text-sm mt-1">{errors.features}</div>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => push('')}
-                          className="mt-2 px-4 py-1 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition text-sm"
-                        >
-                          <Plus className="w-4 h-4 inline mr-1" /> Add Feature
-                        </button>
-                      </div>
-                    )}
-                  </FieldArray>
-                </div>
+                <FieldArray name="features">
+                  {({ push, remove }) => (
+                    <>
+                      <label className="block text-sm font-medium mt-4">Features</label>
+                      {values.features.map((_, index) => (
+                        <div key={index} className="flex items-center mt-2">
+                          <Field
+                            name={`features[${index}]`}
+                            className="flex-1 p-2 border rounded"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => remove(index)}
+                            disabled={values.features.length <= 1}
+                            className="ml-2 text-sm text-red-600"
+                          >
+                            <Trash className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => push('')}
+                        className="mt-2 px-3 py-1 bg-[#6F4E37] text-white rounded text-sm"
+                      >
+                        <Plus className="inline w-4 h-4 mr-1" />
+                        Add Feature
+                      </button>
+                      {errors.features && touched.features && (
+                        <div className="text-red-500 text-sm mt-1">{errors.features}</div>
+                      )}
+                    </>
+                  )}
+                </FieldArray>
               </div>
 
-              {/* Right Side - Tiles */}
-              <div className="bg-white border border-gray-200 shadow-md rounded-lg p-4 sm:p-6">
-                <label className="block text-sm font-medium text-gray-700 mb-4">Tile Images</label>
+              {/* IMAGE TILES */}
+              <div className="bg-white p-4 rounded-lg border shadow">
+                <label className="block text-sm font-medium mb-2">Tile Images</label>
                 <FieldArray name="tiles">
                   {({ push, remove }) => (
-                    <div>
+                    <>
                       {values.tiles.map((tile, index) => (
-                        <div key={index} className="mb-4 last:mb-0">
+                        <div key={index} className="mb-4">
                           <div
                             className={`border-2 border-dashed rounded-lg p-4 text-center ${
-                              tile.url
-                                ? 'border-gray-300'
-                                : 'border-[#6F4E37] hover:border-[#5c3f2c]'
-                            } transition-all duration-300 cursor-pointer`}
+                              tile.url ? 'border-gray-300' : 'border-[#6F4E37]'
+                            }`}
                             onClick={() => fileInputRefs.current[index]?.click()}
                             onDrop={(e) => handleDrop(index, e, setFieldValue)}
-                            onDragOver={handleDragOver}
+                            onDragOver={(e) => e.preventDefault()}
                           >
                             {tile.url ? (
                               <div className="relative">
                                 <img
                                   src={tile.url}
-                                  alt={`Tile ${index + 1}`}
-                                  className="w-full h-32 sm:h-40 object-cover rounded-md"
+                                  alt=""
+                                  className="w-full h-32 object-cover rounded"
                                 />
                                 <button
                                   type="button"
@@ -226,52 +228,56 @@ const TilesInfoConfig = ({ onDataChange, initialData }) => {
                                     e.stopPropagation();
                                     handleImageRemove(index, setFieldValue, remove);
                                   }}
-                                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition"
+                                  className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
                                 >
                                   <X className="w-3 h-3" />
                                 </button>
                               </div>
                             ) : (
                               <>
-                                <Upload className="w-8 h-8 text-[#6F4E37] mx-auto mb-2" />
-                                <p className="text-gray-600 text-sm">Click or drag to upload image</p>
+                                <Upload className="w-8 h-8 mx-auto text-[#6F4E37]" />
+                                <p className="text-sm text-gray-600 mt-2">Click or drag to upload</p>
                               </>
                             )}
                             <input
                               type="file"
                               accept="image/*"
-                              ref={el => (fileInputRefs.current[index] = el)}
+                              ref={(el) => (fileInputRefs.current[index] = el)}
                               className="hidden"
                               onChange={(e) => handleFileInputChange(index, e, setFieldValue)}
                             />
                           </div>
                           {touched.tiles?.[index] && errors.tiles?.[index] && (
-                            <div className="text-red-500 text-sm mt-1">{errors.tiles[index]?.url || errors.tiles[index]}</div>
+                            <div className="text-red-500 text-sm mt-1">
+                              {errors.tiles[index]?.url || errors.tiles[index]}
+                            </div>
                           )}
                         </div>
                       ))}
+
                       <button
                         type="button"
                         onClick={() => {
                           push({ url: '', file: null });
                           setTileImages((prev) => [...prev, { url: '', file: null }]);
                         }}
-                        className="mt-2 px-4 py-1 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition text-sm"
+                        className="px-4 py-1 bg-[#6F4E37] text-white rounded text-sm"
                       >
-                        <Plus className="w-4 h-4 inline mr-1" /> Add Tile Image
+                        <Plus className="inline w-4 h-4 mr-1" />
+                        Add Tile Image
                       </button>
-                    </div>
+                    </>
                   )}
                 </FieldArray>
               </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="text-right mt-4 sm:mt-6">
+            {/* SUBMIT */}
+            <div className="text-right mt-6">
               <button
                 type="submit"
-                disabled={isSubmitting || !isValid || !dirty}
-                className="px-4 sm:px-6 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition disabled:opacity-50 text-sm sm:text-base"
+                disabled={isSubmitting || !dirty || !isValid}
+                className="px-6 py-2 bg-[#6F4E37] text-white rounded hover:bg-[#5c3f2c] disabled:opacity-50"
               >
                 {isSubmitting ? 'Saving...' : 'Save Step'}
               </button>

@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import { Check } from 'lucide-react';
+import { useDispatch, useSelector } from "react-redux";
+import { fetchDashboards } from "@/redux/slice/dashboard/dashboardThunk";
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Name is required').max(50, 'Name must be 50 characters or less'),
@@ -18,10 +20,51 @@ const validationSchema = Yup.object().shape({
 });
 
 const ContactConfig = ({ onDataChange, initialData }) => {
+  const dispatch = useDispatch();
+  const { dashboardData } = useSelector((state) => state.dashboard);
+  const [initialValues, setInitialValues] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    website: '',
+    socialMedia: '',
+  });
+
+  const [autoSaved, setAutoSaved] = useState(false);
+  const formikRef = useRef(null);
+
+  // Fetch dashboard on mount
+  useEffect(() => {
+    dispatch(fetchDashboards());
+  }, [dispatch]);
+
+  // Sync backend data into form and trigger auto save
+  useEffect(() => {
+    const backendData = dashboardData?.[0]?.contact_info;
+
+    if (backendData) {
+      const formatted = {
+        name: backendData.name || '',
+        email: backendData.email || '',
+        phone: backendData.phone || '',
+        address: backendData.address || '',
+        website: backendData.website || '',
+        socialMedia: backendData.socialMediaURL || '',
+      };
+      setInitialValues(formatted);
+
+      // Auto save only once if initialData is not already handled
+      if (!autoSaved && onDataChange) {
+        onDataChange(formatted); // auto-send to parent
+        setAutoSaved(true);
+      }
+    }
+  }, [dashboardData, autoSaved, onDataChange]);
+
   const saveContactInfo = async (contact) => {
-    console.log('Saving contact information:', contact);
     return new Promise((resolve) => {
-      setTimeout(() => resolve({ status: 200 }), 1000);
+      setTimeout(() => resolve({ status: 200 }), 500);
     });
   };
 
@@ -29,21 +72,16 @@ const ContactConfig = ({ onDataChange, initialData }) => {
     <div className="p-6 bg-[#FFF5EE] bg-grid-white-[0.2] animate-fade-in">
       <h2 className="text-2xl font-bold text-black mb-4">Contact Information Configuration</h2>
       <Formik
-        initialValues={{
-          name: initialData?.name || '',
-          email: initialData?.email || '',
-          phone: initialData?.phone || '',
-          address: initialData?.address || '',
-          website: initialData?.website || '',
-          socialMedia: initialData?.socialMedia || '',
-        }}
+        innerRef={formikRef}
+        enableReinitialize
+        initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting }) => {
           try {
             const res = await saveContactInfo(values);
             if (res.status === 200) {
               toast.success('Contact information saved successfully!');
-              onDataChange?.(values); // <-- Only call after successful save
+              onDataChange?.(values);
             } else {
               toast.error('Failed to save contact information.');
             }
@@ -54,7 +92,7 @@ const ContactConfig = ({ onDataChange, initialData }) => {
           }
         }}
       >
-        {({ values, setFieldValue, isSubmitting, errors, touched, isValid, dirty }) => (
+        {({ values, isSubmitting, errors, touched, isValid, dirty }) => (
           <Form>
             <div className="bg-white border border-gray-200 shadow-md rounded-lg p-6">
               {/* Name */}

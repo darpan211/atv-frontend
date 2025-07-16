@@ -16,7 +16,7 @@ import adminReducer from './admin/adminSlice';
 import roomsReducer from './room/roomSlice';
 import filterReducer from './sidebarfilter/filterSlice';
 import configReducer from './config/configSlice';
-
+import dashboardReducer from '../slice/dashboard/dashboardSlice';
 const encryptor = encryptTransform({
   secretKey: import.meta.env.VITE_SECRET_KEY,
   onError: function (error) {
@@ -45,6 +45,7 @@ const rootReducer = combineReducers({
   rooms: roomsReducer,
   filters: filterReducer,
   config: configReducer,
+  dashboard: dashboardReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

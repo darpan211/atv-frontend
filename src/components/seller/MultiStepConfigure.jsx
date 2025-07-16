@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react"
+import React, { useState, useCallback, useMemo, useEffect } from "react"
 import { ToastContainer, toast } from "react-toastify"
 import {
   ChevronLeft,
@@ -17,6 +17,8 @@ import FeaturedImage from "./configure/FeaturedImage"
 import ContactConfig from "./configure/ContactConfig"
 import TilesInfoConfig from "./configure/TilesInfoConfig"
 import axiosHandler from "@/services/axiosHandler"
+import { useDispatch, useSelector } from "react-redux"
+import { fetchDashboards } from "@/redux/slice/dashboard/dashboardThunk"
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -31,6 +33,16 @@ const MultiStepConfigure = () => {
     contact: null,
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+    const dispatch = useDispatch();
+
+      useEffect(() => {
+    dispatch(fetchDashboards());
+  }, [dispatch]);
+
+  const { dashboardData } = useSelector(
+    state => state
+  );
+console.log("Dashboard Data: thunk ", dashboardData);
 
   const steps = useMemo(() => [
     {
@@ -196,8 +208,8 @@ const MultiStepConfigure = () => {
       for (let pair of formDataToSend.entries()) {
         console.log(pair[0], pair[1]);
       }
-
-      const response = await axiosHandler.post(`${BASE_URL}/api/v1/configure/addslider`, formDataToSend, {
+      console.log("Final Form Data:", formDataToSend);
+      const response = await axiosHandler.put(`${BASE_URL}/api/v1/configure/addslider`, formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

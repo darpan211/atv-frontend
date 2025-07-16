@@ -17,7 +17,7 @@ const SellerHeader = () => {
   const [fetchedData, setFetchedData] = useState({
    sellerName:"",
    sellerEmail:"",
-   sellerimage:""
+   sellerimage:null
   });
  const [desktopDropdownOpen, setDesktopDropdownOpen] = useState(false);
 const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
@@ -163,7 +163,7 @@ useEffect(() => {
   ref={avatarRef}
   onClick={() => setDesktopDropdownOpen(prev => !prev)}
   className="w-10 h-10  rounded-full cursor-pointer hidden lg:block"
-  src={fetchedData.sellerimage}
+  src={fetchedData?.sellerimage}
   alt="User dropdown"
 />
 

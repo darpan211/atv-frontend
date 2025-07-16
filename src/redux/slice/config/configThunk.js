@@ -31,7 +31,7 @@ export const createMasterConfig = createAsyncThunk(
   'masterConfig/create',
   async (formData, { rejectWithValue }) => {
     try {
-      const res = await axiosHandler.post(`${BASE_URL}/api/addslider`, formData, {
+      const res = await axiosHandler.put(`${BASE_URL}/api/addslider`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       return res.data.data;
