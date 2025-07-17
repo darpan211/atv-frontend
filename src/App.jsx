@@ -92,8 +92,8 @@ const App = () => {
           path="/"
           element={
             <AppLayout>
-              {/* <LoginPage /> */}
-              <Dashboard />
+              <LoginPage />
+              {/* <Dashboard/> */}
             </AppLayout>
           }
         />
