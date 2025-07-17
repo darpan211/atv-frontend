@@ -30,6 +30,9 @@ const AppLayout = ({ children }) => {
     if (isAdminRoute && userRole !== 'admin') {
       navigate('/not-authorized', { replace: true });
     }
+    if(isAdminRoute && userRole =='seller'){
+      navigate('/seller/dashboard')
+    }
   }, [authToken, navigate, isAdminRoute, userRole]);
 
   const renderHeader = () => {
