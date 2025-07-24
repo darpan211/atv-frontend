@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMatches, deleteMatch } from '../../../redux/slice/matchTiles/matchThunk';
 import { Trash2 } from 'lucide-react';
@@ -7,24 +7,26 @@ import { toast } from 'react-toastify';
 const AllMatchesDisplay = () => {
   const dispatch = useDispatch();
   const { list: matches, loading, deletingId, error, success } = useSelector(state => state.match);
+  const lastDeletedId = useRef(null);
 
   useEffect(() => {
     dispatch(fetchMatches());
   }, [dispatch]);
 
   useEffect(() => {
-    if (error) toast.error(error);
+    if (error && lastDeletedId.current) {
+      toast.error(error);
+      lastDeletedId.current = null;
+    }
+    if (success && lastDeletedId.current) {
+      toast.success(typeof success === 'string' ? success : 'Match deleted successfully');
+      lastDeletedId.current = null;
+    }
   }, [error, success]);
   console.log(matches, "matches in AllMatchesDisplay");
   const handleDelete = (id) => {
-    dispatch(deleteMatch(id))
-      .unwrap()
-      .then(res => {
-        toast.success(res.message || "Match deleted successfully");
-      })
-      .catch(err => {
-        toast.error(err?.message || "Error deleting match");
-      });
+    lastDeletedId.current = id;
+    dispatch(deleteMatch(id));
   };
 
   if (loading) {

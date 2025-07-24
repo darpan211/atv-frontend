@@ -73,7 +73,8 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
   useEffect(() => {
     const imageGroups = dashboardData?.[0]?.places_images;
     if (imageGroups && typeof imageGroups === 'object') {
-      const tabNames = Object.keys(imageGroups);
+      // Always use lowercase for storage
+      const tabNames = Object.keys(imageGroups).map((t) => t.toLowerCase());
       const initialTiles = {};
       const initialUrls = {};
       tabNames.forEach((tab) => {
@@ -130,14 +131,32 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
     setFieldValue(`tiles.${activeTab}`, updated);
   }, [activeTab]);
 
-  const handleAddTab = useCallback((setFieldValue) => {
-    const newTab = newTabName.trim().toLowerCase();
-    if (!newTab || tabs.includes(newTab)) return toast.error('Invalid tab name!');
-    setTabs([...tabs, newTab]);
-    setActiveTab(newTab);
-    setFieldValue(`tiles.${newTab}`, []);
+  const handleAddTab = useCallback((setFieldValue, values) => {
+    const trimmed = newTabName.trim();
+    if (!trimmed) return toast.error('Tab name cannot be empty');
+    const lower = trimmed.toLowerCase();
+    if (tabs.some((t) => t.toLowerCase() === lower)) return toast.error('Tab name already exists');
+    setTabs((prev) => [...prev, lower]);
+    setActiveTab(lower);
+
+    const updatedFormValues = {
+      ...values.tiles,
+      [lower]: [],
+    };
+    setFormValues(updatedFormValues);
+    setFieldValue('tiles', updatedFormValues);
     setNewTabName('');
   }, [newTabName, tabs]);
+
+  const handleRemoveTab = useCallback((tab, setFieldValue, values) => {
+    const updatedTabs = tabs.filter((t) => t !== tab);
+    const updatedFormValues = { ...values.tiles };
+    delete updatedFormValues[tab];
+    setTabs(updatedTabs);
+    if (activeTab === tab) setActiveTab(updatedTabs[0] || null);
+    setFormValues(updatedFormValues);
+    setFieldValue('tiles', updatedFormValues);
+  }, [tabs, activeTab]);
 
   return (
     <div className="p-4 sm:p-6 bg-[#FFF5EE] min-h-screen">
@@ -153,21 +172,21 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
             return;
           }
           try {
-            const cleanedTiles = Object.fromEntries(
-              Object.entries(values.tiles).filter(([tab, arr]) => {
-                const original = formValues[tab] || [];
-                return (
-                  arr.length > 0 &&
-                  (arr.length !== original.length ||
-                    arr.some((tile, i) => tile.file || tile.url !== original[i]?.url))
-                );
-              })
-            );
-
-            const res = await saveTiles(cleanedTiles);
+            const isUnchanged = JSON.stringify(values.tiles) === JSON.stringify(formValues);
+            let payload;
+            if (isUnchanged) {
+              payload = formValues;
+            } else {
+              payload = Object.fromEntries(
+                Object.entries(values.tiles)
+                  .filter(([tab, arr]) => arr.length > 0)
+                  .map(([tab, arr]) => [tab.toLowerCase(), arr])
+              );
+            }
+            const res = await saveTiles(payload);
             if (res.status === 200) {
               toast.success('Tile images saved successfully!');
-              onDataChange?.({ tiles: cleanedTiles });
+              onDataChange?.({ tiles: payload });
               setFormValues(values.tiles);
               onNext?.();
             } else toast.error('Failed to save tiles.');
@@ -180,18 +199,27 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
       >
         {({ values, setFieldValue, isSubmitting }) => (
           <Form>
+            {/* Tabs with remove cross and capitalized display */}
             <div className="mb-4 flex gap-2 flex-wrap">
               {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-3 py-1 rounded-lg text-sm ${
-                    activeTab === tab ? 'bg-[#6F4E37] text-white' : 'border border-[#6F4E37] text-[#6F4E37]'
-                  }`}
-                >
-                  {tab}
-                </button>
+                <div key={tab} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-3 py-1 rounded-lg text-sm pr-6 ${
+                      activeTab === tab ? 'bg-[#6F4E37] text-white' : 'border border-[#6F4E37] text-[#6F4E37]'
+                    }`}
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTab(tab, setFieldValue, values)}
+                    className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs hover:bg-red-600 shadow-md"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
               ))}
               <div className="flex items-center gap-2 mt-2">
                 <input
@@ -199,11 +227,17 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
                   onChange={(e) => setNewTabName(e.target.value)}
                   placeholder="New Tab"
                   className="border p-1 text-sm rounded-md"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTab(setFieldValue, values);
+                    }
+                  }}
                 />
                 <button
                   type="button"
-                  onClick={() => handleAddTab(setFieldValue)}
-                  className="p-1 bg-[#6F4E37] text-white rounded-full"
+                  onClick={() => handleAddTab(setFieldValue, values)}
+                  className="p-1 bg-[#6F4E37] text-white rounded-full hover:bg-[#5c3f2c] transition"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -211,7 +245,7 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
             </div>
 
             <div
-              className="border border-dashed p-6 text-center bg-white rounded-lg mb-4"
+              className="border border-dashed p-6 text-center bg-white rounded-lg mb-4 cursor-pointer hover:border-[#6F4E37] transition"
               onClick={() => fileInputRef.current?.click()}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => handleUpload(e, setFieldValue, values)}
@@ -248,7 +282,7 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-5 py-2 bg-[#6F4E37] text-white rounded-md"
+                className="px-5 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition disabled:opacity-50"
               >
                 {isSubmitting ? 'Saving...' : 'Save Tiles'}
               </button>
