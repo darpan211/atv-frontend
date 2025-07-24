@@ -1,5 +1,5 @@
 import AdminHeader from '@/components/common/AdminHeader';
-import Header from '@/components/common/Header';
+// import Header from '@/components/common/Header';
 import SellerHeader from '@/components/common/SellerHeader';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
@@ -43,7 +43,7 @@ const AppLayout = ({ children }) => {
   if (userRole === 'seller') return <SellerHeader />;
 
   // show default Header ONLY on "/"
-  if (location.pathname === '/') return <Header />;
+  // if (location.pathname === '/') return <Header />;
 
   return null;
   };

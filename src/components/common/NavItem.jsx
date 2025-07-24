@@ -60,27 +60,28 @@ const NavItem = ({
     item => {
       if (!enableDynamicNested) return;
 
-    const normalizedLabel = item.label?.toLowerCase().replace(/\s+/g, '');
-    const matchedKey = Object.keys(sourceMap).find((key) =>
-      normalizedLabel.includes(key)
-    );
+      const normalizedLabel = item.label?.toLowerCase().replace(/\s+/g, '');
+      const matchedKey = Object.keys(sourceMap).find((key) =>
+        normalizedLabel.includes(key)
+      );
 
-    setActiveMainKey(matchedKey);
+      setActiveMainKey(matchedKey);
 
-    if (!matchedKey || !sourceMap[matchedKey]?.length) {
-      setNestedItems([]);
-      return;
-    }
+      if (!matchedKey || !sourceMap[matchedKey]?.length) {
+        setNestedItems([]);
+        return;
+      }
 
-    const cacheKey = `${item.label.toLowerCase()}-${matchedKey}`;
-    if (nestedCacheRef.current.has(cacheKey)) {
-      setNestedItems(nestedCacheRef.current.get(cacheKey));
-    } else {
-      const formatted = buildNestedItems(matchedKey);
-      nestedCacheRef.current.set(cacheKey, formatted);
-      setNestedItems(formatted);
-    }
-  }, [buildNestedItems, sourceMap, enableDynamicNested]);
+      const cacheKey = `${item.label.toLowerCase()}-${matchedKey}`;
+      if (nestedCacheRef.current.has(cacheKey)) {
+        setNestedItems(nestedCacheRef.current.get(cacheKey));
+      } else {
+        const formatted = buildNestedItems(matchedKey);
+        nestedCacheRef.current.set(cacheKey, formatted);
+        setNestedItems(formatted);
+      }
+    }, [buildNestedItems, sourceMap, enableDynamicNested]
+  );
 
   const handleClick = () => {
     if (withDropdown) setIsOpen(prev => !prev);
@@ -143,22 +144,24 @@ const NavItem = ({
                     }, 300);
                   }}
                   className="group px-4 py-2 hover:bg-gray-100 border-b last:border-none hover:text-[#6C4A34] transition cursor-pointer relative"
-                  onClick={() =>
-                    item.path && !item.hasDynamicChildren && handleItemClick(item.path)
-                  }
+                  onClick={() => {
+                    if (item.onClick) {
+                      item.onClick();
+                      setIsOpen(false);
+                      setActiveMainKey(null);
+                    } else if (item.path && !item.hasDynamicChildren) {
+                      handleItemClick(item.path);
+                    }
+                  }}
                 >
                   <div className="flex justify-between items-center">
                     {item.label}
-                    {(item.hasDynamicChildren || isHovered) && (
-                      <ChevronRight
-                        className={`w-4 h-4 ml-2 transition-transform duration-200 ease-in-out ${
-                          isPopulated ? 'rotate-90' : ''
-                        }`}
-                      />
+                    {(item.hasDynamicChildren && isHovered && nestedItems.length > 0) && (
+                      <ChevronRight className="w-4 h-4 ml-2" />
                     )}
                   </div>
 
-                  {isHovered && (
+                  {item.hasDynamicChildren && isHovered && (
                     <ul
                       className="absolute top-0 left-full ml-1 w-56 bg-white text-black shadow-lg rounded-lg py-2 text-sm z-50"
                       onMouseEnter={() => clearTimeout(hoverTimeoutRef.current)}
@@ -174,15 +177,15 @@ const NavItem = ({
                           <li
                             key={subIdx}
                             className="px-4 py-2 hover:bg-gray-100 border-b last:border-none hover:text-[#6C4A34] transition cursor-pointer"
-                            onClick={() => handleItemClick(subItem.path)}
+                            onClick={() => {
+                              handleItemClick(subItem.path);
+                            }}
                           >
                             {subItem.label}
                           </li>
                         ))
                       ) : (
-                        <li 
-                          className="px-4 py-2 text-gray-500 italic cursor-default"
-                        >
+                        <li className="px-4 py-2 text-gray-500 italic cursor-default">
                           No items available
                         </li>
                       )}

@@ -59,7 +59,8 @@ import { fetchSidebarFilters } from './redux/slice/sidebarfilter/filterThunks';
 import { fetchCategories } from './redux/slice/categories/categoryThunks';
 import TileManagement from './components/Tiles/TilesManagement';
 import Configure from './components/seller/MultiStepConfigure';
-
+import MatchTilesManager from './components/seller/MatchTiles/ManageMatchTiles'
+import ViewAllMatches from './components/seller/MatchTiles/ViewAllMatches'
 // ================== App Routes ==================
 const App = () => {
   const dispatch = useDispatch();
@@ -333,6 +334,22 @@ const App = () => {
           element={
             <AppLayout>
               <TilesQrImage />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/seller/matchtiles"
+          element={
+            <AppLayout>
+              <MatchTilesManager />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/seller/allmatchtiles"
+          element={
+            <AppLayout>
+              < ViewAllMatches/>
             </AppLayout>
           }
         />

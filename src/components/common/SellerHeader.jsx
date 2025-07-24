@@ -70,7 +70,20 @@ const avatarRef = useRef(null);
       withDropdown: false,
       onClick: () => navigate('/seller/configure'),
     },
-   
+   {
+  label: 'Match Tiles',
+  withDropdown: true,
+  dropdownItems: [
+    {
+      label: 'Match Tiles',
+      onClick: () => navigate('/seller/matchtiles'),
+    },
+    {
+      label: 'View Match Tiles',
+      onClick: () => navigate('/seller/allmatchtiles'),
+    },
+  ]
+}
      
   ];
 useEffect(() => {
