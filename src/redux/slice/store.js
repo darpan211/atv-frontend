@@ -32,7 +32,7 @@ const persistConfig = {
   blacklist: ['match'],
 };
 
-const rootReducer = combineReducers({
+const appReducer = combineReducers({
   auth: authReducer,
   categories: categoryReducer,
   colors: colorReducer,
@@ -50,6 +50,14 @@ const rootReducer = combineReducers({
   dashboard: dashboardReducer,
   match: matchReducer,
 });
+
+// Reset all state on logout
+const rootReducer = (state, action) => {
+  if (action.type === 'auth/logout') {
+    state = undefined;
+  }
+  return appReducer(state, action);
+};
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
