@@ -29,6 +29,7 @@ const persistConfig = {
   key: 'root',
   storage,
   transforms: [encryptor],
+  blacklist: ['match'],
 };
 
 const rootReducer = combineReducers({
