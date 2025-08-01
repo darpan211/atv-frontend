@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { CATEGORIES, TILES_DATA } from '@/utils/constants';
 import { Upload, Camera, Box,ScanQrCode } from 'lucide-react';
 import Footer from '@/components/Home/Footer';
+import visualizerVideo from '@/assets/visualizerintroVideo.mp4';
+
 const VisualizerIntro = () => {
     const [selected, setSelected] = useState(0);
     const [displayedCategory, setDisplayedCategory] = useState(0);
@@ -13,12 +15,13 @@ const VisualizerIntro = () => {
     const currentImages = TILES_DATA[CATEGORIES[displayedCategory]?.name] || [];
 
     return (
+        <>
         <div className="w-full px-4 md:px-10 py-2">
             <div className="max-w-7xl mx-auto">
                 <h2 className="text-3xl md:text-3xl font-bold mb-6">See products in your room</h2>
 
                 <div className="flex flex-col lg:flex-row items-center justify-between gap-10 mb-12">
-                    <div className="flex flex-col gap-4 items-start w-full max-w-md text-left">
+                    <div className="flex flex-col gap-4 items-start w-full max-w-sm text-left">
                         <div className="flex items-center gap-2">
                             <span className="text-amber-900">
                                 <Camera />
@@ -43,11 +46,15 @@ const VisualizerIntro = () => {
                         </button>
                     </div>
 
-                    <div className="w-full max-w-md">
-                        <img
-                            src="/illustration-room-visualizer.png"
+                    <div className="w-full max-w-2xl">
+                        <video
+                            src={visualizerVideo}
                             alt="Room Visualizer Illustration"
                             className="w-full rounded-lg shadow-md"
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
                         />
                     </div>
                 </div>
@@ -72,12 +79,11 @@ const VisualizerIntro = () => {
                     ))}
                 </div>
             </div>
-            <div className='mt-10'>
+        </div>
+          <div className='mt-10'>
                 <Footer/>
             </div>
-            
-        </div>
-
+</>
     );
 };
 
