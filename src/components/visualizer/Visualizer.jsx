@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, use } from 'react';
-import { ChevronLeft, Heart, Menu, X, EllipsisVertical, Layers, RefreshCcw, LayoutGrid, PanelsTopLeft, FlipHorizontal, Settings, List, Ungroup, Grid3x3,BrickWall,Trash2,ChevronsLeftRight } from 'lucide-react';
+import { ChevronLeft, Heart, Menu, X, EllipsisVertical, Layers, RefreshCcw, LayoutGrid, ShoppingBag,PanelsTopLeft, FlipHorizontal, Settings, List, Ungroup, Grid3x3,BrickWall,Trash2,ChevronsLeftRight } from 'lucide-react';
 import { TIELS } from '@/utils/constants';
 import downloadIcon from '../../assets/download-icon.svg';
 import addCatelogIcon from '../../assets/addCatelog-icon.svg';
@@ -190,88 +190,107 @@ const SearchDropdown = ({ onFilterClick, viewMode, setViewMode }) => {
   );
 };
 
-const TileCard = ({ tile, index, isSelected, onTileClick, onToggleLike, isLiked }) => {
-  const [data, setData] = useState([]);
+const TileCard = ({
+  tile,
+  index,
+  isSelected,
+  onTileClick,
+  onToggleLike,
+  isLiked,
+  isListView = false,
+}) => {
+  const [data, setData] = useState(null);
   const [image, setImage] = useState('');
+  const [showProduct, setShowProducts] = useState(false);
   const token = localStorage.getItem('authToken');
 
   useEffect(() => {
     const id = '686fb0c04f0fff9e6db151d8';
-    const fetchtile = async () => {
-      const res = await fetch(`http://localhost:3010/api/v1/tiles/gettiles/${id}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const parsed = await res.json();
-      const tile = parsed?.data;
-
-      setData([tile]);
-      setImage(tile?.tiles_image || '');
+    const fetchTile = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/api/v1/tiles/gettiles/${id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const parsed = await res.json();
+        const tileData = parsed?.data;
+        setData(tileData);
+        setImage(tileData?.tiles_image || '');
+      } catch (err) {
+        console.error('Error fetching tile:', err);
+      }
     };
-    fetchtile();
+    fetchTile();
   }, []);
+
+  const tileToShow = data || tile;
+  const cardBorder = !isListView && isSelected ? 'border-[#6F4E37]' : 'border-white';
 
   return (
     <div
-      className="relative flex border rounded-lg overflow-hidden shadow hover:shadow-md transition-all bg-white"
-      onClick={() => onTileClick(tile, index)}
+      className={`relative flex border-1 rounded-lg overflow-hidden shadow hover:shadow-md transition-all bg-white ${cardBorder} cursor-pointer hover:ring-2 hover:ring-[#6F4E37] hover:scale-[1.01]`}
+      onClick={() => !isListView && onTileClick(tileToShow, index)} // Disable click if list view
     >
       {/* Image Section */}
-      <div className="w-24 h-24 flex-shrink-0">
+      <div className="relative w-24 h-24 flex-shrink-0">
         <img
-          src={image || tile.thumbnail}
-          alt={tile.tiles_name}
+          src={image || tileToShow.thumbnail}
+          alt={tileToShow.tiles_name}
           className="w-full h-full object-cover"
         />
+        <button
+          className="absolute top-1 right-1 z-10 flex items-center bg-white/90 backdrop-blur-sm rounded-full w-6 h-6 justify-center shadow hover:bg-white"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleLike(tileToShow.id);
+          }}
+        >
+          <Heart size={16} color={isLiked ? 'red' : 'gray'} fill={isLiked ? 'red' : 'none'} />
+        </button>
       </div>
 
       {/* Info Section */}
       <div className="flex flex-col justify-between p-3 flex-grow">
         <div>
-          {/* Title */}
           <h3 className="text-sm font-semibold truncate max-w-[12rem]">
-            {tile.tiles_name || 'Untitled'}
+            {tileToShow.tiles_name || 'Untitled'}
           </h3>
-
-          {/* Size */}
           <p className="text-xs text-gray-600">
-            Size: {tile.size?.[0] || 'N/A'}
-            {tile.size?.length > 1 && (
-              <span className="ml-1 text-[#6F4E37]">({tile.size.length} Sizes)</span>
-            )}
+            {tileToShow.material?.join(', ') || 'Material N/A'}
           </p>
-
-          {/* Material */}
-          <p className="text-xs text-gray-600">
-            {tile.material?.join(', ') || 'Material N/A'}
-          </p>
-        </div>
-
-        {/* Action Row */}
-        <div className="flex items-center justify-between mt-2">
-          {/* Stock (optional demo logic) */}
-          {tile.status === 'out-of-stock' && (
-            <span className="text-xs px-2 py-0.5 rounded bg-gray-800 text-white">
-              Out Of Stock
-            </span>
+          {Array.isArray(tileToShow.size) && tileToShow.size.length > 1 && (
+            <p className="text-xs text-[#6F4E37]">{tileToShow.size.length} Sizes</p>
           )}
-          <button
-            className="z-10 flex items-center bg-white/90 backdrop-blur-sm rounded-full w-6 h-6 justify-center shadow hover:bg-white"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleLike(tile.id);
-            }}
-          >
-            <Heart
-              size={16}
-              color={isLiked ? 'red' : 'gray'}
-              fill={isLiked ? 'red' : 'none'}
-            />
-          </button>
         </div>
+
+        <div className="flex justify-end items-center mt-2">
+          {tileToShow.status !== 'out-of-stock' && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                // Add to cart logic (placeholder)
+              }}
+            >
+              <ShoppingBag size={18} className="text-black hover:text-[#6F4E37]" />
+            </button>
+          )}
+        </div>
+
+        {/* More Info - Only if not in list view and selected */}
+        {!isListView && isSelected && (
+          <div className="mt-2">
+            <hr className="my-2 border-t border-gray-200" />
+            <div className="flex items-center justify-between text-sm text-[#6F4E37] font-medium">
+              <button onClick={() => setShowProducts(true)}>
+                <span>More Product Detail</span>
+              </button>
+              <span className="text-lg">→</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -295,7 +314,7 @@ const GroutSettingsPopup = ({ isOpen, onClose, groutWidth, setGroutWidth }) => {
       <div className="bg-[#e0dcda] flex items-center justify-between px-10 pt-4 pb-2 text-black">
         <h3 className="text-3xl font-medium">Grout Setting</h3>
         <div className="text-2xl font-medium">{groutWidth} (mm)</div>
-        <button onClick={onClose}>
+        <button onClick={onClose} className='hover:cursor-pointer'>
           <X size={30} />
         </button>
       </div>
@@ -367,26 +386,27 @@ const LayoutPopup = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed bottom-18 right-4 sm:right-6 z-50 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden w-[95%] max-w-[700px]"
+      className="fixed bottom-18 right-4 sm:right-6 z-50 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden w-[95%] max-w-[700px]"
     >
       {/* Header */}
       <div className="bg-[#e0dcda] flex items-center justify-between px-10 pt-4 pb-2 text-black">
         <h3 className="text-3xl font-semibold">Layout & Rotation</h3>
-        <button onClick={onClose}>
-          <X size={35} />
+        <button onClick={onClose} className='hover: cursor-pointer'>
+          <X size={30} />
         </button>
       </div>
 
       {/* Layout Grid */}
-      <div className="grid grid-cols-4 sm:grid-cols-6 gap-4 px-1 py-6">
+      <div className="grid grid-cols-4 sm:grid-cols-6 gap-4 px-5 py-6">
         {[...Array(16)].map((_, index) => (
           <div
             key={index}
-            className="aspect-square border flex items-center justify-center hover:border-[#6F4E37] transition"
+            className="aspect-square border flex items-center justify-center hover:border-[#6F4E37] transition hover:cursor-pointer"
           >
             <BrickWall
               className="w-full h-full text-gray-600"
               style={{ transform: `rotate(${rotation}deg)` }}
+               strokeWidth={1.2}
             />
           </div>
         ))}
@@ -432,7 +452,7 @@ const SettingPopup = ({ isOpen, onClose }) => {
 
     const fetchtile = async () => {
       try {
-        const res = await fetch(`http://localhost:3010/api/v1/tiles/gettiles/${id}`, {
+        const res = await fetch(`${BASE_URL}/api/v1/tiles/gettiles/${id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -467,7 +487,7 @@ const SettingPopup = ({ isOpen, onClose }) => {
       {/* Header */}
       <div className='bg-[#6F4E37] flex items-center justify-between px-4 pt-4 pb-2 text-white'>
         <h3 className='text-3xl'>Selected Product</h3>
-        <button onClick={onClose}>
+        <button onClick={onClose} className='hover:cursor-pointer'>
           <X size={20} />
         </button>
       </div>
@@ -535,7 +555,7 @@ const Product = ({ isOpen, onClose }) => {
 
     const fetchtile = async () => {
       try {
-        const res = await fetch(`http://localhost:3010/api/v1/tiles/gettiles/${id}`, {
+        const res = await fetch(`${BASE_URL}/api/v1/tiles/gettiles/${id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -565,7 +585,7 @@ const Product = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="bg-[#6F4E37] text-white flex justify-between items-center px-4 py-3">
           <h3 className="text-xl font-semibold">Product</h3>
-          <button onClick={onClose}>
+          <button onClick={onClose} className='hover:cursor-pointer'>
             <X size={22} />
           </button>
         </div>
@@ -604,7 +624,7 @@ const Product = ({ isOpen, onClose }) => {
 
               {/* Add to Cart */}
               <div className="mt-4 flex justify-center">
-                <button className="bg-[#6F4E37] text-white text-sm px-6 py-2 rounded shadow hover:bg-[#553b2d] transition">
+                <button className="bg-[#6F4E37] text-white text-sm px-6 py-2 rounded shadow hover:bg-[#553b2d] transition hover:cursor-pointer">
                   Add to cart
                 </button>
               </div>
@@ -615,10 +635,10 @@ const Product = ({ isOpen, onClose }) => {
 
       {/* Outside Navigation Footer */}
       <div className="mt-4 flex items-center justify-center gap-3">
-        <button className="bg-white text-[#6F4E37] border border-[#6F4E37] px-4 py-2 rounded-md shadow-sm hover:bg-gray-100">
+        <button className="bg-white text-[#6F4E37] border border-[#6F4E37] px-4 py-2 rounded-md shadow-sm hover:bg-gray-100 hover:cursor-pointer">
           &lt;
         </button>
-        <button className="bg-white text-[#6F4E37] border border-[#6F4E37] px-4 py-2 rounded-md shadow-sm hover:bg-gray-100">
+        <button className="bg-white text-[#6F4E37] border border-[#6F4E37] px-4 py-2 rounded-md shadow-sm hover:bg-gray-100 hover:cursor-pointer">
           &gt;
         </button>
       </div>
@@ -736,19 +756,20 @@ const TileVisualizer = () => {
                   : 'flex flex-col gap-4'
               }`}
             >
-              {TIELS.slice(0, 4).map((tile, index) => (
-                <TileCard
-                  key={tile.id}
-                  tile={tile}
-                  index={index}
-                  isSelected={selectedTileIndex === index}
-                  showDetails={selectedTileIndex === index}
-                  onTileClick={handleTileClick}
-                  onToggleLike={handleToggleLike}
-                  isLiked={likedTiles.includes(tile.id)}
-                  className="border border-black-300 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-                />
-              ))}
+             {TIELS.slice(0, 4).map((tile, index) => (
+                    <TileCard
+                      key={tile.id}
+                      tile={tile}
+                      index={index}
+                      isSelected={false}
+                      showDetails={false}
+                      onTileClick={() => {}}
+                      onToggleLike={handleToggleLike}
+                      isLiked={likedTiles.includes(tile.id)}
+                      isListView={false}
+                      className="border border-black-300 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+                    />
+                  ))}
             </div>
           </div>
         </div>
@@ -824,7 +845,10 @@ const TileVisualizer = () => {
                 </span>
                 <span>Add Catalog</span>
               </button>
-              <button className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white rounded text-xs sm:text-sm lg:text-base transition-colors duration-200 min-w-[130px] sm:min-w-[140px] lg:min-w-[150px]">
+              <button
+                onClick={() => navigate('/seller/visualizerintro')}
+                className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white rounded text-xs sm:text-sm lg:text-base transition-colors duration-200 min-w-[130px] sm:min-w-[140px] lg:min-w-[150px]"
+              >
                 <span className="mr-2 flex-shrink-0">
                   <img
                     src={roomIcon || '/placeholder.svg?height=16&width=16'}
@@ -910,7 +934,7 @@ const TileVisualizer = () => {
                   </button>
 
                   <button
-                    className="flex items-center justify-center bg-white border border- shadow w-10 h-10"
+                    className="flex items-center justify-center bg-white border border- shadow w-10 h-10 hover:cursor-pointer"
                     onClick={() => setIsFramePopupOpen(true)}
                   >
                     <X className="w-5 h-5 text-blace" />
@@ -937,48 +961,48 @@ const TileVisualizer = () => {
           </div>
           {/* Frame Selection Popup */}
           {isFramePopupOpen && !showProduct && (
-              <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-                <div className="relative bg-white rounded-xl shadow-lg w-full max-w-md mx-4">
-                  {/* Header */}
-                  <div className="bg-[#6F4E37] text-white py-4 px-6 rounded-t-xl text-start">
-                    <h2 className="text-xl font-semibold">Select a Frame to Continue</h2>
-                  </div>
+                <div
+                  className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center"
+                  onClick={() => setIsFramePopupOpen(false)} // click outside closes modal
+                >
+                  <div
+                    className="relative bg-white rounded-xl shadow-lg w-full max-w-md mx-4"
+                    onClick={(e) => e.stopPropagation()} // click inside does NOT close modal
+                  >
+                    {/* Header */}
+                    <div className="bg-[#6F4E37] text-white py-4 px-6 rounded-t-xl text-start">
+                      <h2 className="text-xl font-semibold">Select a Frame to Continue</h2>
+                    </div>
 
-                  {/* Content */}
-                  <div className="p-6">
-                    <p className="text-gray-700 mb-6">
-                      Choose a frame for your tile layout. Select either left or right frame option below.
-                    </p>
+                    {/* Content */}
+                    <div className="p-6">
+                      <p className="text-gray-700 mb-6">
+                        Choose a frame for your tile layout. Select either left or right frame option below.
+                      </p>
 
-                    <div className="flex justify-center gap-6">
-                      <button
-                        className="bg-[#6F4E37] text-white px-5 py-2 rounded hover:bg-[#5a3e2d] transition"
-                        onClick={() => {
-                          setShowProducts(true);
-                        }}
-                      >
-                        Left Frame
-                      </button>
-                      <button
-                        className="bg-[#6F4E37] text-white px-5 py-2 rounded hover:bg-[#5a3e2d] transition"
-                        onClick={() => {
-                          setShowProducts(true);
-                        }}
-                      >
-                        Right Frame
-                      </button>
+                      <div className="flex justify-center gap-6">
+                        <button
+                          className="bg-[#6F4E37] text-white px-5 py-2 rounded hover:bg-[#5a3e2d] transition"
+                        >
+                          Left Frame
+                        </button>
+                        <button
+                          className="bg-[#6F4E37] text-white px-5 py-2 rounded hover:bg-[#5a3e2d] transition"
+                        >
+                          Right Frame
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {showProduct && (
               <div
                 className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center"
                 onClick={() => {
                   setShowProducts(false);
-                  setIsFramePopupOpen(false); // close frame modal when product popup closes
+                  setIsFramePopupOpen(false);
                 }}
               >
                 <div onClick={(e) => e.stopPropagation()}>
@@ -991,15 +1015,18 @@ const TileVisualizer = () => {
             )}
           <div className="flex-1 flex flex-col bg-white mt-10 sm:mt-8 md:mt-6 min-h-screen lg:min-h-0 lg:fixed lg:bottom-0 lg:w-[1500px] lg:z-10">
             <div className="bg-[#EFEFEF] text-gray-800 p-3 sm:p-4 lg:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-300 mx-2 sm:mx-3 lg:mx-4 mt-14 sm:mt-16 lg:mt-0 rounded-lg shadow-lg gap-3 sm:gap-4">
-              <div className="hidden md:flex items-center gap-2 sm:gap-3 cursor-pointer">
-                <button className="flex cursor-pointer items-center justify-center w-8 h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11">
-                  <Layers className="w-6 h-6 bg-white shadow-down" />
-                </button>
-                <div className='flex flex-col'>
-                  <span className="text-sm">Company Name</span>
-                  <span className="text-sm font-bold">Monalisa onyx AQUA GMYK</span>
+                <div
+                  className="hidden md:flex items-center gap-2 sm:gap-3 cursor-pointer"
+                  onClick={() => setShowProducts(true)}
+                >
+                  <button className="flex cursor-pointer items-center justify-center w-8 h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11">
+                    <Layers className="w-6 h-6 bg-white shadow-down" />
+                  </button>
+                  <div className='flex flex-col'>
+                    <span className="text-sm">Company Name</span>
+                    <span className="text-sm font-bold">Monalisa onyx AQUA GMYK</span>
+                  </div>
                 </div>
-              </div>
 
               <div className="flex flex-wrap xs:flex-row sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                 <button className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-white border border-gray-300 text-black rounded text-xs sm:text-sm lg:text-base hover:bg-gray-50 transition-colors duration-200 min-w-[120px] sm:min-w-[130px] lg:min-w-[140px]">
