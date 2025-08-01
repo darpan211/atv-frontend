@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, use } from 'react';
-import { ChevronLeft, Heart, Menu, X, EllipsisVertical, Layers, RefreshCcw, LayoutGrid, PanelsTopLeft, FlipHorizontal, Settings, List, Ungroup, Grid3x3,BrickWall,Trash2 } from 'lucide-react';
+import { ChevronLeft, Heart, Menu, X, EllipsisVertical, Layers, RefreshCcw, LayoutGrid, PanelsTopLeft, FlipHorizontal, Settings, List, Ungroup, Grid3x3,BrickWall,Trash2,ChevronsLeftRight } from 'lucide-react';
 import { TIELS } from '@/utils/constants';
 import downloadIcon from '../../assets/download-icon.svg';
 import addCatelogIcon from '../../assets/addCatelog-icon.svg';
@@ -191,6 +191,7 @@ const SearchDropdown = ({ onFilterClick, viewMode, setViewMode }) => {
 };
 
 const TileCard = ({ tile, index, isSelected, onTileClick, onToggleLike, isLiked }) => {
+  const [data, setData] = useState([]);
   const [image, setImage] = useState('');
   const token = localStorage.getItem('authToken');
 
@@ -205,36 +206,73 @@ const TileCard = ({ tile, index, isSelected, onTileClick, onToggleLike, isLiked 
         },
       });
       const parsed = await res.json();
-      const imageUrl = parsed?.data?.tiles_image;
-      setImage(imageUrl);
+      const tile = parsed?.data;
+
+      setData([tile]);
+      setImage(tile?.tiles_image || '');
     };
     fetchtile();
   }, []);
 
   return (
     <div
-      className="relative cursor-pointer rounded border-4 border-white overflow-hidden shadow hover:shadow-md transition-all"
+      className="relative flex border rounded-lg overflow-hidden shadow hover:shadow-md transition-all bg-white"
       onClick={() => onTileClick(tile, index)}
     >
-      <img
-        src={image || tile.thumbnail}
-        alt={tile.name}
-        className="w-full h-18 object-cover"
-      />
-
-      <button
-        className="absolute top-2 right-2 z-10 flex items-center bg-white/90 backdrop-blur-sm rounded-full w-6 h-6 justify-center shadow hover:bg-white"
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggleLike(tile.id);
-        }}
-      >
-        <Heart
-          size={16}
-          color={isLiked ? 'red' : 'gray'}
-          fill={isLiked ? 'red' : 'none'}
+      {/* Image Section */}
+      <div className="w-24 h-24 flex-shrink-0">
+        <img
+          src={image || tile.thumbnail}
+          alt={tile.tiles_name}
+          className="w-full h-full object-cover"
         />
-      </button>
+      </div>
+
+      {/* Info Section */}
+      <div className="flex flex-col justify-between p-3 flex-grow">
+        <div>
+          {/* Title */}
+          <h3 className="text-sm font-semibold truncate max-w-[12rem]">
+            {tile.tiles_name || 'Untitled'}
+          </h3>
+
+          {/* Size */}
+          <p className="text-xs text-gray-600">
+            Size: {tile.size?.[0] || 'N/A'}
+            {tile.size?.length > 1 && (
+              <span className="ml-1 text-[#6F4E37]">({tile.size.length} Sizes)</span>
+            )}
+          </p>
+
+          {/* Material */}
+          <p className="text-xs text-gray-600">
+            {tile.material?.join(', ') || 'Material N/A'}
+          </p>
+        </div>
+
+        {/* Action Row */}
+        <div className="flex items-center justify-between mt-2">
+          {/* Stock (optional demo logic) */}
+          {tile.status === 'out-of-stock' && (
+            <span className="text-xs px-2 py-0.5 rounded bg-gray-800 text-white">
+              Out Of Stock
+            </span>
+          )}
+          <button
+            className="z-10 flex items-center bg-white/90 backdrop-blur-sm rounded-full w-6 h-6 justify-center shadow hover:bg-white"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleLike(tile.id);
+            }}
+          >
+            <Heart
+              size={16}
+              color={isLiked ? 'red' : 'gray'}
+              fill={isLiked ? 'red' : 'none'}
+            />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
@@ -485,6 +523,109 @@ const SettingPopup = ({ isOpen, onClose }) => {
   );
 };
 
+const Product = ({ isOpen, onClose }) => {
+  const [data, setData] = useState([]);
+  const [image, setImage] = useState('');
+  const token = localStorage.getItem('authToken');
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const id = '686fb0c04f0fff9e6db151d8';
+
+    const fetchtile = async () => {
+      try {
+        const res = await fetch(`http://localhost:3010/api/v1/tiles/gettiles/${id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const parsed = await res.json();
+        const tile = parsed?.data;
+
+        setData([tile]);
+        setImage(tile?.tiles_image || '');
+      } catch (err) {
+        console.error('Error fetching tile:', err);
+      }
+    };
+
+    fetchtile();
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/40 px-4">
+      {/* Product Card */}
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden">
+        {/* Header */}
+        <div className="bg-[#6F4E37] text-white flex justify-between items-center px-4 py-3">
+          <h3 className="text-xl font-semibold">Product</h3>
+          <button onClick={onClose}>
+            <X size={22} />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto max-h-[75vh]">
+          {data.map((item, index) => (
+            <div key={index} className="p-4">
+              <div className="flex gap-4">
+                <img
+                  src={item.tiles_image}
+                  alt="Tile"
+                  className="w-24 h-28 object-cover rounded-lg border"
+                />
+                <div className="flex flex-col justify-start text-sm">
+                  <h4 className="font-bold text-black mb-1">{item.tiles_name}</h4>
+                  <p className="text-gray-600 leading-snug line-clamp-4">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Specifications */}
+              <div className="mt-4">
+                <h5 className="text-sm font-semibold text-black mb-1">Specifications</h5>
+                <p className="text-sm text-gray-700">
+                  <strong>Application Type:</strong> Floor
+                </p>
+                <p className="text-sm text-gray-700">
+                  <strong>Surface:</strong> Glossy, Matt
+                </p>
+                <p className="text-sm text-gray-700">
+                  <strong>Size:</strong> {item.size?.[0] || '800 x 1600 CM'}
+                </p>
+              </div>
+
+              {/* Add to Cart */}
+              <div className="mt-4 flex justify-center">
+                <button className="bg-[#6F4E37] text-white text-sm px-6 py-2 rounded shadow hover:bg-[#553b2d] transition">
+                  Add to cart
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Outside Navigation Footer */}
+      <div className="mt-4 flex items-center justify-center gap-3">
+        <button className="bg-white text-[#6F4E37] border border-[#6F4E37] px-4 py-2 rounded-md shadow-sm hover:bg-gray-100">
+          &lt;
+        </button>
+        <button className="bg-white text-[#6F4E37] border border-[#6F4E37] px-4 py-2 rounded-md shadow-sm hover:bg-gray-100">
+          &gt;
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const TileVisualizer = () => {
   const [selectedTileIndex, setSelectedTileIndex] = useState(0);
   const [likedTiles, setLikedTiles] = useState(TIELS.length >= 2 ? [TIELS[0].id, TIELS[1].id] : []);
@@ -497,6 +638,10 @@ const TileVisualizer = () => {
   const [groutWidth, setGroutWidth] = useState(0);
   const [showLayoutPopup, setShowLayoutPopup] = useState(false);
   const [showSettingPopup, setShowSettingPopup] = useState(false);
+  const [isComparing, setIsComparing] = useState(false);
+  const [compareImage, setCompareImage] = useState(null);
+  const [isFramePopupOpen, setIsFramePopupOpen] = useState(false);
+  const [showProduct, setShowProducts] = useState(false)
   const menuRef = useRef(null);
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
@@ -633,16 +778,18 @@ const TileVisualizer = () => {
         }
        
         {showSettingPopup && (
-  <div
-    className="fixed inset-0 z-40 bg-black/30 flex items-center justify-center"
-    onClick={() => setShowSettingPopup(false)} // Close on outside click
-  >
-    {/* Stop click from closing when inside popup */}
-    <div onClick={(e) => e.stopPropagation()}>
-      <SettingPopup isOpen={showSettingPopup} onClose={() => setShowSettingPopup(false)} />
-    </div>
-  </div>
-)}
+          <div
+            className="fixed inset-0 z-40 bg-black/30 flex items-center justify-center"
+            onClick={() => setShowSettingPopup(false)} // Close on outside click
+          >
+            {/* Stop click from closing when inside popup */}
+            <div onClick={(e) => e.stopPropagation()}>
+              <SettingPopup isOpen={showSettingPopup} onClose={() => setShowSettingPopup(false)} />
+            </div>
+          </div>
+          
+        )}
+      
         <div className="flex-1 flex flex-col bg-white min-h-screen lg:min-h-0">
           <div className="bg-[#EFEFEF] text-gray-800 p-3 sm:p-4 lg:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-300 mx-2 sm:mx-3 lg:mx-4 mt-14 sm:mt-16 lg:mt-0 rounded-lg shadow-lg gap-3 sm:gap-4">
             <div
@@ -717,16 +864,131 @@ const TileVisualizer = () => {
               )}
             </div>
           </div>
-          <div className="flex-1 p-3 sm:p-4 md:p-5 overflow-hidden bg-">
-            <div className="items-center justify-center">
-              <img
-                src={roomImage || '/placeholder.svg'}
-                alt="Room visualization"
-                className="w-full h-full object-cover max-h-[70vh]"
-                crossOrigin="anonymous"
-              />
-            </div>
+          {/* Image Display Area */}
+          <div className="flex-1 p-3 sm:p-4 md:p-5 overflow-hidden">
+            {isComparing ? (
+              <div className="relative w-full h-full max-h-[70vh]">
+                <div className="absolute inset-0 flex">
+                  {/* Left Image */}
+                  <div className="w-1/2 h-full overflow-hidden">
+                    <img
+                      src={roomImage || '/placeholder.svg'}
+                      alt="Current room visualization"
+                      className="w-full h-full object-cover"
+                      crossOrigin="anonymous"
+                    />
+                  </div>
+
+                  {/* Divider */}
+                  <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gray-300 flex items-center justify-center -translate-x-1/2">
+                    <button 
+                      onClick={() => setIsComparing(false)}
+                      className="z-10 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white p-2 border border-white shadow-lg hover:scale-105 transition-all duration-200"
+                    >
+                      <ChevronsLeftRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Right Image */}
+                  <div className="w-1/2 h-full overflow-hidden">
+                    <img
+                      src={compareImage || '/placeholder.svg'}
+                      alt="Comparison room visualization"
+                      className="w-full h-full object-cover"
+                      crossOrigin="anonymous"
+                    />
+                  </div>
+                </div>
+
+                {/* Bottom Controls */}
+                <div className="absolute bg-white bottom-0 left-1/2 w-110 h-20 rounded-2xl justify-between transform -translate-x-1/2 flex items-center gap-6 px-6">
+                  <button 
+                    className="bg-[#6F4E37] text-white w-30 h-12 rounded shadow-md border border-gray-200 hover:bg-[#5a3e2d]"
+                    
+                  >
+                    Left
+                  </button>
+
+                  <button
+                    className="flex items-center justify-center bg-white border border- shadow w-10 h-10"
+                    onClick={() => setIsFramePopupOpen(true)}
+                  >
+                    <X className="w-5 h-5 text-blace" />
+                  </button>
+
+                  <button 
+                    className="bg-[#6F4E37] text-white w-30 h-12 rounded shadow-md border border-gray-200 hover:bg-[#5a3e2d]"
+                    // onClick={() => setIsFramePopupOpen(true)}
+                  >
+                    Right
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="items-center justify-center">
+                <img
+                  src={roomImage || '/placeholder.svg'}
+                  alt="Room visualization"
+                  className="w-full h-full object-cover max-h-[70vh]"
+                  crossOrigin="anonymous"
+                />
+              </div>
+            )}
           </div>
+          {/* Frame Selection Popup */}
+          {isFramePopupOpen && !showProduct && (
+              <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+                <div className="relative bg-white rounded-xl shadow-lg w-full max-w-md mx-4">
+                  {/* Header */}
+                  <div className="bg-[#6F4E37] text-white py-4 px-6 rounded-t-xl text-start">
+                    <h2 className="text-xl font-semibold">Select a Frame to Continue</h2>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6">
+                    <p className="text-gray-700 mb-6">
+                      Choose a frame for your tile layout. Select either left or right frame option below.
+                    </p>
+
+                    <div className="flex justify-center gap-6">
+                      <button
+                        className="bg-[#6F4E37] text-white px-5 py-2 rounded hover:bg-[#5a3e2d] transition"
+                        onClick={() => {
+                          setShowProducts(true);
+                        }}
+                      >
+                        Left Frame
+                      </button>
+                      <button
+                        className="bg-[#6F4E37] text-white px-5 py-2 rounded hover:bg-[#5a3e2d] transition"
+                        onClick={() => {
+                          setShowProducts(true);
+                        }}
+                      >
+                        Right Frame
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showProduct && (
+              <div
+                className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center"
+                onClick={() => {
+                  setShowProducts(false);
+                  setIsFramePopupOpen(false); // close frame modal when product popup closes
+                }}
+              >
+                <div onClick={(e) => e.stopPropagation()}>
+                  <Product isOpen={showProduct} onClose={() => {
+                    setShowProducts(false);
+                    setIsFramePopupOpen(false);
+                  }} />
+                </div>
+              </div>
+            )}
           <div className="flex-1 flex flex-col bg-white mt-10 sm:mt-8 md:mt-6 min-h-screen lg:min-h-0 lg:fixed lg:bottom-0 lg:w-[1500px] lg:z-10">
             <div className="bg-[#EFEFEF] text-gray-800 p-3 sm:p-4 lg:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-300 mx-2 sm:mx-3 lg:mx-4 mt-14 sm:mt-16 lg:mt-0 rounded-lg shadow-lg gap-3 sm:gap-4">
               <div className="hidden md:flex items-center gap-2 sm:gap-3 cursor-pointer">
@@ -777,10 +1039,16 @@ const TileVisualizer = () => {
                       <Settings className="w-5 h-5" />
                     </button>
                   </div>
-
-
-
-                <button className="flex items-center cursor-pointer justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-white border border-gray-300 text-black rounded text-xs sm:text-sm lg:text-base transition-colors duration-200 min-w-[120px] sm:min-w-[130px] lg:min-w-[140px]">
+                <button 
+                  onClick={() => {
+                    setIsComparing(!isComparing);
+                    if (!isComparing) {
+                      // Set the current image as the comparison image
+                      setCompareImage(roomImage);
+                    }
+                  }}
+                  className="flex items-center cursor-pointer justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-white border border-gray-300 text-black rounded text-xs sm:text-sm lg:text-base transition-colors duration-200 min-w-[120px] sm:min-w-[130px] lg:min-w-[140px]"
+                >
                   <span className="mr-2 flex-shrink-0">
                     <FlipHorizontal className='w-5 h-5 font-bold'/>
                   </span>
@@ -795,4 +1063,4 @@ const TileVisualizer = () => {
   );
 };
 
-export default TileVisualizer;
+export default TileVisualizer
