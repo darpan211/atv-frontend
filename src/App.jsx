@@ -61,6 +61,7 @@ import TileManagement from './components/Tiles/TilesManagement';
 import Configure from './components/seller/MultiStepConfigure';
 import MatchTilesManager from './components/seller/MatchTiles/ManageMatchTiles'
 import ViewAllMatches from './components/seller/MatchTiles/ViewAllMatches'
+import VisualizerIntro from './components/visualizer/DemoRoom';
 // ================== App Routes ==================
 const App = () => {
   const dispatch = useDispatch();
@@ -89,6 +90,15 @@ const App = () => {
       />
       <AuthSync />
       <Routes>
+        <Route
+          path="/home"
+          element={
+            <AppLayout>
+              {/* <LoginPage /> */}
+              <Dashboard/>
+            </AppLayout>
+          }
+        />
         <Route
           path="/"
           element={
@@ -350,6 +360,14 @@ const App = () => {
           element={
             <AppLayout>
               < ViewAllMatches/>
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/seller/visualizerintro"
+          element={
+            <AppLayout>
+              <VisualizerIntro />
             </AppLayout>
           }
         />
