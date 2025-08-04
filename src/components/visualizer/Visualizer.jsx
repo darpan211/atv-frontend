@@ -10,6 +10,7 @@ import { Icon } from '../common/icons';
 import FilterPopup from './FilterPopup';
 import { Input } from '../ui/input';
 import { useNavigate } from 'react-router-dom';
+import DemoRoom from './DemoRoom'
 import axios from 'axios';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -662,6 +663,7 @@ const TileVisualizer = () => {
   const [compareImage, setCompareImage] = useState(null);
   const [isFramePopupOpen, setIsFramePopupOpen] = useState(false);
   const [showProduct, setShowProducts] = useState(false)
+  const [showRoomPopup, setShowRoomPopup] = useState(false);
   const menuRef = useRef(null);
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
@@ -845,7 +847,7 @@ const TileVisualizer = () => {
                 </span>
                 <span>Add Catalog</span>
               </button>
-              <button
+              {/* <button
                 onClick={() => navigate('/seller/visualizerintro')}
                 className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white rounded text-xs sm:text-sm lg:text-base transition-colors duration-200 min-w-[130px] sm:min-w-[140px] lg:min-w-[150px]"
               >
@@ -858,7 +860,51 @@ const TileVisualizer = () => {
                   />
                 </span>
                 <span>Change Room</span>
-              </button>
+              </button> */}
+              <button
+                  onClick={() => setShowRoomPopup(true)}
+                  className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white rounded text-xs sm:text-sm lg:text-base transition-colors duration-200 min-w-[130px] sm:min-w-[140px] lg:min-w-[150px]"
+                >
+                  <span className="mr-2 flex-shrink-0">
+                    <img
+                      src={roomIcon || '/placeholder.svg?height=16&width=16'}
+                      alt="room"
+                      className="w-4 h-4 sm:w-5 sm:h-5"
+                      crossOrigin="anonymous"
+                    />
+                  </span>
+                  <span>Change Room</span>
+                </button>
+                {showRoomPopup && (
+                  <div className="fixed inset-0 z-50 bg-black/50 flex items-end">
+                    {/* Overlay click to close */}
+                    <div 
+                      className="absolute inset-0" 
+                      onClick={() => setShowRoomPopup(false)}
+                    />
+                    
+                    {/* Popup content with animation */}
+                    <div 
+                     className={`relative w-full bg-white  shadow-xl z-10 transform transition-transform duration-300 ${
+                        showRoomPopup ? 'translate-y-0' : 'translate-y-full'
+                      }`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {/* Close button */}
+                      <button
+                        className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 cursor-pointer"
+                        onClick={() => setShowRoomPopup(false)}
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                      
+                      {/* DemoRoom component */}
+                      <div className="p-6 max-h-[100vh] overflow-y-auto">
+                        <DemoRoom onClose={() => setShowRoomPopup(false)} />
+                      </div>
+                    </div>
+                  </div>
+                )}
               <button className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors duration-200 min-w-[43px] sm:min-w-[91px] h-43px cursor-pointer" onClick={() => setOpenMenu(!openMenu)}>
                 <span className="flex-shrink-0">
                   <EllipsisVertical className="w-[31px] h-[31px]" strokeWidth={2} />
@@ -889,10 +935,10 @@ const TileVisualizer = () => {
             </div>
           </div>
           {/* Image Display Area */}
-          <div className="flex-1 p-3 sm:p-4 md:p-5 overflow-hidden">
+          <div className="flex-1  p-3 sm:p-4 md:p-5 overflow-hidden">
             {isComparing ? (
               <div className="relative w-full h-full max-h-[70vh]">
-                <div className="absolute inset-0 flex">
+                <div className="absolute inset-0 flex gap-2">
                   {/* Left Image */}
                   <div className="w-1/2 h-full overflow-hidden">
                     <img
@@ -904,7 +950,7 @@ const TileVisualizer = () => {
                   </div>
 
                   {/* Divider */}
-                  <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gray-300 flex items-center justify-center -translate-x-1/2">
+                  <div className="absolute left-1/2 top-0 bottom-0 w-1 flex items-center justify-center -translate-x-1/2">
                     <button 
                       onClick={() => setIsComparing(false)}
                       className="z-10 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white p-2 border border-white shadow-lg hover:scale-105 transition-all duration-200"
@@ -1013,7 +1059,7 @@ const TileVisualizer = () => {
                 </div>
               </div>
             )}
-          <div className="flex-1 flex flex-col bg-white mt-10 sm:mt-8 md:mt-6 min-h-screen lg:min-h-0 lg:fixed lg:bottom-0 lg:w-[1500px] lg:z-10">
+          <div className="sticky bottom-0 z-10 bg-white shadow-lg">
             <div className="bg-[#EFEFEF] text-gray-800 p-3 sm:p-4 lg:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-300 mx-2 sm:mx-3 lg:mx-4 mt-14 sm:mt-16 lg:mt-0 rounded-lg shadow-lg gap-3 sm:gap-4">
                 <div
                   className="hidden md:flex items-center gap-2 sm:gap-3 cursor-pointer"
