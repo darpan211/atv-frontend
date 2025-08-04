@@ -312,7 +312,7 @@ const GroutSettingsPopup = ({ isOpen, onClose, groutWidth, setGroutWidth }) => {
       className="fixed bottom-12 right-4 sm:right-6 z-50 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden w-[95%] max-w-[700px] h-auto"
     >
       {/* Header */}
-      <div className="bg-[#e0dcda] flex items-center justify-between px-10 pt-4 pb-2 text-black">
+      <div className="bg-[#e0dcda] flex items-center justify-between px-10 pt-6 pb-3 text-black">
         <h3 className="text-3xl font-medium">Grout Setting</h3>
         <div className="text-2xl font-medium">{groutWidth} (mm)</div>
         <button onClick={onClose} className='hover:cursor-pointer'>
@@ -486,8 +486,8 @@ const SettingPopup = ({ isOpen, onClose }) => {
   return (
      <div className='fixed bottom-25 right-10 z-50 bg-white h-100 rounded-lg shadow-lg border border-gray-200 overflow-hidden w-[95%] max-w-[400px]'>
       {/* Header */}
-      <div className='bg-[#6F4E37] flex items-center justify-between px-4 pt-4 pb-2 text-white'>
-        <h3 className='text-3xl'>Selected Product</h3>
+      <div className='bg-[#f1e5dc] flex items-center justify-between px-4 pt-4 pb-2 text-black'>
+        <h3 className='text-3xl text-semibold'>Selected Product</h3>
         <button onClick={onClose} className='hover:cursor-pointer'>
           <X size={20} />
         </button>
@@ -584,8 +584,8 @@ const Product = ({ isOpen, onClose }) => {
       {/* Product Card */}
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden">
         {/* Header */}
-        <div className="bg-[#6F4E37] text-white flex justify-between items-center px-4 py-3">
-          <h3 className="text-xl font-semibold">Product</h3>
+        <div className="bg-[#e6d1c3] text-black flex justify-between items-center px-5 py-4">
+          <h3 className="text-2xl font-semibold">Product</h3>
           <button onClick={onClose} className='hover:cursor-pointer'>
             <X size={22} />
           </button>
@@ -594,15 +594,15 @@ const Product = ({ isOpen, onClose }) => {
         {/* Content */}
         <div className="flex-1 overflow-y-auto max-h-[75vh]">
           {data.map((item, index) => (
-            <div key={index} className="p-4">
-              <div className="flex gap-4">
+            <div key={index} className="p-10">
+              <div className="flex gap-8 ">
                 <img
                   src={item.tiles_image}
                   alt="Tile"
-                  className="w-24 h-28 object-cover rounded-lg border"
+                  className="w-28 h-42 object-cover rounded-lg border-1 border-solid-2 p-1"
                 />
                 <div className="flex flex-col justify-start text-sm">
-                  <h4 className="font-bold text-black mb-1">{item.tiles_name}</h4>
+                  <h4 className="font-semibold text-black mb-1">{item.tiles_name}</h4>
                   <p className="text-gray-600 leading-snug line-clamp-4">
                     {item.description}
                   </p>
@@ -613,13 +613,13 @@ const Product = ({ isOpen, onClose }) => {
               <div className="mt-4">
                 <h5 className="text-sm font-semibold text-black mb-1">Specifications</h5>
                 <p className="text-sm text-gray-700">
-                  <strong>Application Type:</strong> Floor
+                  <strong>Application Type:</strong> {item.category}
                 </p>
                 <p className="text-sm text-gray-700">
-                  <strong>Surface:</strong> Glossy, Matt
+                  <strong>Surface:</strong> {item.material.join(", ")}
                 </p>
                 <p className="text-sm text-gray-700">
-                  <strong>Size:</strong> {item.size?.[0] || '800 x 1600 CM'}
+                  <strong>Size:</strong> {item.size?.join(", ") || '800 x 1600 CM'} CM
                 </p>
               </div>
 
@@ -636,11 +636,16 @@ const Product = ({ isOpen, onClose }) => {
 
       {/* Outside Navigation Footer */}
       <div className="mt-4 flex items-center justify-center gap-3">
-        <button className="bg-white text-[#6F4E37] border border-[#6F4E37] px-4 py-2 rounded-md shadow-sm hover:bg-gray-100 hover:cursor-pointer">
-          &lt;
+        <button className="bg-white text-[#6F4E37] border border-[#6F4E37] px-4 py-4 rounded-md shadow-sm hover:bg-gray-100 hover:cursor-pointer">
+          <svg width="19" height="35" viewBox="0 0 19 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1.20215 18.6445C0.59968 18.0111 0.59968 16.9889 1.20215 16.3555L15.5859 1.23047L15.5869 1.23047C16.1962 0.590172 17.1887 0.590086 17.7979 1.23047C18.4003 1.86394 18.4003 2.88605 17.7979 3.51953L4.50098 17.5L17.7979 31.4805C18.4003 32.1139 18.4003 33.1361 17.7979 33.7695C17.1886 34.41 16.1951 34.4101 15.5859 33.7695L1.20215 18.6445Z" fill="#6F4E37" stroke="#6F4E37" stroke-width="0.5"/>
+            </svg>
+
         </button>
-        <button className="bg-white text-[#6F4E37] border border-[#6F4E37] px-4 py-2 rounded-md shadow-sm hover:bg-gray-100 hover:cursor-pointer">
-          &gt;
+        <button className="bg-white text-[#6F4E37] border border-[#6F4E37] px-4 py-4 rounded-md shadow-sm hover:bg-gray-100 hover:cursor-pointer">
+          <svg width="19" height="35" viewBox="0 0 19 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.7979 16.3555C18.4003 16.9889 18.4003 18.0111 17.7979 18.6445L3.41406 33.7695L3.41308 33.7695C2.80384 34.4098 1.81131 34.4099 1.20215 33.7695C0.59968 33.1361 0.59968 32.1139 1.20215 31.4805L14.499 17.5L1.20215 3.51953C0.599681 2.88605 0.599682 1.86394 1.20215 1.23047C1.81138 0.589992 2.80487 0.589926 3.41406 1.23047L17.7979 16.3555Z" fill="#6F4E37" stroke="#6F4E37" stroke-width="0.5"/>
+          </svg>
         </button>
       </div>
     </div>
@@ -654,7 +659,7 @@ const TileVisualizer = () => {
   const [isFilterPopupOpen, setIsFilterPopupOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
   const [menuData] = useState(["Store Locate", "Share & Download", "Share Link", "Share via Facebook", "Share via Whatsapp", "Full Screen", "Product calculator", "Product Calculator", "Product History", "Exit"]);
-  const [viewMode, setViewMode] = useState('grid'); // Added viewMode state here
+  const [viewMode, setViewMode] = useState('grid');
   const [showGroutPopup, setShowGroutPopup] = useState(false);
   const [groutWidth, setGroutWidth] = useState(0);
   const [showLayoutPopup, setShowLayoutPopup] = useState(false);
@@ -664,6 +669,13 @@ const TileVisualizer = () => {
   const [isFramePopupOpen, setIsFramePopupOpen] = useState(false);
   const [showProduct, setShowProducts] = useState(false)
   const [showRoomPopup, setShowRoomPopup] = useState(false);
+  const [sliderX, setSliderX] = useState(window.innerWidth / 2);
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef(null);
+  const [scale, setScale] = useState(1);
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const [start, setStart] = useState({ x: 0, y: 0 });
   const menuRef = useRef(null);
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
@@ -699,21 +711,77 @@ const TileVisualizer = () => {
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isSidebarOpen]);
+      }, [isSidebarOpen]);
 
-  const handleFilterClick = () => setIsFilterPopupOpen(true);
-  const handleCloseFilterPopup = () => setIsFilterPopupOpen(false);
+      const handleFilterClick = () => setIsFilterPopupOpen(true);
+      const handleCloseFilterPopup = () => setIsFilterPopupOpen(false);
 
-  const handleTileClick = (tile, index) => {
-    setSelectedTileIndex(index);
-    console.log('Tile clicked:', tile);
+      const handleTileClick = (tile, index) => {
+        setSelectedTileIndex(index);
+        console.log('Tile clicked:', tile);
+      };
+
+      const handleToggleLike = tileId => {
+        setLikedTiles(prev =>
+          prev.includes(tileId) ? prev.filter(id => id !== tileId) : [...prev, tileId]
+        );
+      };
+
+      useEffect(() => {
+  const init = () => {
+    if (containerRef.current) {
+      const width = containerRef.current.offsetWidth;
+      setSliderX(width / 2);
+    }
+  };
+  init();
+  window.addEventListener("resize", init);
+  return () => window.removeEventListener("resize", init);
+}, []);
+
+// Handle dragging
+useEffect(() => {
+  const handleMouseMove = (e) => {
+    if (!isDragging || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const clamped = Math.max(100, Math.min(rect.width - 100, x));
+    setSliderX(clamped);
   };
 
-  const handleToggleLike = tileId => {
-    setLikedTiles(prev =>
-      prev.includes(tileId) ? prev.filter(id => id !== tileId) : [...prev, tileId]
-    );
-    console.log(`Product ${tileId} ${likedTiles.includes(tileId) ? 'unliked' : 'liked'}!`);
+  const handleMouseUp = () => setIsDragging(false);
+
+  if (isDragging) {
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  }
+
+  return () => {
+    window.removeEventListener("mousemove", handleMouseMove);
+    window.removeEventListener("mouseup", handleMouseUp);
+  };
+}, [isDragging]);
+
+    // useEffect for zoom in 
+    const handleWheel = (e) => {
+    e.preventDefault();
+    const newScale = Math.min(Math.max(0.5, scale - e.deltaY * 0.001), 4);
+    setScale(newScale);
+  };
+
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    setDragging(true);
+    setStart({ x: e.clientX - translate.x, y: e.clientY - translate.y });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!dragging) return;
+    setTranslate({ x: e.clientX - start.x, y: e.clientY - start.y });
+  };
+
+  const handleMouseUp = () => {
+    setDragging(false);
   };
 
   return (
@@ -817,15 +885,15 @@ const TileVisualizer = () => {
           <div className="bg-[#EFEFEF] text-gray-800 p-3 sm:p-4 lg:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-300 mx-2 sm:mx-3 lg:mx-4 mt-14 sm:mt-16 lg:mt-0 rounded-lg shadow-lg gap-3 sm:gap-4">
             <div
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 sm:gap-3 cursor-pointer"
+              className="hidden sm:flex items-center gap-2 sm:gap-3 cursor-pointer"
             >
               <button className="flex cursor-pointer items-center justify-center w-8 h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11 bg-[#6F4E37] hover:bg-[#5a3e2a] rounded transition-colors duration-200">
                 <ChevronLeft className="text-white w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
               </button>
               <span className="text-sm font-medium">Back</span>
             </div>
-            <div className="flex flex-wrap xs:flex-row sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-              <button className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-white border border-gray-300 rounded text-xs sm:text-sm lg:text-base hover:bg-gray-50 transition-colors duration-200 min-w-[120px] sm:min-w-[130px] lg:min-w-[140px]">
+            <div className="flex justify-between flex-wrap xs:flex-row sm:flex-row gap-0 sm:gap-1 w-full sm:w-auto">
+              <button className="hidden sm:flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-white border border-gray-300 rounded text-xs sm:text-sm lg:text-base hover:bg-gray-50 transition-colors duration-200 min-w-[120px] sm:min-w-[130px] lg:min-w-[140px]">
                 <span className="mr-2 flex-shrink-0">
                   <img
                     src={downloadIcon || '/placeholder.svg?height=16&width=16'}
@@ -847,20 +915,6 @@ const TileVisualizer = () => {
                 </span>
                 <span>Add Catalog</span>
               </button>
-              {/* <button
-                onClick={() => navigate('/seller/visualizerintro')}
-                className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white rounded text-xs sm:text-sm lg:text-base transition-colors duration-200 min-w-[130px] sm:min-w-[140px] lg:min-w-[150px]"
-              >
-                <span className="mr-2 flex-shrink-0">
-                  <img
-                    src={roomIcon || '/placeholder.svg?height=16&width=16'}
-                    alt="room"
-                    className="w-4 h-4 sm:w-5 sm:h-5"
-                    crossOrigin="anonymous"
-                  />
-                </span>
-                <span>Change Room</span>
-              </button> */}
               <button
                   onClick={() => setShowRoomPopup(true)}
                   className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white rounded text-xs sm:text-sm lg:text-base transition-colors duration-200 min-w-[130px] sm:min-w-[140px] lg:min-w-[150px]"
@@ -905,105 +959,150 @@ const TileVisualizer = () => {
                     </div>
                   </div>
                 )}
-              <button className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors duration-200 min-w-[43px] sm:min-w-[91px] h-43px cursor-pointer" onClick={() => setOpenMenu(!openMenu)}>
-                <span className="flex-shrink-0">
-                  <EllipsisVertical className="w-[31px] h-[31px]" strokeWidth={2} />
-                </span>
-                <span className="hidden sm:inline text-lg font-bold">Menu</span>
-              </button>
-              {openMenu && (
-                <div className="relative">
+             <div className="relative">
+            <button
+              className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors duration-200 min-w-[43px] sm:min-w-[91px] h-43px cursor-pointer"
+              onClick={() => setOpenMenu(!openMenu)}
+            >
+              <span className="flex-shrink-0">
+                <EllipsisVertical className="w-[31px] h-[31px]" strokeWidth={2} />
+              </span>
+              <span className="hidden sm:inline text-lg font-bold">Menu</span>
+            </button>
+            {openMenu && (
+              <div
+                ref={menuRef}
+                className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg w-[216px] h-[335px] z-50"
+              >
+                {menuData.map((item, index) => (
                   <div
-                    ref={menuRef}
-                    className="absolute right-4 top-11 bg-white border border-gray-200 rounded-lg shadow-lg w-[216px] h-[335px] z-50"
+                    key={index}
+                    className="px-4 py-1 hover:bg-gray-100 cursor-pointer border-b"
+                    onClick={() => setOpenMenu(false)}
                   >
-                    {menuData.map((item, index) => (
-                      <div
-                        key={index}
-                        className="px-3 py-1 hover:bg-gray-100 cursor-pointer border-b"
-                        onClick={() => {
-                          setOpenMenu(false);
-                        }}
-                      >
-                        <span className="text-gray-500">-</span>
-                        <span className="ml-1 font-semibold">{item}</span>
-                      </div>
-                    ))}
+                    <span className="text-gray-500">-</span>
+                    <span className="ml-1 font-semibold">{item}</span>
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
+            )}
             </div>
+          </div>
           </div>
           {/* Image Display Area */}
           <div className="flex-1  p-3 sm:p-4 md:p-5 overflow-hidden">
-            {isComparing ? (
-              <div className="relative w-full h-full max-h-[70vh]">
-                <div className="absolute inset-0 flex gap-2">
-                  {/* Left Image */}
-                  <div className="w-1/2 h-full overflow-hidden">
-                    <img
-                      src={roomImage || '/placeholder.svg'}
-                      alt="Current room visualization"
-                      className="w-full h-full object-cover"
-                      crossOrigin="anonymous"
-                    />
+              {isComparing ? (
+                <div
+                  ref={containerRef}
+                  className="relative w-full h-full max-h-[70vh]"
+                >
+                  <div className="absolute inset-0 flex gap-2">
+                    {/* Left Image */}
+                    <div
+                      className="h-full overflow-hidden"
+                      style={{ width: sliderX }}
+                    >
+                      <img
+                        src={roomImage || '/placeholder.svg'}
+                        alt="Current room visualization"
+                        className="w-full h-full object-cover"
+                        crossOrigin="anonymous"
+                      />
+                    </div>
+
+                    {/* Divider */}
+                    <div
+                      className="absolute top-0 bottom-0 w-0 flex items-center justify-center z-10"
+                      style={{ left: sliderX, transform: "translateX(-50%)" }}
+                    >
+                      <button
+                        onMouseDown={() => setIsDragging(true)}
+                        className="bg-[#f5f3f1] text-white p-2 border-4 border-solid-2 rounded border-white shadow-lg hover:scale-105 transition-all duration-200 hover:cursor-col-resize"
+                      >
+                        <div className="flex">
+                          <svg
+                            width="10"
+                            height="18"
+                            viewBox="0 0 12 22"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M8.61825 0.493581L3.85057 5.46389L0.924574 8.49877C-0.308191 9.78393 -0.308191 11.8742 0.924574 13.1594L8.61825 21.18C9.62823 22.2329 11.3511 21.4742 11.3511 20.0033V11.3168V1.67035C11.3511 0.183905 9.62823 -0.55932 8.61825 0.493581Z"
+                              fill="#292D32"
+                            />
+                          </svg>
+                          <svg
+                            width="10"
+                            height="18"
+                            viewBox="0 0 12 22"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M3.32902 0.493581L8.0967 5.46389L11.0227 8.49877C12.2555 9.78393 12.2555 11.8742 11.0227 13.1594L3.32902 21.18C2.31904 22.2329 0.596137 21.4742 0.596137 20.0033V11.3168V1.67035C0.596137 0.183905 2.31904 -0.55932 3.32902 0.493581Z"
+                              fill="#292D32"
+                            />
+                          </svg>
+                        </div>
+                      </button>
+                    </div>
+
+                    {/* Right Image */}
+                    <div
+                      className="h-full overflow-hidden"
+                      style={{ width: `calc(100% - ${sliderX}px)` }}
+                    >
+                      <img
+                        src={compareImage || '/placeholder.svg'}
+                        alt="Comparison room visualization"
+                        className="w-full h-full object-cover"
+                        crossOrigin="anonymous"
+                      />
+                    </div>
                   </div>
 
-                  {/* Divider */}
-                  <div className="absolute left-1/2 top-0 bottom-0 w-1 flex items-center justify-center -translate-x-1/2">
-                    <button 
-                      onClick={() => setIsComparing(false)}
-                      className="z-10 bg-[#6F4E37] hover:bg-[#5a3e2a] text-white p-2 border border-white shadow-lg hover:scale-105 transition-all duration-200"
+                  {/* Bottom Controls */}
+                  <div className="absolute bg-white bottom-0 left-1/2 w-110 h-20 rounded-2xl justify-between transform -translate-x-1/2 flex items-center gap-6 px-6">
+                    <button className="bg-[#6F4E37] text-white w-30 h-12 rounded shadow-md border border-gray-200 hover:bg-[#5a3e2d]">
+                      Left
+                    </button>
+
+                    <button
+                      className="flex items-center justify-center bg-white border border- shadow w-10 h-10 hover:cursor-pointer"
+                      onClick={() => setIsFramePopupOpen(true)}
                     >
-                      <ChevronsLeftRight className="w-4 h-4" />
+                      <X className="w-5 h-5 text-black" />
+                    </button>
+
+                    <button className="bg-[#6F4E37] text-white w-30 h-12 rounded shadow-md border border-gray-200 hover:bg-[#5a3e2d]">
+                      Right
                     </button>
                   </div>
-
-                  {/* Right Image */}
-                  <div className="w-1/2 h-full overflow-hidden">
-                    <img
-                      src={compareImage || '/placeholder.svg'}
-                      alt="Comparison room visualization"
-                      className="w-full h-full object-cover"
-                      crossOrigin="anonymous"
-                    />
-                  </div>
                 </div>
-
-                {/* Bottom Controls */}
-                <div className="absolute bg-white bottom-0 left-1/2 w-110 h-20 rounded-2xl justify-between transform -translate-x-1/2 flex items-center gap-6 px-6">
-                  <button 
-                    className="bg-[#6F4E37] text-white w-30 h-12 rounded shadow-md border border-gray-200 hover:bg-[#5a3e2d]"
-                    
-                  >
-                    Left
-                  </button>
-
-                  <button
-                    className="flex items-center justify-center bg-white border border- shadow w-10 h-10 hover:cursor-pointer"
-                    onClick={() => setIsFramePopupOpen(true)}
-                  >
-                    <X className="w-5 h-5 text-blace" />
-                  </button>
-
-                  <button 
-                    className="bg-[#6F4E37] text-white w-30 h-12 rounded shadow-md border border-gray-200 hover:bg-[#5a3e2d]"
-                    // onClick={() => setIsFramePopupOpen(true)}
-                  >
-                    Right
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="items-center justify-center">
+              ) : (
+                <div
+                ref={containerRef}
+                onWheel={handleWheel}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                className="w-full h-full max-h-[70vh] overflow-hidden relative cursor-grab active:cursor-grabbing"
+              >
                 <img
-                  src={roomImage || '/placeholder.svg'}
+                      src={roomImage || '/placeholder.svg'}
                   alt="Room visualization"
-                  className="w-full h-full object-cover max-h-[70vh]"
                   crossOrigin="anonymous"
+                  className="select-none pointer-events-none absolute top-1/2 left-1/2"
+                  style={{
+                transform: `translate(-50%, -50%) scale(${scale}) translate(${translate.x / scale}px, ${translate.y / scale}px)`,
+                transformOrigin: 'center center',
+                transition: dragging ? 'none' : 'transform 0.1s ease-out',
+              }}
                 />
               </div>
-            )}
+              )}
           </div>
           {/* Frame Selection Popup */}
           {isFramePopupOpen && !showProduct && (
@@ -1075,12 +1174,28 @@ const TileVisualizer = () => {
                 </div>
 
               <div className="flex flex-wrap xs:flex-row sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-                <button className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-white border border-gray-300 text-black rounded text-xs sm:text-sm lg:text-base hover:bg-gray-50 transition-colors duration-200 min-w-[120px] sm:min-w-[130px] lg:min-w-[140px]">
-                  <span className="mr-2 flex-shrink-0 ">
-                    <RefreshCcw className='font-bold'/>
-                  </span>
-                  <span className='font-bold'>Reset</span>
-                </button>
+                <button
+                    onClick={() => {
+                      setOpenMenu(false);
+                      setIsSidebarOpen(false);
+                      setOpenMenu(false);
+                      setShowGroutPopup(false);
+                      setShowLayoutPopup(false);
+                      setShowSettingPopup(false);
+                      setIsFramePopupOpen(false);
+                      setShowProducts(false);
+                      if (containerRef.current) {
+                        const width = containerRef.current.offsetWidth;
+                        setSliderX(width / 2);
+                      }
+                    }}
+                    className="flex cursor-pointer items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 bg-white border border-gray-300 text-black rounded text-xs sm:text-sm lg:text-base hover:bg-gray-50 transition-colors duration-200 min-w-[120px] sm:min-w-[130px] lg:min-w-[140px]"
+                  >
+                    <span className="mr-2 flex-shrink-0">
+                      <RefreshCcw className="font-bold" />
+                    </span>
+                    <span className="font-bold">Reset</span>
+                  </button>
 
                 <button 
                     onClick={() => setShowGroutPopup(true)}
