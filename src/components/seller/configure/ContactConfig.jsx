@@ -2,15 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
-import { Check } from 'lucide-react';
-import { useDispatch, useSelector } from "react-redux";
-import { fetchDashboards } from "@/redux/slice/dashboard/dashboardThunk";
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchDashboards } from '@/redux/slice/dashboard/dashboardThunk';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Name is required').max(50, 'Name must be 50 characters or less'),
-  email: Yup.string()
-    .required('Email is required')
-    .email('Invalid email format'),
+  email: Yup.string().required('Email is required').email('Invalid email format'),
   phone: Yup.string()
     .required('Phone number is required')
     .matches(/^[0-9]{10}$/, 'Phone number must be 10 digits'),
@@ -21,7 +18,7 @@ const validationSchema = Yup.object().shape({
 
 const ContactConfig = ({ onDataChange, initialData }) => {
   const dispatch = useDispatch();
-  const { dashboardData } = useSelector((state) => state.dashboard);
+  const { dashboardData } = useSelector(state => state.dashboard);
   const [initialValues, setInitialValues] = useState({
     name: '',
     email: '',
@@ -34,12 +31,10 @@ const ContactConfig = ({ onDataChange, initialData }) => {
   const [autoSaved, setAutoSaved] = useState(false);
   const formikRef = useRef(null);
 
-  // Fetch dashboard on mount
   useEffect(() => {
     dispatch(fetchDashboards());
   }, [dispatch]);
 
-  // Sync backend data into form and trigger auto save
   useEffect(() => {
     const backendData = dashboardData?.[0]?.contact_info;
 
@@ -54,16 +49,15 @@ const ContactConfig = ({ onDataChange, initialData }) => {
       };
       setInitialValues(formatted);
 
-      // Auto save only once if initialData is not already handled
       if (!autoSaved && onDataChange) {
-        onDataChange(formatted); // auto-send to parent
+        onDataChange(formatted);
         setAutoSaved(true);
       }
     }
   }, [dashboardData, autoSaved, onDataChange]);
 
-  const saveContactInfo = async (contact) => {
-    return new Promise((resolve) => {
+  const saveContactInfo = async contact => {
+    return new Promise(resolve => {
       setTimeout(() => resolve({ status: 200 }), 500);
     });
   };
@@ -92,7 +86,7 @@ const ContactConfig = ({ onDataChange, initialData }) => {
           }
         }}
       >
-        {({ values, isSubmitting, errors, touched, isValid, dirty }) => (
+        {({ isSubmitting, errors, touched, isValid, dirty }) => (
           <Form>
             <div className="bg-white border border-gray-200 shadow-md rounded-lg p-6">
               {/* Name */}

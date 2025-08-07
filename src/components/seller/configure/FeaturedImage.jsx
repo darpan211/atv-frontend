@@ -1,63 +1,65 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
-import { Formik, Form, Field } from "formik";
-import * as Yup from "yup";
-import { toast } from "react-toastify";
-import { Upload, X, Plus, Trash2 } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchDashboards } from "@/redux/slice/dashboard/dashboardThunk";
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { Formik, Form, Field } from 'formik';
+import * as Yup from 'yup';
+import { toast } from 'react-toastify';
+import { Upload, X, Plus, Trash2 } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchDashboards } from '@/redux/slice/dashboard/dashboardThunk';
 
 const validationSchema = Yup.object().shape({
   tiles: Yup.array()
     .of(
       Yup.object().shape({
         image: Yup.object({
-          url: Yup.string().required("Image preview is required"),
-          file: Yup.mixed().nullable().test("fileType", "Only image files are allowed", (value) =>
-            !value || (value.type && value.type.startsWith("image/"))
-          ),
+          url: Yup.string().required('Image preview is required'),
+          file: Yup.mixed()
+            .nullable()
+            .test(
+              'fileType',
+              'Only image files are allowed',
+              value => !value || (value.type && value.type.startsWith('image/'))
+            ),
         }),
-        name: Yup.string().max(50, "Name must be 50 characters or less"),
-        description: Yup.string().max(150, "Description must be 150 characters or less"),
+        name: Yup.string().max(50, 'Name must be 50 characters or less'),
+        description: Yup.string().max(150, 'Description must be 150 characters or less'),
       })
     )
-    .min(1, "At least 1 tile is required")
-    .max(6, "Maximum 6 tiles allowed"),
+    .min(1, 'At least 1 tile is required')
+    .max(6, 'Maximum 6 tiles allowed'),
 });
 
 const FeaturedImage = ({ onDataChange }) => {
   const fileInputRefs = useRef([]);
   const dispatch = useDispatch();
-  const { dashboardData } = useSelector((state) => state.dashboard);
+  const { dashboardData } = useSelector(state => state.dashboard);
   const [initialTiles, setInitialTiles] = useState([
-    { image: { url: "", file: null }, name: "", description: "" },
+    { image: { url: '', file: null }, name: '', description: '' },
   ]);
 
-  // Fetch dashboard data
   useEffect(() => {
     dispatch(fetchDashboards());
   }, [dispatch]);
 
-  // Set initialTiles from feature_images
   useEffect(() => {
     const featureImages = dashboardData?.[0]?.feature_images;
     if (featureImages && Array.isArray(featureImages)) {
-      const mapped = featureImages.map((item) => ({
-        image: { url: item.image || "", file: null },
-        name: item.name || "",
-        description: item.description || "",
+      const mapped = featureImages.map(item => ({
+        image: { url: item.image || '', file: null },
+        name: item.name || '',
+        description: item.description || '',
       }));
       setInitialTiles(mapped);
     }
   }, [dashboardData]);
 
-  const saveTiles = async (tiles) => {
-    console.log("Saving Feature Images:", tiles);
-    return new Promise((resolve) => setTimeout(() => resolve({ status: 200 }), 300));
+  const saveTiles = async tiles => {
+    console.log('Saving Feature Images:', tiles);
+    return new Promise(resolve => setTimeout(() => resolve({ status: 200 }), 300));
   };
 
   const handleImageUpload = useCallback((index, file, setFieldValue) => {
-    if (!file || !file.type.startsWith("image/")) {
-      toast.error("Invalid image file!");
+    if (!file || !file.type.startsWith('image/')) {
+      toast.error('Invalid image file!');
       return;
     }
     const imageUrl = URL.createObjectURL(file);
@@ -83,38 +85,40 @@ const FeaturedImage = ({ onDataChange }) => {
   );
 
   const handleImageRemove = useCallback((index, setFieldValue, values) => {
-    if (window.confirm("Remove this image?")) {
+    if (window.confirm('Remove this image?')) {
       const removedUrl = values.tiles[index].image?.url;
       if (removedUrl) URL.revokeObjectURL(removedUrl);
-      setFieldValue(`tiles[${index}].image`, { url: "", file: null });
+      setFieldValue(`tiles[${index}].image`, { url: '', file: null });
     }
   }, []);
 
   const handleDeleteTile = useCallback((index, values, setFieldValue) => {
     if (values.tiles.length <= 1) {
-      toast.error("At least one tile is required!");
+      toast.error('At least one tile is required!');
       return;
     }
     const removedUrl = values.tiles[index].image?.url;
     if (removedUrl) URL.revokeObjectURL(removedUrl);
     const updated = values.tiles.filter((_, i) => i !== index);
-    setFieldValue("tiles", updated);
+    setFieldValue('tiles', updated);
     fileInputRefs.current = fileInputRefs.current.filter((_, i) => i !== index);
   }, []);
 
   const addTile = useCallback((values, setFieldValue) => {
     if (values.tiles.length >= 6) {
-      toast.error("Maximum 6 images allowed!");
+      toast.error('Maximum 6 images allowed!');
       return;
     }
-    const newTile = { image: { url: "", file: null }, name: "", description: "" };
-    setFieldValue("tiles", [...values.tiles, newTile]);
+    const newTile = { image: { url: '', file: null }, name: '', description: '' };
+    setFieldValue('tiles', [...values.tiles, newTile]);
     fileInputRefs.current[values.tiles.length] = React.createRef();
   }, []);
 
   return (
     <div className="p-4 sm:p-6 bg-[#FFF5EE] min-h-screen">
-      <h2 className="text-xl sm:text-2xl font-bold text-black mb-4">Featured Image Configuration</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-black mb-4">
+        Featured Image Configuration
+      </h2>
       <Formik
         enableReinitialize
         initialValues={{ tiles: initialTiles }}
@@ -123,23 +127,22 @@ const FeaturedImage = ({ onDataChange }) => {
           try {
             const res = await saveTiles(values.tiles);
             if (res.status === 200) {
-              toast.success("Featured image section saved successfully!");
+              toast.success('Featured image section saved successfully!');
               onDataChange?.({ tiles: values.tiles });
             } else {
-              toast.error("Failed to save featured image section.");
+              toast.error('Failed to save featured image section.');
             }
           } catch {
-            toast.error("Something went wrong.");
+            toast.error('Something went wrong.');
           } finally {
             setSubmitting(false);
           }
         }}
       >
         {({ values, setFieldValue, isSubmitting, errors, touched, isValid, dirty }) => {
-          // ✅ Auto-send data if prefilled and untouched
           useEffect(() => {
             const isComplete = values.tiles.every(
-              (tile) => tile.image?.url && tile.name?.trim() && tile.description?.trim()
+              tile => tile.image?.url && tile.name?.trim() && tile.description?.trim()
             );
             if (isComplete && !dirty) {
               onDataChange?.({ tiles: values.tiles });
@@ -165,18 +168,21 @@ const FeaturedImage = ({ onDataChange }) => {
                       <label className="block text-sm font-medium mb-1">Image {index + 1}</label>
                       <div
                         className={`border-2 border-dashed p-4 rounded-md text-center ${
-                          tile.image?.url ? "border-gray-300" : "border-[#6F4E37]"
+                          tile.image?.url ? 'border-gray-300' : 'border-[#6F4E37]'
                         }`}
                         onClick={() => fileInputRefs.current[index]?.click()}
-                        onDrop={(e) => handleDrop(index, e, setFieldValue)}
-                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={e => handleDrop(index, e, setFieldValue)}
+                        onDragOver={e => e.preventDefault()}
                       >
                         {tile.image?.url ? (
                           <div className="relative">
-                            <img src={tile.image.url} className="h-32 w-full object-cover rounded-md" />
+                            <img
+                              src={tile.image.url}
+                              className="h-32 w-full object-cover rounded-md"
+                            />
                             <button
                               type="button"
-                              onClick={(e) => {
+                              onClick={e => {
                                 e.stopPropagation();
                                 handleImageRemove(index, setFieldValue, values);
                               }}
@@ -194,13 +200,15 @@ const FeaturedImage = ({ onDataChange }) => {
                         <input
                           type="file"
                           accept="image/*"
-                          ref={(el) => (fileInputRefs.current[index] = el)}
+                          ref={el => (fileInputRefs.current[index] = el)}
                           className="hidden"
-                          onChange={(e) => handleFileInputChange(index, e, setFieldValue)}
+                          onChange={e => handleFileInputChange(index, e, setFieldValue)}
                         />
                       </div>
                       {touched.tiles?.[index]?.image && errors.tiles?.[index]?.image?.url && (
-                        <div className="text-red-500 text-sm mt-1">{errors.tiles[index].image.url}</div>
+                        <div className="text-red-500 text-sm mt-1">
+                          {errors.tiles[index].image.url}
+                        </div>
                       )}
                     </div>
 
@@ -218,18 +226,21 @@ const FeaturedImage = ({ onDataChange }) => {
 
                     {/* Description */}
                     <div>
-                      <label className="block text-sm font-medium mb-1">Description {index + 1}</label>
+                      <label className="block text-sm font-medium mb-1">
+                        Description {index + 1}
+                      </label>
                       <Field
                         name={`tiles[${index}].description`}
                         as="textarea"
                         rows="3"
                         className="w-full border p-2 rounded text-sm"
                       />
-                      {touched.tiles?.[index]?.description && errors.tiles?.[index]?.description && (
-                        <div className="text-red-500 text-sm mt-1">
-                          {errors.tiles[index].description}
-                        </div>
-                      )}
+                      {touched.tiles?.[index]?.description &&
+                        errors.tiles?.[index]?.description && (
+                          <div className="text-red-500 text-sm mt-1">
+                            {errors.tiles[index].description}
+                          </div>
+                        )}
                     </div>
                   </div>
                 ))}
@@ -255,7 +266,7 @@ const FeaturedImage = ({ onDataChange }) => {
                   disabled={isSubmitting || !isValid || !dirty}
                   className="bg-[#6F4E37] text-white px-6 py-2 rounded hover:bg-[#5c3f2c]"
                 >
-                  {isSubmitting ? "Saving..." : "Save Step"}
+                  {isSubmitting ? 'Saving...' : 'Save Step'}
                 </button>
               </div>
             </Form>

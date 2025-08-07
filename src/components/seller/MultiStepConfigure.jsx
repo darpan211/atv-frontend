@@ -17,7 +17,7 @@ import FeaturedImage from "./configure/FeaturedImage"
 import ContactConfig from "./configure/ContactConfig"
 import TilesInfoConfig from "./configure/TilesInfoConfig"
 import axiosHandler from "@/services/axiosHandler"
-import { useDispatch, useSelector } from "react-redux"
+import { useDispatch } from "react-redux"
 import { fetchDashboards } from "@/redux/slice/dashboard/dashboardThunk"
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -38,11 +38,6 @@ const MultiStepConfigure = () => {
       useEffect(() => {
     dispatch(fetchDashboards());
   }, [dispatch]);
-
-  const { dashboardData } = useSelector(
-    state => state
-  );
-console.log("Dashboard Data: thunk ", dashboardData);
 
   const steps = useMemo(() => [
     {
@@ -134,7 +129,6 @@ console.log("Dashboard Data: thunk ", dashboardData);
     try {
       const formDataToSend = new FormData();
 
-      //Contact Info (flat keys)
       formDataToSend.append("name", formData.contact.name);
       formDataToSend.append("email", formData.contact.email);
       formDataToSend.append("phone", formData.contact.phone);
@@ -142,12 +136,10 @@ console.log("Dashboard Data: thunk ", dashboardData);
       formDataToSend.append("website", formData.contact.website);
       formDataToSend.append("socialMediaURL", formData.contact.socialMedia);
 
-      //Tiles Info (flat keys)
       formDataToSend.append("title", formData.tilesInfo.title);
       formDataToSend.append("description", formData.tilesInfo.description);
       formDataToSend.append("features", JSON.stringify(formData.tilesInfo.features));
 
-      //Tiles from tilesInfo.tiles
       if (formData.tilesInfo && Array.isArray(formData.tilesInfo.tiles)) {
         formData.tilesInfo.tiles.forEach((tile, i) => {
           if (tile?.file) {
@@ -158,7 +150,6 @@ console.log("Dashboard Data: thunk ", dashboardData);
         });
       }
 
-      //Slider Images
       if (formData.slider?.images) {
         formData.slider.images.forEach((img, i) => {
           if (img?.file) {
@@ -169,7 +160,6 @@ console.log("Dashboard Data: thunk ", dashboardData);
         });
       }
 
-      //Tiles from tilePlaces.tab1 and tab2
       if (formData.tilePlaces?.tiles) {
         const tileGroups = formData.tilePlaces.tiles;
 
@@ -186,7 +176,6 @@ console.log("Dashboard Data: thunk ", dashboardData);
         });
       }
 
-      //Featured Images (strictly indexed format image1, name1, description1...)
       if (Array.isArray(formData.featured?.tiles)) {
         let validIndex = 1;
         formData.featured.tiles.forEach((feature, i) => {

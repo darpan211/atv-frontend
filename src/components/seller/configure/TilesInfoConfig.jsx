@@ -7,8 +7,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchDashboards } from '@/redux/slice/dashboard/dashboardThunk';
 
 const validationSchema = Yup.object().shape({
-  title: Yup.string().required('Title is required').max(100, 'Title must be 100 characters or less'),
-  description: Yup.string().required('Description is required').max(1000, 'Description must be 1000 characters or less'),
+  title: Yup.string()
+    .required('Title is required')
+    .max(100, 'Title must be 100 characters or less'),
+  description: Yup.string()
+    .required('Description is required')
+    .max(1000, 'Description must be 1000 characters or less'),
   features: Yup.array()
     .of(Yup.string().max(50, 'Feature must be 50 characters or less'))
     .min(1, 'At least one feature is required'),
@@ -18,7 +22,11 @@ const validationSchema = Yup.object().shape({
         url: Yup.string().required('Image preview is required'),
         file: Yup.mixed()
           .required('Image file is required')
-          .test('fileType', 'Only image files are allowed', (value) => value && value.type && value.type.startsWith('image/')),
+          .test(
+            'fileType',
+            'Only image files are allowed',
+            value => value && value.type && value.type.startsWith('image/')
+          ),
       })
     )
     .min(1, 'At least one tile image is required'),
@@ -28,7 +36,7 @@ const TilesInfoConfig = ({ onDataChange }) => {
   const [tileImages, setTileImages] = useState([{ url: '', file: null }]);
   const fileInputRefs = useRef([]);
   const dispatch = useDispatch();
-  const { dashboardData } = useSelector((state) => state.dashboard);
+  const { dashboardData } = useSelector(state => state.dashboard);
 
   const [initialValues, setInitialValues] = useState(null);
 
@@ -37,36 +45,35 @@ const TilesInfoConfig = ({ onDataChange }) => {
   }, [dispatch]);
 
   useEffect(() => {
-  const info = dashboardData?.[0]?.tiles_info;
+    const info = dashboardData?.[0]?.tiles_info;
 
-  const formattedTiles =
-    info?.tiles?.length > 0
-      ? info.tiles.map((img) => ({
-          url: img,
-          file: null,
-        }))
-      : [{ url: '', file: null }];
+    const formattedTiles =
+      info?.tiles?.length > 0
+        ? info.tiles.map(img => ({
+            url: img,
+            file: null,
+          }))
+        : [{ url: '', file: null }];
 
-  const formatted = {
-    title: info?.title || '',
-    description: info?.description || '',
-    features: info?.features?.length ? info.features : [''],
-    tiles: formattedTiles,
-  };
+    const formatted = {
+      title: info?.title || '',
+      description: info?.description || '',
+      features: info?.features?.length ? info.features : [''],
+      tiles: formattedTiles,
+    };
 
-  setInitialValues(formatted);
-  setTileImages(formattedTiles);
+    setInitialValues(formatted);
+    setTileImages(formattedTiles);
 
-  // Auto pass data up if no edit
-  onDataChange?.(formatted);
-}, [dashboardData]);
+    onDataChange?.(formatted);
+  }, [dashboardData]);
 
   useEffect(() => {
     fileInputRefs.current = tileImages.map((_, i) => fileInputRefs.current[i] || React.createRef());
   }, [tileImages]);
 
-  const saveTilesInfo = async (data) => {
-    return new Promise((resolve) => {
+  const saveTilesInfo = async data => {
+    return new Promise(resolve => {
       setTimeout(() => resolve({ status: 200 }), 1000);
     });
   };
@@ -74,7 +81,7 @@ const TilesInfoConfig = ({ onDataChange }) => {
   const handleImageUpload = (index, file, setFieldValue) => {
     if (file && file.type.startsWith('image/')) {
       const imageUrl = URL.createObjectURL(file);
-      setTileImages((prev) => {
+      setTileImages(prev => {
         const newImages = [...prev];
         newImages[index] = { url: imageUrl, file };
         return newImages;
@@ -99,7 +106,7 @@ const TilesInfoConfig = ({ onDataChange }) => {
 
   const handleImageRemove = (index, setFieldValue, remove) => {
     if (window.confirm('Remove this image?')) {
-      setTileImages((prev) => {
+      setTileImages(prev => {
         const newImages = [...prev];
         if (newImages[index]?.url) URL.revokeObjectURL(newImages[index].url);
         newImages[index] = { url: '', file: null };
@@ -112,7 +119,7 @@ const TilesInfoConfig = ({ onDataChange }) => {
 
   useEffect(() => {
     return () => {
-      tileImages.forEach((img) => img?.url && URL.revokeObjectURL(img.url));
+      tileImages.forEach(img => img?.url && URL.revokeObjectURL(img.url));
     };
   }, [tileImages]);
 
@@ -212,8 +219,8 @@ const TilesInfoConfig = ({ onDataChange }) => {
                               tile.url ? 'border-gray-300' : 'border-[#6F4E37]'
                             }`}
                             onClick={() => fileInputRefs.current[index]?.click()}
-                            onDrop={(e) => handleDrop(index, e, setFieldValue)}
-                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={e => handleDrop(index, e, setFieldValue)}
+                            onDragOver={e => e.preventDefault()}
                           >
                             {tile.url ? (
                               <div className="relative">
@@ -224,7 +231,7 @@ const TilesInfoConfig = ({ onDataChange }) => {
                                 />
                                 <button
                                   type="button"
-                                  onClick={(e) => {
+                                  onClick={e => {
                                     e.stopPropagation();
                                     handleImageRemove(index, setFieldValue, remove);
                                   }}
@@ -236,15 +243,17 @@ const TilesInfoConfig = ({ onDataChange }) => {
                             ) : (
                               <>
                                 <Upload className="w-8 h-8 mx-auto text-[#6F4E37]" />
-                                <p className="text-sm text-gray-600 mt-2">Click or drag to upload</p>
+                                <p className="text-sm text-gray-600 mt-2">
+                                  Click or drag to upload
+                                </p>
                               </>
                             )}
                             <input
                               type="file"
                               accept="image/*"
-                              ref={(el) => (fileInputRefs.current[index] = el)}
+                              ref={el => (fileInputRefs.current[index] = el)}
                               className="hidden"
-                              onChange={(e) => handleFileInputChange(index, e, setFieldValue)}
+                              onChange={e => handleFileInputChange(index, e, setFieldValue)}
                             />
                           </div>
                           {touched.tiles?.[index] && errors.tiles?.[index] && (
@@ -259,7 +268,7 @@ const TilesInfoConfig = ({ onDataChange }) => {
                         type="button"
                         onClick={() => {
                           push({ url: '', file: null });
-                          setTileImages((prev) => [...prev, { url: '', file: null }]);
+                          setTileImages(prev => [...prev, { url: '', file: null }]);
                         }}
                         className="px-4 py-1 bg-[#6F4E37] text-white rounded text-sm"
                       >

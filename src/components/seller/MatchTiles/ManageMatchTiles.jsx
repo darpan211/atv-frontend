@@ -1,72 +1,70 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchTiles } from "@/redux/slice/tiles/tileThunks";
-import { toast } from "react-toastify";
-import { fetchMatches, addMatchTiles } from "@/redux/slice/matchTiles/matchThunk";
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchTiles } from '@/redux/slice/tiles/tileThunks';
+import { toast } from 'react-toastify';
+import { addMatchTiles } from '@/redux/slice/matchTiles/matchThunk';
 
 const MatchTilesManager = () => {
   const dispatch = useDispatch();
-  const tileData = useSelector((state) => state.tiles.tiles.data);
-  const [mainCategory, setMainCategory] = useState("floor");
+  const tileData = useSelector(state => state.tiles.tiles.data);
+  const [mainCategory, setMainCategory] = useState('floor');
   const [mainTile, setMainTile] = useState(null);
   const [matchTiles, setMatchTiles] = useState([]);
   const [showMainPopup, setShowMainPopup] = useState(false);
   const [showMatchPopup, setShowMatchPopup] = useState(false);
   const [submittedMatches, setSubmittedMatches] = useState([]);
 
-  const oppositeCategory = mainCategory === "floor" ? "wall" : "floor";
+  const oppositeCategory = mainCategory === 'floor' ? 'wall' : 'floor';
 
   useEffect(() => {
     dispatch(fetchTiles());
   }, [dispatch]);
 
   const filteredMainTiles =
-    tileData?.filter((tile) => tile.category?.toLowerCase() === mainCategory) || [];
+    tileData?.filter(tile => tile.category?.toLowerCase() === mainCategory) || [];
 
   const filteredMatchTiles =
     tileData?.filter(
-      (tile) =>
-        tile.category?.toLowerCase() === oppositeCategory &&
-        tile._id !== mainTile?._id
+      tile => tile.category?.toLowerCase() === oppositeCategory && tile._id !== mainTile?._id
     ) || [];
 
   useEffect(() => {
-    const firstTile = tileData?.find(
-      (tile) => tile.category?.toLowerCase() === mainCategory
-    );
+    const firstTile = tileData?.find(tile => tile.category?.toLowerCase() === mainCategory);
     if (firstTile) setMainTile(firstTile);
   }, [mainCategory, tileData]);
 
-  const handleMatchTileToggle = (tile) => {
-    const exists = matchTiles.some((t) => t._id === tile._id);
+  const handleMatchTileToggle = tile => {
+    const exists = matchTiles.some(t => t._id === tile._id);
     if (exists) {
-      setMatchTiles((prev) => prev.filter((t) => t._id !== tile._id));
+      setMatchTiles(prev => prev.filter(t => t._id !== tile._id));
     } else {
-      setMatchTiles((prev) => [...prev, tile]);
+      setMatchTiles(prev => [...prev, tile]);
     }
   };
 
   const handleSubmit = () => {
     if (!mainTile || matchTiles.length === 0) {
-      toast.error("Please select a main tile and at least one match tile.");
+      toast.error('Please select a main tile and at least one match tile.');
       return;
     }
-    dispatch(addMatchTiles({
-      tiles_id: mainTile._id,
-      match_tiles_id: matchTiles.map(tile => tile._id)
-    }))
+    dispatch(
+      addMatchTiles({
+        tiles_id: mainTile._id,
+        match_tiles_id: matchTiles.map(tile => tile._id),
+      })
+    )
       .unwrap()
       .then(res => {
         if (res.success) {
-          toast.success("Match tiles created successfully!");
+          toast.success('Match tiles created successfully!');
           setSubmittedMatches(prev => [...prev, { mainTile, matchTiles }]);
           setMatchTiles([]);
         } else {
-          toast.error(res?.message || "Failed to create match");
+          toast.error(res?.message || 'Failed to create match');
         }
       })
       .catch(error => {
-        toast.error(error?.message || "Error creating match tiles");
+        toast.error(error?.message || 'Error creating match tiles');
       });
   };
 
@@ -78,7 +76,7 @@ const MatchTilesManager = () => {
         <label className="text-lg font-medium">Main Category:</label>
         <select
           value={mainCategory}
-          onChange={(e) => {
+          onChange={e => {
             setMainCategory(e.target.value);
             setMainTile(null);
             setMatchTiles([]);
@@ -111,7 +109,6 @@ const MatchTilesManager = () => {
         {/* Arrow Navigation */}
         <div className="flex flex-col items-center justify-center">
           <button
-            // onClick={handleSubmit}
             className="text-7xl font-bold text-amber-900 hover:scale-110 transition-all duration-300 p-2 cursor-pointer"
             title="Submit match"
           >
@@ -128,7 +125,7 @@ const MatchTilesManager = () => {
                 <p>Select match tiles</p>
               ) : (
                 <div className="flex flex-wrap gap-4">
-                  {matchTiles.map((tile) => (
+                  {matchTiles.map(tile => (
                     <div
                       key={tile._id}
                       className="w-28 flex-shrink-0 border p-2 rounded bg-white shadow-sm"
@@ -153,9 +150,7 @@ const MatchTilesManager = () => {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-[10px] text-center text-gray-400 italic">
-                          No size info
-                        </p>
+                        <p className="text-[10px] text-center text-gray-400 italic">No size info</p>
                       )}
                     </div>
                   ))}
@@ -180,10 +175,7 @@ const MatchTilesManager = () => {
         <div className="mt-10">
           <h2 className="text-xl font-bold mb-4">Submitted Matches</h2>
           {submittedMatches.map((group, index) => (
-            <div
-              key={index}
-              className="border p-4 rounded-lg shadow mb-6 bg-gray-50"
-            >
+            <div key={index} className="border p-4 rounded-lg shadow mb-6 bg-gray-50">
               <h3 className="text-md font-semibold mb-2">Main Tile</h3>
               <div className="flex items-center gap-4">
                 <img
@@ -196,11 +188,8 @@ const MatchTilesManager = () => {
 
               <h3 className="text-md font-semibold mt-4 mb-2">Matched Tiles</h3>
               <div className="grid grid-cols-1 md:grid-cols-8 gap-4">
-                {group.matchTiles.map((tile) => (
-                  <div
-                    key={tile._id}
-                    className="border p-2 rounded-lg bg-white shadow-sm"
-                  >
+                {group.matchTiles.map(tile => (
+                  <div key={tile._id} className="border p-2 rounded-lg bg-white shadow-sm">
                     <img
                       src={tile.tiles_image}
                       alt={tile.tiles_name}
@@ -227,7 +216,7 @@ const MatchTilesManager = () => {
             </button>
             <h2 className="text-lg font-bold mb-4">Select Main Tile</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              {filteredMainTiles.map((tile) => (
+              {filteredMainTiles.map(tile => (
                 <div
                   key={tile._id}
                   onClick={() => {
@@ -235,7 +224,7 @@ const MatchTilesManager = () => {
                     setMatchTiles([]);
                   }}
                   className={`border p-2 rounded cursor-pointer hover:bg-gray-100 ${
-                    mainTile?._id === tile._id ? "ring-2 ring-amber-900" : ""
+                    mainTile?._id === tile._id ? 'ring-2 ring-amber-900' : ''
                   }`}
                 >
                   <img
@@ -271,14 +260,14 @@ const MatchTilesManager = () => {
             </button>
             <h2 className="text-lg font-bold mb-4">Select Match Tiles</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              {filteredMatchTiles.map((tile) => (
+              {filteredMatchTiles.map(tile => (
                 <div
                   key={tile._id}
                   onClick={() => handleMatchTileToggle(tile)}
                   className={`border p-2 rounded cursor-pointer hover:bg-gray-100 ${
-                    matchTiles.some((t) => t._id === tile._id)
-                      ? "border-amber-950 ring-2 ring-amber-900"
-                      : ""
+                    matchTiles.some(t => t._id === tile._id)
+                      ? 'border-amber-950 ring-2 ring-amber-900'
+                      : ''
                   }`}
                 >
                   <img

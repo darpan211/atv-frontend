@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useFormik } from 'formik';
-import { Upload } from 'lucide-react';
 import * as Yup from 'yup';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,7 +17,6 @@ import { registerSeller, fetchSellerById, updateSeller } from '@/redux/slice/sel
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Validation schema using Yup
 const createValidationSchema = (isEdit) => Yup.object().shape({
   seller_name: Yup.string().required('Seller name is required'),
   seller_mobile: Yup.string()
@@ -63,8 +61,7 @@ const SellerForm = () => {
   const { mode, id } = useParams();
   const isEdit = mode === 'edit';
 
-  const { currentSeller, loading, error } = useSelector((state) => state.seller);
-// console.log(currentSeller);
+  const { currentSeller, loading } = useSelector((state) => state.seller);
 
   useEffect(() => {
     if (isEdit && id) {
@@ -92,7 +89,6 @@ const SellerForm = () => {
     enableReinitialize: true,
     onSubmit: async values => {
       try {
-        // Transform the values to match the required structure
         const sellerData = {
           company_name: values.seller_name,
           owner_name: values.owner_name,
@@ -108,14 +104,11 @@ const SellerForm = () => {
           },
         };
 
-        // Handle password in edit mode
         if (isEdit) {
-          // Only include password if a new one is provided
           if (values.password && values.password.trim() !== '') {
             sellerData.password = values.password;
           }
         } else {
-          // In add mode, password is required
           sellerData.password = values.password;
         }
 
@@ -144,7 +137,6 @@ const SellerForm = () => {
     },
   });
 
-  // Update form values when currentSeller changes
   useEffect(() => {
     if (isEdit && currentSeller) {
       formik.setValues({
@@ -152,7 +144,7 @@ const SellerForm = () => {
         seller_mobile: currentSeller.mobile || '',
         owner_name: currentSeller.owner_name || '',
         email: currentSeller.email || '',
-        password: '', // Don't show the hashed password
+        password: '',
         status: currentSeller.status || '',
         seller_type: currentSeller.seller_type || '',
         role: currentSeller.role || 'seller',
@@ -165,10 +157,9 @@ const SellerForm = () => {
     }
   }, [currentSeller, isEdit]);
 
-  // Helper function to manage nested metadata fields
   const handleMetadataChange = e => {
     const { name, value } = e.target;
-    const field = name.split('.')[1]; // Extract the field name after 'metadata.'
+    const field = name.split('.')[1];
 
     formik.setValues({
       ...formik.values,
@@ -318,10 +309,6 @@ const SellerForm = () => {
                 >
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
-                {/* <SelectContent className="bg-[#6F4E37] text-white">
-                  <SelectItem value="active" className="hover:bg-[#a98f7d] focus:bg-[#a98f7d] focus:text-white">Active</SelectItem>
-                  <SelectItem value="inactive" className="hover:bg-[#a98f7d] focus:bg-[#a98f7d] focus:text-white">Inactive</SelectItem>
-                </SelectContent> */}
 
                <SelectContent>
                   <SelectItem value="active" >Active</SelectItem>
@@ -350,11 +337,6 @@ const SellerForm = () => {
                 >
                   <SelectValue placeholder="Select seller type" />
                 </SelectTrigger>
-                {/* <SelectContent className="bg-[#6F4E37] text-white">
-                  <SelectItem value="retailer" className="hover:bg-[#a98f7d] focus:bg-[#a98f7d] focus:text-white">Retailer</SelectItem>
-                  <SelectItem value="supplier" className="hover:bg-[#a98f7d] focus:bg-[#a98f7d] focus:text-white">Supplier</SelectItem>
-                  <SelectItem value="distributor" className="hover:bg-[#a98f7d] focus:bg-[#a98f7d] focus:text-white">Distributor</SelectItem>
-                </SelectContent> */}
 
                 <SelectContent>
                   <SelectItem value="retailer">Retailer</SelectItem>

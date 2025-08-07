@@ -5,8 +5,8 @@ import { toast } from 'react-toastify';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Upload, X, Plus } from 'lucide-react';
-import { useDispatch, useSelector } from "react-redux";
-import { fetchDashboards } from "@/redux/slice/dashboard/dashboardThunk";
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchDashboards } from '@/redux/slice/dashboard/dashboardThunk';
 
 const generateUniqueId = () => Math.random().toString(36).substring(2) + Date.now();
 
@@ -15,7 +15,7 @@ const Tile = ({ tile, index, moveTile, handleRemove }) => {
   const [{ isDragging }, drag] = useDrag({
     type: 'TILE',
     item: { index },
-    collect: (monitor) => ({ isDragging: monitor.isDragging() }),
+    collect: monitor => ({ isDragging: monitor.isDragging() }),
   });
   const [, drop] = useDrop({
     accept: 'TILE',
@@ -50,18 +50,17 @@ const validationSchema = Yup.object().shape({
   tiles: Yup.object().test(
     'at-least-one-image-per-tab',
     'At least 1 image is required for each tab',
-    (value) => Object.values(value).every((arr) => arr.length > 0)
+    value => Object.values(value).every(arr => arr.length > 0)
   ),
 });
 
 const TilesPlaceConfig = ({ onDataChange, onNext }) => {
   const dispatch = useDispatch();
-  const { dashboardData } = useSelector((state) => state.dashboard);
+  const { dashboardData } = useSelector(state => state.dashboard);
 
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
   const [newTabName, setNewTabName] = useState('');
-  const [tileUrls, setTileUrls] = useState({});
   const [formValues, setFormValues] = useState({});
   const [autoNextDone, setAutoNextDone] = useState(false);
   const fileInputRef = useRef(null);
@@ -73,19 +72,17 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
   useEffect(() => {
     const imageGroups = dashboardData?.[0]?.places_images;
     if (imageGroups && typeof imageGroups === 'object') {
-      // Always use lowercase for storage
-      const tabNames = Object.keys(imageGroups).map((t) => t.toLowerCase());
+      const tabNames = Object.keys(imageGroups).map(t => t.toLowerCase());
       const initialTiles = {};
       const initialUrls = {};
-      tabNames.forEach((tab) => {
+      tabNames.forEach(tab => {
         const urls = imageGroups[tab] || [];
-        initialTiles[tab] = urls.map((url) => ({ url, file: null, uniqueId: generateUniqueId() }));
+        initialTiles[tab] = urls.map(url => ({ url, file: null, uniqueId: generateUniqueId() }));
         initialUrls[tab] = urls;
       });
       setTabs(tabNames);
-      setActiveTab((prev) => prev || tabNames[0]);
+      setActiveTab(prev => prev || tabNames[0]);
       setFormValues(initialTiles);
-      setTileUrls(initialUrls);
     }
   }, [dashboardData]);
 
@@ -100,63 +97,81 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
     }
   }, [dashboardData, onNext, onDataChange, formValues, autoNextDone]);
 
-  const saveTiles = async (tiles) => {
-    return new Promise((resolve) => {
+  const saveTiles = async tiles => {
+    return new Promise(resolve => {
       setTimeout(() => resolve({ status: 200 }), 1000);
     });
   };
 
-  const handleUpload = useCallback((e, setFieldValue, values) => {
-    if (!activeTab) return toast.error('Please select or create a tab first!');
-    const files = Array.from(e.target?.files || e.dataTransfer?.files || []);
-    const validImages = files.filter((file) => file.type.startsWith('image/'));
-    const newTiles = validImages.map((file) => ({ url: URL.createObjectURL(file), file, uniqueId: generateUniqueId() }));
-    const updatedTiles = [...(values.tiles[activeTab] || []), ...newTiles];
-    setTileUrls((prev) => ({ ...prev, [activeTab]: [...(prev[activeTab] || []), ...newTiles.map((t) => t.url)] }));
-    setFieldValue(`tiles.${activeTab}`, updatedTiles);
-    if (e.target) e.target.value = null;
-  }, [activeTab]);
+  const handleUpload = useCallback(
+    (e, setFieldValue, values) => {
+      if (!activeTab) return toast.error('Please select or create a tab first!');
+      const files = Array.from(e.target?.files || e.dataTransfer?.files || []);
+      const validImages = files.filter(file => file.type.startsWith('image/'));
+      const newTiles = validImages.map(file => ({
+        url: URL.createObjectURL(file),
+        file,
+        uniqueId: generateUniqueId(),
+      }));
+      const updatedTiles = [...(values.tiles[activeTab] || []), ...newTiles];
+      setFieldValue(`tiles.${activeTab}`, updatedTiles);
+      if (e.target) e.target.value = null;
+    },
+    [activeTab]
+  );
 
-  const moveTile = useCallback((fromIndex, toIndex, setFieldValue, values) => {
-    const updated = [...(values.tiles[activeTab] || [])];
-    const [moved] = updated.splice(fromIndex, 1);
-    updated.splice(toIndex, 0, moved);
-    setFieldValue(`tiles.${activeTab}`, updated);
-  }, [activeTab]);
+  const moveTile = useCallback(
+    (fromIndex, toIndex, setFieldValue, values) => {
+      const updated = [...(values.tiles[activeTab] || [])];
+      const [moved] = updated.splice(fromIndex, 1);
+      updated.splice(toIndex, 0, moved);
+      setFieldValue(`tiles.${activeTab}`, updated);
+    },
+    [activeTab]
+  );
 
-  const handleRemoveTile = useCallback((index, setFieldValue, values) => {
-    const updated = [...(values.tiles[activeTab] || [])];
-    const removed = updated.splice(index, 1);
-    if (removed[0]?.file) URL.revokeObjectURL(removed[0].url);
-    setFieldValue(`tiles.${activeTab}`, updated);
-  }, [activeTab]);
+  const handleRemoveTile = useCallback(
+    (index, setFieldValue, values) => {
+      const updated = [...(values.tiles[activeTab] || [])];
+      const removed = updated.splice(index, 1);
+      if (removed[0]?.file) URL.revokeObjectURL(removed[0].url);
+      setFieldValue(`tiles.${activeTab}`, updated);
+    },
+    [activeTab]
+  );
 
-  const handleAddTab = useCallback((setFieldValue, values) => {
-    const trimmed = newTabName.trim();
-    if (!trimmed) return toast.error('Tab name cannot be empty');
-    const lower = trimmed.toLowerCase();
-    if (tabs.some((t) => t.toLowerCase() === lower)) return toast.error('Tab name already exists');
-    setTabs((prev) => [...prev, lower]);
-    setActiveTab(lower);
+  const handleAddTab = useCallback(
+    (setFieldValue, values) => {
+      const trimmed = newTabName.trim();
+      if (!trimmed) return toast.error('Tab name cannot be empty');
+      const lower = trimmed.toLowerCase();
+      if (tabs.some(t => t.toLowerCase() === lower)) return toast.error('Tab name already exists');
+      setTabs(prev => [...prev, lower]);
+      setActiveTab(lower);
 
-    const updatedFormValues = {
-      ...values.tiles,
-      [lower]: [],
-    };
-    setFormValues(updatedFormValues);
-    setFieldValue('tiles', updatedFormValues);
-    setNewTabName('');
-  }, [newTabName, tabs]);
+      const updatedFormValues = {
+        ...values.tiles,
+        [lower]: [],
+      };
+      setFormValues(updatedFormValues);
+      setFieldValue('tiles', updatedFormValues);
+      setNewTabName('');
+    },
+    [newTabName, tabs]
+  );
 
-  const handleRemoveTab = useCallback((tab, setFieldValue, values) => {
-    const updatedTabs = tabs.filter((t) => t !== tab);
-    const updatedFormValues = { ...values.tiles };
-    delete updatedFormValues[tab];
-    setTabs(updatedTabs);
-    if (activeTab === tab) setActiveTab(updatedTabs[0] || null);
-    setFormValues(updatedFormValues);
-    setFieldValue('tiles', updatedFormValues);
-  }, [tabs, activeTab]);
+  const handleRemoveTab = useCallback(
+    (tab, setFieldValue, values) => {
+      const updatedTabs = tabs.filter(t => t !== tab);
+      const updatedFormValues = { ...values.tiles };
+      delete updatedFormValues[tab];
+      setTabs(updatedTabs);
+      if (activeTab === tab) setActiveTab(updatedTabs[0] || null);
+      setFormValues(updatedFormValues);
+      setFieldValue('tiles', updatedFormValues);
+    },
+    [tabs, activeTab]
+  );
 
   return (
     <div className="p-4 sm:p-6 bg-[#FFF5EE] min-h-screen">
@@ -201,13 +216,15 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
           <Form>
             {/* Tabs with remove cross and capitalized display */}
             <div className="mb-4 flex gap-2 flex-wrap">
-              {tabs.map((tab) => (
+              {tabs.map(tab => (
                 <div key={tab} className="relative">
                   <button
                     type="button"
                     onClick={() => setActiveTab(tab)}
                     className={`px-3 py-1 rounded-lg text-sm pr-6 ${
-                      activeTab === tab ? 'bg-[#6F4E37] text-white' : 'border border-[#6F4E37] text-[#6F4E37]'
+                      activeTab === tab
+                        ? 'bg-[#6F4E37] text-white'
+                        : 'border border-[#6F4E37] text-[#6F4E37]'
                     }`}
                   >
                     {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -224,10 +241,10 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
               <div className="flex items-center gap-2 mt-2">
                 <input
                   value={newTabName}
-                  onChange={(e) => setNewTabName(e.target.value)}
+                  onChange={e => setNewTabName(e.target.value)}
                   placeholder="New Tab"
                   className="border p-1 text-sm rounded-md"
-                  onKeyPress={(e) => {
+                  onKeyPress={e => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       handleAddTab(setFieldValue, values);
@@ -247,8 +264,8 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
             <div
               className="border border-dashed p-6 text-center bg-white rounded-lg mb-4 cursor-pointer hover:border-[#6F4E37] transition"
               onClick={() => fileInputRef.current?.click()}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => handleUpload(e, setFieldValue, values)}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => handleUpload(e, setFieldValue, values)}
             >
               <Upload className="w-8 h-8 mx-auto text-[#6F4E37]" />
               <p className="text-gray-600 text-sm">Click or drag to upload images</p>
@@ -258,7 +275,7 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
                 accept="image/*"
                 multiple
                 className="hidden"
-                onChange={(e) => handleUpload(e, setFieldValue, values)}
+                onChange={e => handleUpload(e, setFieldValue, values)}
               />
             </div>
 
@@ -271,7 +288,7 @@ const TilesPlaceConfig = ({ onDataChange, onNext }) => {
                       tile={tile}
                       index={index}
                       moveTile={(from, to) => moveTile(from, to, setFieldValue, values)}
-                      handleRemove={(idx) => handleRemoveTile(idx, setFieldValue, values)}
+                      handleRemove={idx => handleRemoveTile(idx, setFieldValue, values)}
                     />
                   ))}
                 </div>

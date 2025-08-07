@@ -23,8 +23,7 @@ const AllMatchesDisplay = () => {
       lastDeletedId.current = null;
     }
   }, [error, success]);
-  console.log(matches, "matches in AllMatchesDisplay");
-  const handleDelete = (id) => {
+  const handleDelete = id => {
     lastDeletedId.current = id;
     dispatch(deleteMatch(id));
   };
@@ -41,7 +40,7 @@ const AllMatchesDisplay = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">All Matches</h1>
       <div className="space-y-6">
-        {matches.map((matchGroup) => (
+        {matches.map(matchGroup => (
           <div key={matchGroup._id} className="border p-4 rounded-lg shadow bg-gray-50 relative">
             {/* Delete button */}
             <button
@@ -75,7 +74,7 @@ const AllMatchesDisplay = () => {
                             className="inline-block w-4 h-4 rounded-full border border-gray-300"
                             style={{ backgroundColor: color.color_code }}
                           />
-                          <span className='text-xs'>{color.color_name}</span>
+                          <span className="text-xs">{color.color_name}</span>
                         </div>
                       ))}
                     </div>
@@ -85,7 +84,7 @@ const AllMatchesDisplay = () => {
               <div className="flex-1">
                 <h2 className="text-lg font-semibold mb-2">Matched With</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {matchGroup.match_tiles_id.map((tile) => (
+                  {matchGroup.match_tiles_id.map(tile => (
                     <div key={tile._id} className="border p-3 rounded-lg bg-white shadow-sm">
                       <div className="flex gap-3">
                         <img
@@ -98,13 +97,13 @@ const AllMatchesDisplay = () => {
                           <p className="text-xs text-gray-600 line-clamp-2">{tile.description}</p>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {tile.tiles_color?.map((color, i) => (
-                              <div className='flex items-center gap-1 mr-2' key={i}>
+                              <div className="flex items-center gap-1 mr-2" key={i}>
                                 <span
                                   className="inline-block w-3 h-3 rounded-full border border-gray-300"
                                   style={{ backgroundColor: color.color_code }}
                                   title={color.color_name}
                                 />
-                                <span className='text-xs'>{color.color_name}</span>
+                                <span className="text-xs">{color.color_name}</span>
                               </div>
                             ))}
                             {Array.isArray(tile.size) && tile.size.length > 0 ? (

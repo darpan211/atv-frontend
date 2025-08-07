@@ -1,52 +1,57 @@
-import { useState, useCallback, useEffect, useRef } from "react"
-import { Formik, Form } from "formik"
-import * as Yup from "yup"
-import { toast } from "react-toastify"
-import { DndProvider, useDrag, useDrop } from "react-dnd"
-import { HTML5Backend } from "react-dnd-html5-backend"
-import { Upload, X, ChevronLeft, ChevronRight, Save } from "lucide-react"
-import { useDispatch, useSelector } from "react-redux"
-import { fetchDashboards } from "@/redux/slice/dashboard/dashboardThunk"
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+import { toast } from 'react-toastify';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { Upload, X, ChevronLeft, ChevronRight, Save } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchDashboards } from '@/redux/slice/dashboard/dashboardThunk';
 
 const validationSchema = Yup.object({
   images: Yup.array()
     .of(
       Yup.object({
-        url: Yup.string().required("Image preview is required"),
+        url: Yup.string().required('Image preview is required'),
         file: Yup.mixed().nullable().notRequired(),
       })
     )
-    .min(3, "At least 3 images are required")
-    .max(10, "A maximum of 10 images is allowed")
-    .required("Images are required"),
-})
+    .min(3, 'At least 3 images are required')
+    .max(10, 'A maximum of 10 images is allowed')
+    .required('Images are required'),
+});
 
 const Thumbnail = ({ image, index, moveImage, handleRemove }) => {
-  const ref = useRef(null)
+  const ref = useRef(null);
   const [{ isDragging }, drag] = useDrag({
-    type: "THUMBNAIL",
+    type: 'THUMBNAIL',
     item: { index },
-    collect: (monitor) => ({
+    collect: monitor => ({
       isDragging: monitor.isDragging(),
     }),
-  })
+  });
   const [, drop] = useDrop({
-    accept: "THUMBNAIL",
+    accept: 'THUMBNAIL',
     hover(item) {
       if (item.index !== index) {
-        moveImage(item.index, index)
-        item.index = index
+        moveImage(item.index, index);
+        item.index = index;
       }
     },
-  })
-  drag(drop(ref))
+  });
+  drag(drop(ref));
   return (
     <div
       ref={ref}
-      className={`relative w-16 h-16 rounded-md overflow-hidden border-2 ${isDragging ? "opacity-50" : "opacity-100"
-        } ${index === 0 ? "border-[#6F4E37]" : "border-gray-300"}`}
+      className={`relative w-16 h-16 rounded-md overflow-hidden border-2 ${
+        isDragging ? 'opacity-50' : 'opacity-100'
+      } ${index === 0 ? 'border-[#6F4E37]' : 'border-gray-300'}`}
     >
-      <img src={image.url || "/placeholder.svg"} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+      <img
+        src={image.url || '/placeholder.svg'}
+        alt={`Thumbnail ${index + 1}`}
+        className="w-full h-full object-cover"
+      />
       <button
         type="button"
         onClick={() => handleRemove(index)}
@@ -55,57 +60,57 @@ const Thumbnail = ({ image, index, moveImage, handleRemove }) => {
         <X className="w-3 h-3" />
       </button>
     </div>
-  )
-}
+  );
+};
 
 const SliderConfig = ({ onDataChange }) => {
-  const dispatch = useDispatch()
-  const { dashboardData, loading, error } = useSelector((state) => state.dashboard)
+  const dispatch = useDispatch();
+  const { dashboardData, loading, error } = useSelector(state => state.dashboard);
 
-  const [isDraggingOver, setIsDraggingOver] = useState(false)
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [animationDirection, setAnimationDirection] = useState(null)
-  const fileInputRef = useRef()
-  const initialImages = useRef([])
-  const hasCalledDataChange = useRef(false)
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [animationDirection, setAnimationDirection] = useState(null);
+  const fileInputRef = useRef();
+  const initialImages = useRef([]);
+  const hasCalledDataChange = useRef(false);
 
   useEffect(() => {
-    dispatch(fetchDashboards())
-  }, [dispatch])
+    dispatch(fetchDashboards());
+  }, [dispatch]);
 
   useEffect(() => {
     if (Array.isArray(dashboardData) && dashboardData[0]?.slider_images) {
-      initialImages.current = dashboardData[0].slider_images.map((url) => ({ url, file: null }))
+      initialImages.current = dashboardData[0].slider_images.map(url => ({ url, file: null }));
     }
-  }, [dashboardData])
+  }, [dashboardData]);
 
   const moveImage = useCallback((fromIndex, toIndex, setFieldValue, images) => {
-    const updatedImages = [...images]
-    const [movedImage] = updatedImages.splice(fromIndex, 1)
-    updatedImages.splice(toIndex, 0, movedImage)
-    setFieldValue("images", updatedImages)
-    setCurrentSlide(toIndex)
-    setAnimationDirection(fromIndex < toIndex ? "right" : "left")
-  }, [])
+    const updatedImages = [...images];
+    const [movedImage] = updatedImages.splice(fromIndex, 1);
+    updatedImages.splice(toIndex, 0, movedImage);
+    setFieldValue('images', updatedImages);
+    setCurrentSlide(toIndex);
+    setAnimationDirection(fromIndex < toIndex ? 'right' : 'left');
+  }, []);
 
-  const handlePrevSlide = (length) => {
-    setAnimationDirection("left")
-    setCurrentSlide((prev) => (prev === 0 ? length - 1 : prev - 1))
-  }
+  const handlePrevSlide = length => {
+    setAnimationDirection('left');
+    setCurrentSlide(prev => (prev === 0 ? length - 1 : prev - 1));
+  };
 
-  const handleNextSlide = (length) => {
-    setAnimationDirection("right")
-    setCurrentSlide((prev) => (prev === length - 1 ? 0 : prev + 1))
-  }
-  const saveImages = async (images) => {
-    console.log("Saving images:", images)
-    return new Promise((resolve) => {
-      setTimeout(() => resolve({ status: 200 }), 1000)
-    })
-  }
+  const handleNextSlide = length => {
+    setAnimationDirection('right');
+    setCurrentSlide(prev => (prev === length - 1 ? 0 : prev + 1));
+  };
+  const saveImages = async images => {
+    console.log('Saving images:', images);
+    return new Promise(resolve => {
+      setTimeout(() => resolve({ status: 200 }), 1000);
+    });
+  };
 
-  if (loading) return <div className="p-6">Loading...</div>
-  if (error) return <div className="p-6 text-red-500">Error: {error}</div>
+  if (loading) return <div className="p-6">Loading...</div>;
+  if (error) return <div className="p-6 text-red-500">Error: {error}</div>;
 
   return (
     <div className="p-6 bg-[#FFF5EE]">
@@ -117,54 +122,57 @@ const SliderConfig = ({ onDataChange }) => {
         validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting }) => {
           try {
-            const res = await saveImages(values.images)
+            const res = await saveImages(values.images);
             if (res.status === 200) {
-              toast.success("Slider images saved successfully!")
-              onDataChange?.(values)
+              toast.success('Slider images saved successfully!');
+              onDataChange?.(values);
             } else {
-              toast.error("Failed to save images.")
+              toast.error('Failed to save images.');
             }
           } catch {
-            toast.error("Something went wrong.")
+            toast.error('Something went wrong.');
           } finally {
-            setSubmitting(false)
+            setSubmitting(false);
           }
         }}
       >
         {({ values, setFieldValue, isSubmitting, errors, touched, isValid }) => {
           useEffect(() => {
-            const hasMinImages = values.images.length >= 3
-            const allFromBackend = values.images.every((img) => img.file === null)
+            const hasMinImages = values.images.length >= 3;
+            const allFromBackend = values.images.every(img => img.file === null);
             const isSameAsInitial =
               values.images.length === initialImages.current.length &&
-              values.images.every((img, index) => img.url === initialImages.current[index]?.url)
+              values.images.every((img, index) => img.url === initialImages.current[index]?.url);
 
             if (hasMinImages && allFromBackend && isSameAsInitial && !hasCalledDataChange.current) {
-              hasCalledDataChange.current = true
-              onDataChange?.(values)
+              hasCalledDataChange.current = true;
+              onDataChange?.(values);
             }
-          }, [values.images])
+          }, [values.images]);
 
           return (
             <Form>
               {/* Upload UI */}
               <div
-                className={`border-2 border-dashed rounded-lg p-6 mb-6 text-center ${isDraggingOver ? "border-[#6F4E37] bg-[#6F4E37]/10" : "border-[#6F4E37] bg-white"
-                  } transition-all duration-300`}
-                onDragOver={(e) => {
-                  e.preventDefault()
-                  setIsDraggingOver(true)
+                className={`border-2 border-dashed rounded-lg p-6 mb-6 text-center ${
+                  isDraggingOver ? 'border-[#6F4E37] bg-[#6F4E37]/10' : 'border-[#6F4E37] bg-white'
+                } transition-all duration-300`}
+                onDragOver={e => {
+                  e.preventDefault();
+                  setIsDraggingOver(true);
                 }}
                 onDragLeave={() => setIsDraggingOver(false)}
-                onDrop={(e) => {
-                  e.preventDefault()
-                  setIsDraggingOver(false)
-                  const files = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith("image/"))
-                  const newImages = files.map((file) => ({
+                onDrop={e => {
+                  e.preventDefault();
+                  setIsDraggingOver(false);
+                  const files = Array.from(e.dataTransfer.files).filter(file =>
+                    file.type.startsWith('image/')
+                  );
+                  const newImages = files.map(file => ({
                     url: URL.createObjectURL(file),
                     file,
-                  }))
-                  setFieldValue("images", [...values.images, ...newImages])
+                  }));
+                  setFieldValue('images', [...values.images, ...newImages]);
                 }}
                 onClick={() => fileInputRef.current.click()}
               >
@@ -176,13 +184,13 @@ const SliderConfig = ({ onDataChange }) => {
                   multiple
                   ref={fileInputRef}
                   className="hidden"
-                  onChange={(e) => {
-                    const files = Array.from(e.target.files)
-                    const newImages = files.map((file) => ({
+                  onChange={e => {
+                    const files = Array.from(e.target.files);
+                    const newImages = files.map(file => ({
                       url: URL.createObjectURL(file),
                       file,
-                    }))
-                    setFieldValue("images", [...values.images, ...newImages])
+                    }));
+                    setFieldValue('images', [...values.images, ...newImages]);
                   }}
                 />
               </div>
@@ -197,16 +205,17 @@ const SliderConfig = ({ onDataChange }) => {
                   <h3 className="text-lg font-medium text-black mb-4">Slider Preview</h3>
                   <div className="relative w-full h-64 rounded-lg overflow-hidden bg-gray-100">
                     <div
-                      className={`w-full h-full ${animationDirection === "right"
-                          ? "animate-slide-right"
-                          : animationDirection === "left"
-                            ? "animate-slide-left"
-                            : ""
-                        }`}
+                      className={`w-full h-full ${
+                        animationDirection === 'right'
+                          ? 'animate-slide-right'
+                          : animationDirection === 'left'
+                            ? 'animate-slide-left'
+                            : ''
+                      }`}
                       key={currentSlide}
                     >
                       <img
-                        src={values.images[currentSlide]?.url || "/placeholder.svg"}
+                        src={values.images[currentSlide]?.url || '/placeholder.svg'}
                         alt={`Slide ${currentSlide + 1}`}
                         className="w-full h-full object-cover"
                       />
@@ -239,18 +248,20 @@ const SliderConfig = ({ onDataChange }) => {
                           key={index}
                           image={image}
                           index={index}
-                          moveImage={(from, to) => moveImage(from, to, setFieldValue, values.images)}
-                          handleRemove={(idx) => {
-                            if (window.confirm("Remove this image?")) {
-                              const updatedImages = [...values.images.filter((_, i) => i !== idx)]
-                              const removedImage = values.images[idx]
-                              if (removedImage?.file && removedImage?.url?.startsWith("blob:")) {
-                                URL.revokeObjectURL(removedImage.url)
+                          moveImage={(from, to) =>
+                            moveImage(from, to, setFieldValue, values.images)
+                          }
+                          handleRemove={idx => {
+                            if (window.confirm('Remove this image?')) {
+                              const updatedImages = [...values.images.filter((_, i) => i !== idx)];
+                              const removedImage = values.images[idx];
+                              if (removedImage?.file && removedImage?.url?.startsWith('blob:')) {
+                                URL.revokeObjectURL(removedImage.url);
                               }
-                              setFieldValue("images", updatedImages)
-                              setCurrentSlide((prev) =>
+                              setFieldValue('images', updatedImages);
+                              setCurrentSlide(prev =>
                                 prev >= updatedImages.length ? updatedImages.length - 1 : prev
-                              )
+                              );
                             }
                           }}
                         />
@@ -268,15 +279,15 @@ const SliderConfig = ({ onDataChange }) => {
                   className="flex items-center px-6 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition disabled:opacity-50"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  {isSubmitting ? "Saving..." : "Save Step"}
+                  {isSubmitting ? 'Saving...' : 'Save Step'}
                 </button>
               </div>
             </Form>
-          )
+          );
         }}
       </Formik>
     </div>
-  )
-}
+  );
+};
 
-export default SliderConfig
+export default SliderConfig;

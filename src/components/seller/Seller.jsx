@@ -1,13 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import DataTable from '../common/DataTable';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { EditIcon } from '../common/icons/svgs/EditIcon';
 import { DeleteIcon } from '../common/icons/svgs/DeleteIcon';
-import { toast, Bounce } from 'react-toastify';
+import { toast } from 'react-toastify';
 import Layout from '@/components/common/Layout';
 import { fetchSellers, deleteSeller } from '@/redux/slice/seller/sellerThunks';
 import DeleteConfirmationModal from '../common/DeleteConfirmationModal';
@@ -23,9 +21,7 @@ const Seller = () => {
   const dispatch = useDispatch();
   
   const { list: sellers, loading, error } = useSelector(state => state.seller);
-// console.log("All Sellers",sellers);
 
-  // Show toast from location state
   useEffect(() => {
     if (location.state?.toastMessage) {
       toast.success(location.state.toastMessage);
@@ -33,7 +29,6 @@ const Seller = () => {
     }
   }, [location]);
 
-  // Fetch sellers on component mount
   useEffect(() => {
     dispatch(fetchSellers())
       .unwrap()

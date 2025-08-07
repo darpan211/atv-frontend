@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Icon } from '../common/icons';
 import axiosHandler from '@/services/axiosHandler';
@@ -6,94 +6,14 @@ import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
-import { useMemo } from 'react';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const Card = ({ children, className = '' }) => (
-  <div className={`rounded-lg border bg-[#FFF5EE] text-black shadow-sm ${className}`}>
-    {children}
-  </div>
-);
-
-const CardContent = ({ children, className = '' }) => (
-  <div className={`p-4 sm:p-6 lg:p-8 ${className}`}>{children}</div>
-);
-
-const Input = ({ className = '', type, disabled, ...props }) => {
-  const isEmail = type === 'email';
-
-  return (
-    <input
-      type={type}
-      disabled={isEmail || disabled}
-      className={`flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6F4E37] focus:border-[#6F4E37] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
-      {...props}
-    />
-  );
-};
-
-
-const Label = ({ children, className = '', ...props }) => (
-  <label className={`text-sm font-medium text-gray-700 ${className}`} {...props}>
-    {children}
-  </label>
-);
-
-const Select = ({ name, placeholder, value, onChange, className = '' }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState(value || '');
-
-  const options = useMemo(() => [
-    { value: 'active', label: 'Active' },
-    { value: 'inactive', label: 'Inactive' },
-
-  ], []);
-
-  useEffect(() => {
-    const matchedOption = options.find(option => option.value === value);
-    if (matchedOption) {
-      setSelectedValue(matchedOption.label);
-    } else {
-      setSelectedValue('');
-    }
-  }, [value, options]);
-
-  const handleSelect = (val, label) => {
-    setSelectedValue(label);
-    setIsOpen(false);
-    if (onChange) onChange({ target: { name, value: val } });
-  };
-
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        className={`flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#6F4E37] focus:border-[#6F4E37] ${className}`}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <span className={selectedValue ? 'text-gray-900' : 'text-gray-400'}>
-          {selectedValue || placeholder}
-        </span>
-        <ChevronDown className="h-4 w-4" />
-      </button>
-
-      {isOpen && (
-        <div className="absolute top-full z-50 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg">
-          {options.map((option, index) => (
-            <div
-              key={index}
-              className="cursor-pointer select-none px-3 py-2 text-sm hover:bg-gray-100"
-              onClick={() => handleSelect(option.value, option.label)}
-            >
-              {option.label}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+const DEFAULT_PROFILE_IMAGE = '/assests/Profileimage.png';
+const STATUS_OPTIONS = [
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
+];
 
 const validationSchema = Yup.object({
   sellerName: Yup.string()
@@ -122,32 +42,183 @@ const validationSchema = Yup.object({
     .oneOf(['active', 'inactive', 'pending', 'suspended'], 'Invalid status'),
 });
 
-export default function SellerProfile() {
-  const [imageUrl, setImageUrl] = useState(
-    '/assests/Profileimage.png' 
+const Card = ({ children, className = '' }) => (
+  <div className={`rounded-lg border bg-[#FFF5EE] text-black shadow-sm ${className}`}>
+    {children}
+  </div>
+);
+
+const CardContent = ({ children, className = '' }) => (
+  <div className={`p-4 sm:p-6 lg:p-8 ${className}`}>{children}</div>
+);
+
+const Input = ({ className = '', type, disabled, ...props }) => {
+  const isEmail = type === 'email';
+  return (
+    <input
+      type={type}
+      disabled={isEmail || disabled}
+      className={`flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6F4E37] focus:border-[#6F4E37] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      {...props}
+    />
   );
-  const [fetchedData, setFetchedData] = useState(null);
+};
+
+const Label = ({ children, className = '', ...props }) => (
+  <label className={`text-sm font-medium text-gray-700 ${className}`} {...props}>
+    {children}
+  </label>
+);
+
+const Select = ({ name, placeholder, value, onChange, className = '' }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedValue, setSelectedValue] = useState('');
+
+  useEffect(() => {
+    const matchedOption = STATUS_OPTIONS.find(option => option.value === value);
+    setSelectedValue(matchedOption ? matchedOption.label : '');
+  }, [value]);
+
+  const handleSelect = useCallback((val, label) => {
+    setSelectedValue(label);
+    setIsOpen(false);
+    onChange?.({ target: { name, value: val } });
+  }, [name, onChange]);
+
+  const toggleDropdown = useCallback(() => {
+    setIsOpen(prev => !prev);
+  }, []);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        className={`flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#6F4E37] focus:border-[#6F4E37] ${className}`}
+        onClick={toggleDropdown}
+      >
+        <span className={selectedValue ? 'text-gray-900' : 'text-gray-400'}>
+          {selectedValue || placeholder}
+        </span>
+        <ChevronDown className="h-4 w-4" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full z-50 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg">
+          {STATUS_OPTIONS.map((option) => (
+            <div
+              key={option.value}
+              className="cursor-pointer select-none px-3 py-2 text-sm hover:bg-gray-100"
+              onClick={() => handleSelect(option.value, option.label)}
+            >
+              {option.label}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ErrorMessage = ({ error, touched }) => {
+  if (!touched || !error) return null;
+  return <div className="text-red-500 text-sm">{error}</div>;
+};
+
+const ProfileImage = ({ imageUrl, onImageChange }) => {
   const fileInputRef = useRef();
-  const { user } = useSelector(state => state.auth.user);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const initialValues = fetchedData || {
-    sellerName: '',
-    email: '',
-    address: '',
-    mobile: '',
-    gst: '',
-    city: '',
-    ownerName: '',
-    status: '',
-  };
+
+  const handleEditClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  return (
+    <div className="relative">
+      <div className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-lg overflow-hidden relative">
+        <img src={imageUrl} alt="Profile" className="w-full h-full object-cover" />
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          onChange={onImageChange}
+          className="hidden"
+        />
+        <div
+          className="absolute bottom-0 right-0 bg-white p-1.5 rounded-tl-lg rounded-br-lg cursor-pointer hover:bg-gray-50 transition-colors shadow-sm"
+          onClick={handleEditClick}
+        >
+          <Icon name="EditPencil" size={16} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FormFields = ({ values, errors, touched, handleChange, setFieldValue }) => {
+  const fields = [
+    [
+      { name: 'sellerName', label: 'Seller Name', placeholder: 'Enter company name' },
+      { name: 'email', label: 'Email', type: 'email', placeholder: 'Enter email address' },
+      { name: 'address', label: 'Address', placeholder: 'Enter address' },
+    ],
+    [
+      { name: 'mobile', label: 'Seller Mobile', placeholder: 'Enter mobile number' },
+      { name: 'gst', label: 'GST Number', placeholder: 'Enter GST number' },
+      { name: 'city', label: 'City', placeholder: 'Enter city' },
+    ],
+    [
+      { name: 'ownerName', label: 'Owner Name', placeholder: 'Enter owner name' },
+      { name: 'status', label: 'Status', type: 'select', placeholder: 'Select status' },
+    ],
+  ];
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      {fields.map((column, colIndex) => (
+        <div key={colIndex} className={`space-y-4 sm:space-y-6 ${colIndex === 2 ? 'sm:col-span-2 lg:col-span-1' : ''}`}>
+          {column.map((field) => (
+            <div key={field.name} className="space-y-2">
+              <Label htmlFor={field.name}>{field.label}</Label>
+              {field.type === 'select' ? (
+                <Select
+                  name={field.name}
+                  placeholder={field.placeholder}
+                  value={values[field.name]}
+                  onChange={(e) => setFieldValue(field.name, e.target.value)}
+                />
+              ) : (
+                <Field
+                  as={Input}
+                  id={field.name}
+                  name={field.name}
+                  type={field.type}
+                  placeholder={field.placeholder}
+                  value={values[field.name]}
+                  onChange={handleChange}
+                />
+              )}
+              <ErrorMessage error={errors[field.name]} touched={touched[field.name]} />
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const useSellerData = (userId) => {
+  const [sellerData, setSellerData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSellerData = async () => {
+      if (!userId) return;
+
       try {
-        const res = await axiosHandler.get(`${BASE_URL}/api/v1/profile/getprofile/${user.id}`);
-        const data = res.data?.data;
-     
-        setFetchedData({
+        setLoading(true);
+        const response = await axiosHandler.get(`${BASE_URL}/api/v1/profile/getprofile/${userId}`);
+        const data = response.data?.data;
+
+        setSellerData({
           sellerName: data.company_name || '',
           email: data.email || '',
           address: data.metadata?.address || '',
@@ -156,13 +227,12 @@ export default function SellerProfile() {
           city: data.metadata?.city || '',
           ownerName: data.owner_name || '',
           status: data.status || '',
-
+          profileImage: data.profile_image || DEFAULT_PROFILE_IMAGE,
         });
-        setImageUrl(data.profile_image);
-      } catch (err) {
-        console.error('Error fetching seller data:', err.message);
+      } catch (error) {
+        console.error('Error fetching seller data:', error.message);
         toast.error('Failed to fetch seller data.');
-        setFetchedData({
+        setSellerData({
           sellerName: '',
           email: '',
           address: '',
@@ -171,72 +241,106 @@ export default function SellerProfile() {
           city: '',
           ownerName: '',
           status: '',
+          profileImage: DEFAULT_PROFILE_IMAGE,
         });
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (user?.id) {
-      fetchSellerData();
-    }
-  }, [user]);
+    fetchSellerData();
+  }, [userId]);
 
-  const handleImageChange = e => {
-    const file = e.target.files[0];
+  return { sellerData, loading };
+};
+
+export default function SellerProfile() {
+  const { user } = useSelector(state => state.auth.user);
+  const { sellerData, loading } = useSellerData(user?.id);
+  const [imageUrl, setImageUrl] = useState(DEFAULT_PROFILE_IMAGE);
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  useEffect(() => {
+    if (sellerData?.profileImage) {
+      setImageUrl(sellerData.profileImage);
+    }
+  }, [sellerData]);
+
+  const handleImageChange = useCallback((e) => {
+    const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
       const url = URL.createObjectURL(file);
       setImageUrl(url);
     }
-  };
+  }, []);
 
-  const handleEditClick = () => {
-    fileInputRef.current.click();
-  };
-
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = useCallback(async (values, { setSubmitting }) => {
     try {
       const payload = new FormData();
-  
+      
       payload.append('company_name', values.sellerName);
-      // payload.append('email', values.email); // if needed
       payload.append('mobile', values.mobile);
       payload.append('owner_name', values.ownerName);
       payload.append('status', values.status);
-
       payload.append('address', values.address);
       payload.append('gst', values.gst);
       payload.append('city', values.city);
+      
       if (selectedFile) {
         payload.append('profile_image', selectedFile);
       }
 
-      const res = await axiosHandler.put(`${BASE_URL}/api/v1/profile/updateprofile/${user.id}`, payload, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await axiosHandler.put(
+        `${BASE_URL}/api/v1/profile/updateprofile/${user.id}`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
 
-
-      if (res.status === 200) {
-       
-        // alert('Profile updated successfully!');
+      if (response.status === 200) {
         toast.success('Profile updated successfully!');
-        window.location.reload(); // Reload to fetch updated data
+        window.location.reload();
       } else {
         toast.error('Failed to update profile.');
       }
-    } catch (err) {
-      console.error('Update error:', err.message);
+    } catch (error) {
+      console.error('Update error:', error.message);
       toast.error('Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [selectedFile, user?.id]);
+
+  const initialValues = useMemo(() => {
+    return sellerData || {
+      sellerName: '',
+      email: '',
+      address: '',
+      mobile: '',
+      gst: '',
+      city: '',
+      ownerName: '',
+      status: '',
+    };
+  }, [sellerData]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen">
-      <div className="absolute top-0 left-0 w-full h-1/3 sm:h-1/2 bg-[#6F4E37] z-0"></div>
-      <div className="absolute top-1/3 sm:top-1/2 left-0 w-full h-2/3 sm:h-1/2 bg-white z-0"></div>
+      {/* Background layers */}
+      <div className="absolute top-0 left-0 w-full h-1/3 sm:h-1/2 bg-[#6F4E37] z-0" />
+      <div className="absolute top-1/3 sm:top-1/2 left-0 w-full h-2/3 sm:h-1/2 bg-white z-0" />
 
       <div className="relative z-10 flex items-start sm:items-center justify-center p-4 sm:p-6 min-h-screen pt-8 sm:pt-6">
         <div className="w-full max-w-7xl">
@@ -258,159 +362,26 @@ export default function SellerProfile() {
                   <CardContent>
                     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
                       <div className="flex justify-center lg:justify-start flex-shrink-0">
-                        <div className="relative">
-                          <div className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-lg overflow-hidden relative">
-                            <img src={imageUrl} alt="Profile" className="w-full h-full object-cover" />
-
-                            <input
-                              type="file"
-                              accept="image/*"
-                              ref={fileInputRef}
-                              onChange={e => handleImageChange(e)}
-                              className="hidden"
-                            />
-                            <div
-                              className="absolute bottom-0 right-0 bg-white p-1.5 rounded-tl-lg rounded-br-lg cursor-pointer hover:bg-gray-50 transition-colors shadow-sm"
-                              onClick={handleEditClick}
-                            >
-                              <Icon name="EditPencil" size={16} />
-                            </div>
-                          </div>
-                        </div>
+                        <ProfileImage imageUrl={imageUrl} onImageChange={handleImageChange} />
                       </div>
 
                       <div className="flex-1">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                          <div className="space-y-4 sm:space-y-6">
-                            <div className="space-y-2">
-                              <Label htmlFor="sellerName">Seller Name</Label>
-                              <Field
-                                as={Input}
-                                id="sellerName"
-                                name="sellerName"
-                                placeholder="Enter company name"
-                                value={values.sellerName}
-                                onChange={handleChange}
-                              />
-                              {touched.sellerName && errors.sellerName && (
-                                <div className="text-red-500 text-sm">{errors.sellerName}</div>
-                              )}
-                            </div>
-                            <div className="space-y-2" >
-                              <Label htmlFor="email">Email</Label>
-                              <Field
-
-                                as={Input}
-                                id="email"
-                                name="email"
-                                type="email"
-                                placeholder="Enter email address"
-                                value={values.email}
-                                onChange={handleChange}
-
-                              />
-                              {touched.email && errors.email && (
-                                <div className="text-red-500 text-sm">{errors.email}</div>
-                              )}
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="address">Address</Label>
-                              <Field
-                                as={Input}
-                                id="address"
-                                name="address"
-                                placeholder="Enter address"
-                                value={values.address}
-                                onChange={handleChange}
-                              />
-                              {touched.address && errors.address && (
-                                <div className="text-red-500 text-sm">{errors.address}</div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="space-y-4 sm:space-y-6">
-                            <div className="space-y-2">
-                              <Label htmlFor="mobile">Seller Mobile</Label>
-                              <Field
-                                as={Input}
-                                id="mobile"
-                                name="mobile"
-                                placeholder="Enter mobile number"
-                                value={values.mobile}
-                                onChange={handleChange}
-                              />
-                              {touched.mobile && errors.mobile && (
-                                <div className="text-red-500 text-sm">{errors.mobile}</div>
-                              )}
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="gst">GST Number</Label>
-                              <Field
-                                as={Input}
-                                id="gst"
-                                name="gst"
-                                placeholder="Enter GST number"
-                                value={values.gst}
-                                onChange={handleChange}
-                              />
-                              {touched.gst && errors.gst && (
-                                <div className="text-red-500 text-sm">{errors.gst}</div>
-                              )}
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="city">City</Label>
-                              <Field
-                                as={Input}
-                                id="city"
-                                name="city"
-                                placeholder="Enter city"
-                                value={values.city}
-                                onChange={handleChange}
-                              />
-                              {touched.city && errors.city && (
-                                <div className="text-red-500 text-sm">{errors.city}</div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="space-y-4 sm:space-y-6 sm:col-span-2 lg:col-span-1">
-                            <div className="space-y-2">
-                              <Label htmlFor="ownerName">Owner Name</Label>
-                              <Field
-                                as={Input}
-                                id="ownerName"
-                                name="ownerName"
-                                placeholder="Enter owner name"
-                                value={values.ownerName}
-                                onChange={handleChange}
-                              />
-                              {touched.ownerName && errors.ownerName && (
-                                <div className="text-red-500 text-sm">{errors.ownerName}</div>
-                              )}
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="status">Status</Label>
-                              <Select
-                                name="status"
-                                placeholder="Select status"
-                                value={values.status}
-                                onChange={e => setFieldValue('status', e.target.value)}
-                              />
-                              {touched.status && errors.status && (
-                                <div className="text-red-500 text-sm">{errors.status}</div>
-                              )}
-                            </div>
-                            <div className="mt-12 text-right">
-                              <button
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="px-6 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition disabled:opacity-50"
-                              >
-                                {isSubmitting ? 'Updating...' : 'Update Profile'}
-                              </button>
-                            </div>
-                          </div>
+                        <FormFields
+                          values={values}
+                          errors={errors}
+                          touched={touched}
+                          handleChange={handleChange}
+                          setFieldValue={setFieldValue}
+                        />
+                        
+                        <div className="mt-8 text-right">
+                          <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="px-6 py-2 bg-[#6F4E37] text-white rounded-md hover:bg-[#5c3f2c] transition disabled:opacity-50"
+                          >
+                            {isSubmitting ? 'Updating...' : 'Update Profile'}
+                          </button>
                         </div>
                       </div>
                     </div>
