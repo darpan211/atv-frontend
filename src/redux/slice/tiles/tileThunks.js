@@ -21,22 +21,6 @@ export const getTileColors = createAsyncThunk(
   }
 );
 
-// Fetch all tiles
-// export const fetchTiles = createAsyncThunk('tiles/fetchTiles', async (queryParams = {}, thunkAPI) => {
-//   try {
-//     // Convert array values to comma-separated strings
-//     const normalizedParams = {};
-//     Object.entries(queryParams).forEach(([key, value]) => {
-//       normalizedParams[key] = Array.isArray(value) ? value.join(',') : value;
-//     });
-//     const queryString = new URLSearchParams(normalizedParams).toString();
-//     const response = await axiosHandler.get(`${BASE_URL}/api/v1/tiles/gettiles?${queryString}`);
-//     return response.data.data;
-//   } catch (error) {
-//     return thunkAPI.rejectWithValue(error.response?.data || error.message);
-//   }
-// });
-
 export const fetchTiles = createAsyncThunk(
   'tiles/fetchTiles',
   async (queryParams = {}, { rejectWithValue }) => {

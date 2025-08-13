@@ -23,7 +23,7 @@ import LayoutPopup from './Components/LayoutPopup';
 import GroutSettingsPopup from './Components/GroutSettingsPopup';
 import TileCard from './Components/TileCard';
 import SearchDropdown from './Components/SearchDropdown';
-
+import { useMediaQuery } from "react-responsive";
 const TileVisualizer = () => {
   const [likedTiles, setLikedTiles] = useState(TIELS.length >= 2 ? [TIELS[0].id, TIELS[1].id] : []);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -48,10 +48,12 @@ const TileVisualizer = () => {
   const [showSettingPopup, setShowSettingPopup] = useState(false);
   const [isComparing, setIsComparing] = useState(false);
   const [compareImage, setCompareImage] = useState(null);
+  const [sliderX, setSliderX] = useState(0);
+  const [isDraggingSlider, setIsDraggingSlider] = useState(false);
+  const isLargeScreen = useMediaQuery({ minWidth: 1024 });
   const [isFramePopupOpen, setIsFramePopupOpen] = useState(false);
   const [showProduct, setShowProducts] = useState(false);
   const [showRoomPopup, setShowRoomPopup] = useState(false);
-  const [sliderX, setSliderX] = useState(window.innerWidth / 2);
   const containerRef = useRef(null);
   const [scale, setScale] = useState(1);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
@@ -66,7 +68,7 @@ const TileVisualizer = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024) {
+      if (isLargeScreen) {
         setIsSidebarOpen(false);
       }
     };
@@ -81,7 +83,7 @@ const TileVisualizer = () => {
         isSidebarOpen &&
         sidebarRef.current &&
         !sidebarRef.current.contains(event.target) &&
-        window.innerWidth < 1024
+        isLargeScreen
       ) {
         const menuButton = document.querySelector('[data-menu-button]');
         if (menuButton && menuButton.contains(event.target)) {
@@ -145,12 +147,43 @@ const TileVisualizer = () => {
     setDragging(false);
   };
 
+  useEffect(() => {
+  if (containerRef.current) {
+    const width = containerRef.current.offsetWidth;
+    setSliderX(width / 2);
+  }
+}, []);
+
+const handleSliderMouseDown = (e) => {
+  e.preventDefault();
+  setIsDraggingSlider(true);
+};
+
+const handleSliderMouseMove = (e) => {
+  if (!isDraggingSlider || !containerRef.current) return;
+  const rect = containerRef.current.getBoundingClientRect();
+  let newX = e.clientX - rect.left;
+  newX = Math.max(0, Math.min(newX, rect.width));
+  setSliderX(newX);
+};
+
+const handleSliderMouseUp = () => {
+  setIsDraggingSlider(false);
+};
+
+const handleSliderTouchMove = (e) => {
+  if (!isDraggingSlider || !containerRef.current) return;
+  const rect = containerRef.current.getBoundingClientRect();
+  let newX = e.touches[0].clientX - rect.left;
+  newX = Math.max(0, Math.min(newX, rect.width));
+  setSliderX(newX);
+};
   return (
     <div className="flex flex-col w-full min-h-screen text-black bg-gray-50">
       <div className="flex flex-1 overflow-hidden relative">
         {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" />}
 
-        {window.innerWidth >= 1024 && (
+        {isLargeScreen && (
           <div
             ref={sidebarRef}
             className={`w-[90vw] max-w-xs sm:max-w-md sm:w-80 md:max-w-lg md:w-96 lg:w-80 xl:w-96
@@ -176,7 +209,7 @@ const TileVisualizer = () => {
                     : 'flex flex-col gap-4'
                 }`}
               >
-                {TIELS.slice(0, 4).map((tile, index) => (
+                {TIELS.map((tile, index) => (
                   <TileCard
                     key={tile.id}
                     tile={tile}
@@ -195,7 +228,7 @@ const TileVisualizer = () => {
           </div>
         )}
 
-        {isMobileSidebarOpen && window.innerWidth < 1024 && (
+        {isMobileSidebarOpen && !isLargeScreen && (
           <div
             className="fixed inset-0 z-50 bg-black/40 flex items-end"
             onClick={() => setIsMobileSidebarOpen(false)}
@@ -382,11 +415,16 @@ const TileVisualizer = () => {
             </div>
           </div>
           {/* Image Display Area */}
-          <div className="flex-1  p-1 sm:p-4 md:p-5 overflow-hidden">
+          <div className="flex-1 p-1 sm:p-4 md:p-5 overflow-hidden">
             {isComparing ? (
               <div
                 ref={containerRef}
                 className="relative w-full max-w-[95vw] mx-auto h-full max-h-[70vh]"
+                onMouseMove={handleSliderMouseMove}
+                onMouseUp={handleSliderMouseUp}
+                onMouseLeave={handleSliderMouseUp}
+                onTouchMove={handleSliderTouchMove}
+                onTouchEnd={handleSliderMouseUp}
               >
                 <div className="absolute inset-0 flex gap-2">
                   {/* Left Image */}
@@ -403,8 +441,10 @@ const TileVisualizer = () => {
                   <div
                     className="absolute top-0 bottom-0 w-0 flex items-center justify-center z-10"
                     style={{ left: sliderX, transform: 'translateX(-50%)' }}
+                    onMouseDown={handleSliderMouseDown}
+                    onTouchStart={handleSliderMouseDown}
                   >
-                    <button className="bg-[#f5f3f1] text-white p-2 border-4 border-solid-2 rounded border-white shadow-lg hover:scale-105 transition-all duration-200 hover:cursor-col-resize">
+                    <button className="bg-[#f5f3f1] text-white p-2 border-4 border-white rounded shadow-lg hover:scale-105 transition-all duration-200 hover:cursor-col-resize">
                       <div className="flex">
                         <svg
                           width="10"
@@ -455,7 +495,7 @@ const TileVisualizer = () => {
                   </button>
 
                   <button
-                    className="flex items-center justify-center bg-white border border- shadow w-10 h-10 hover:cursor-pointer"
+                    className="flex items-center justify-center bg-white border shadow w-10 h-10 hover:cursor-pointer"
                     onClick={() => setIsFramePopupOpen(true)}
                   >
                     <X className="w-5 h-5 text-black" />
@@ -548,7 +588,7 @@ const TileVisualizer = () => {
           )}
           <div className="sticky bottom-0 z-10 bg-white shadow-lg pb-0 sm:pb-0 md:pb-0 lg:pb-0 xl:pb-0">
             <div className="bg-[#EFEFEF] text-gray-800 p-3 sm:p-4 lg:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-300 mx-2 sm:mx-3 lg:mx-4 mt-14 sm:mt-16 lg:mt-0 rounded-lg shadow-lg gap-3 sm:gap-4 max-[1024px]:mb-50 max-[1024px]:bg-[#FFFFFF] max-[1024px]:border-b-0 max-[1024px]:shadow-none">
-              {window.innerWidth > 1024 && (
+              {isLargeScreen && (
                 <div
                   className="hidden md:flex items-center gap-2 sm:gap-3 cursor-pointer"
                   onClick={() => setShowProducts(true)}
@@ -675,7 +715,7 @@ const TileVisualizer = () => {
               <button
                 className="w-12 h-12 rounded-full bg-white shadow flex items-center justify-center border-2 border-[#EFEFEF]"
                 onClick={() => {
-                  if (window.innerWidth < 1024) {
+                  if (!isLargeScreen) {
                     setIsMobileSidebarOpen(true);
                   } else {
                     setViewMode(viewMode === 'grid' ? 'list' : 'grid');
