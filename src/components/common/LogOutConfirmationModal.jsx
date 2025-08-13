@@ -1,5 +1,4 @@
 import React from 'react';
-import CloseIcon from '../../assets/Close.png';
 import { Icon } from './icons';
 import { LogOut } from 'lucide-react';
 

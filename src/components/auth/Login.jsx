@@ -49,7 +49,6 @@ const Login = () => {
         );
 
         if (login.fulfilled.match(resultAction)) {
-          console.log(resultAction, 'resultAction');
           const role = resultAction?.payload?.user?.role || '';
           if (role === 'admin') {
             navigate('/admin/dashboard');

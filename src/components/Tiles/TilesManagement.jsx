@@ -465,7 +465,7 @@ const TileManagement = () => {
       [section]: !prev[section],
     }));
   }, []);
-  // console.log(selectedTile,"seleelelee")
+  
   return (
     <div className="h-screen w-full flex overflow-hidden">
       {loading && <Loader />}

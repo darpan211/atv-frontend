@@ -23,7 +23,7 @@ const FinishPage = () => {
   const columns = [
     {
       header: 'Finish Name',
-      accessor: 'finish', // ✅ Fixed accessor to lowercase 'finish'
+      accessor: 'finish',
     },
     {
       header: 'Actions',
@@ -34,10 +34,10 @@ const FinishPage = () => {
             className="cursor-pointer"
             onClick={() => navigate(`/admin/finish/edit/${row._id}`, { state: row })}
           >
-            <EditIcon className="text-[#a98f7d]" /> {/* ✅ Uses currentColor */}
+            <EditIcon className="text-[#a98f7d]" />
           </div>
           <div className="cursor-pointer" onClick={() => handleDeleteClick(row._id)}>
-            <DeleteIcon className="text-[#a98f7d] cursor-pointer" /> {/* ✅ Uses currentColor */}
+            <DeleteIcon className="text-[#a98f7d] cursor-pointer" />
           </div>
         </div>
       ),
@@ -83,7 +83,6 @@ const FinishPage = () => {
     setSearchQuery(query);
   };
 
-  // ✅ Safer filtering logic
   const filteredFinishes = useMemo(() => {
     const lower = searchQuery.toLowerCase();
     return finish?.data?.filter(item =>

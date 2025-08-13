@@ -194,10 +194,6 @@ const MultiStepConfigure = () => {
         });
       }
 
-      for (let pair of formDataToSend.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-      console.log("Final Form Data:", formDataToSend);
       const response = await axiosHandler.put(`${BASE_URL}/api/v1/configure/addslider`, formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",

@@ -2,7 +2,6 @@ import { useFormik } from 'formik';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from './icons';
 import { Input } from '../ui/input';
 
 export default function CommonList({ title, buttonLabel, placeholder, route }) {
@@ -12,7 +11,6 @@ export default function CommonList({ title, buttonLabel, placeholder, route }) {
   const formik = useFormik({
     initialValues: { search: '' },
     onSubmit: values => {
-      const searchVal = values.search.toLowerCase();
       const filtered = []; // dummy search logic for now
       setFilteredItems(filtered);
     },

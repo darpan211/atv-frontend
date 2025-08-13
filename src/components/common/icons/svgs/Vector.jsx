@@ -1,4 +1,4 @@
-export const Vector = ({ height, width, size, className }) => {
+export const Vector = ({ height, width, size }) => {
      return (
           <svg xmlns="http://www.w3.org/2000/svg"
                width={width ?? size ?? "90"}

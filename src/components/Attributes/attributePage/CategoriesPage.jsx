@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
-import { toast, Bounce } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCategories, deleteCategory } from '@/redux/slice/categories/categoryThunks';
 import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
@@ -15,7 +15,7 @@ const CategoriesPage = () => {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  const { list, loading, error } = useSelector(state => state.categories);
+  const { list, loading } = useSelector(state => state.categories);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

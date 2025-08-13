@@ -4,8 +4,7 @@ import { toCapitalize } from '@/helpers';
 import DeleteConfirmationModal from '../common/DeleteConfirmationModal';
 import { useNavigate } from 'react-router-dom';
 
-const ViewTilePopup = memo(({ data, tile, isOpen, onClose, onEdit, onDelete }) => {
-  console.log('tile', tile);
+const ViewTilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();

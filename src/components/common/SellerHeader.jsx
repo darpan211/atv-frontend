@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { LogOut, Menu, User, User2Icon } from 'lucide-react';
+import { Menu, User } from 'lucide-react';
 import { Icon } from './icons';
 import { Link, useNavigate } from 'react-router-dom';
 import NavItem from './NavItem';

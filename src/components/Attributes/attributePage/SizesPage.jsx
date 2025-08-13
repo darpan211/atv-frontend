@@ -4,7 +4,7 @@ import Layout from '@/components/common/Layout';
 import DataTable from '@/components/common/DataTable';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSizes, deleteSize } from '@/redux/slice/sizes/sizeThunks';
-import { toast, Bounce } from 'react-toastify';
+import { toast } from 'react-toastify';
 import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
 import { DeleteIcon } from '@/components/common/icons/svgs/DeleteIcon';
 import { EditIcon } from '@/components/common/icons/svgs/EditIcon';
@@ -15,7 +15,7 @@ const SizesPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { list: sizesData, loading, error } = useSelector(state => state.sizes);
+  const { list: sizesData, loading } = useSelector(state => state.sizes);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedSize, setSelectedSize] = useState(null);

@@ -16,7 +16,7 @@ const validationSchema = Yup.object().shape({
   socialMedia: Yup.string().url('Invalid URL format').nullable(),
 });
 
-const ContactConfig = ({ onDataChange, initialData }) => {
+const ContactConfig = ({ onDataChange }) => {
   const dispatch = useDispatch();
   const { dashboardData } = useSelector(state => state.dashboard);
   const [initialValues, setInitialValues] = useState({

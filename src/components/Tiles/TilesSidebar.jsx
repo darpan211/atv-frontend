@@ -135,7 +135,6 @@ const TilesSidebar = ({
       <div className="flex-1 bg-[#E0E0E0] px-2.5 py-3 space-y-4 overflow-y-auto">
         <div className="space-y-1">
           {[
-            // { title: 'Collections', key: 'collections' },
             { title: 'Categories', key: 'categories' },
             { title: 'Series', key: 'series' },
             { title: 'Finishes', key: 'finishes' },

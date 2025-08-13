@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { addRoom, fetchRoomById, updateRoom } from '@/redux/slice/room/roomThunks';
@@ -33,8 +33,6 @@ const RoomSchema = Yup.object().shape({
 
 const AddNewRoom = () => {
   const { categories } = useSelector(state => state);
-  console.log(categories);
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
 

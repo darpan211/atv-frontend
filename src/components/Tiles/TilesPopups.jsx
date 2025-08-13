@@ -165,7 +165,6 @@ const TilePopup = memo(({ tile, isOpen, onClose, onEdit, onDelete }) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   if (!isOpen || !tile) return null;
-  // console.log(tile,"==> tile");
 
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">

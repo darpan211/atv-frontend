@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Layout from '@/components/common/Layout';
 import DataTable from '@/components/common/DataTable';
 import { fetchMaterials, deleteMaterial } from '@/redux/slice/material/materialThunks';
-import { toast, Bounce } from 'react-toastify';
+import { toast } from 'react-toastify';
 import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
 import { DeleteIcon } from '@/components/common/icons/svgs/DeleteIcon';
 import { EditIcon } from '@/components/common/icons/svgs/EditIcon';
@@ -23,7 +23,6 @@ const Materials = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Define columns for DataTable
   const columns = [
     {
       header: 'Material Name',

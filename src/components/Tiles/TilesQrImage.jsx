@@ -11,7 +11,7 @@ function TileImagesDownload() {
   const Title = location.state?.title;
   const canvasRef = useRef(null);
 
-  const [size, setSize] = useState(400); // default size
+  const [size, setSize] = useState(400);
 
   useEffect(() => {
     if (canvasRef.current && fullUrl) {

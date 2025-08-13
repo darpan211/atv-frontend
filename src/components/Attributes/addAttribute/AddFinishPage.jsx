@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Layout from '@/components/common/Layout';
 import CommonAddForm from '@/components/common/CommonAddForm';
-// import { fetchFinishById, addFinish, updateFinish } from '@/redux/slice/finish/colorThunks';
 import { getFinishById, addFinish, updateFinish} from '@/redux/slice/finish/finishThunks';
 import { toast } from 'react-toastify';
 

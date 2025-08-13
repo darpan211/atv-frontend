@@ -1,4 +1,4 @@
-export const EditIcon = ({ height, width, size, className }) => {
+export const EditIcon = ({ height, width, size }) => {
   return (
     <svg
       width={width ?? size ?? 25}

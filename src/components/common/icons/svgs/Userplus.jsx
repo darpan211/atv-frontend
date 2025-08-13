@@ -1,4 +1,4 @@
-export const Userplus = ({ height, width, size, className }) => {
+export const Userplus = () => {
      return (
           <svg
                className="mr-2 w-4 h-4"

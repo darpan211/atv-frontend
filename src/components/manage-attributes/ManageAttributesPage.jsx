@@ -42,7 +42,6 @@ export function useManageAttributes() {
 import { useManageAttributes } from './ManageAttributesPage'; // already defined
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { useFormikContext } from 'formik';
 import { Input } from '../ui/input';
 
 ManageAttributesPage.Header = function Header({ title, buttonLabel, navigateTo }) {

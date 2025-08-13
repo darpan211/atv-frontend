@@ -1,4 +1,4 @@
-export const Pencil = ({ height, width, size, className }) => {
+export const Pencil = ({ height, width, size }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

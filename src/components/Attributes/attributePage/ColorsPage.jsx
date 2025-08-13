@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/common/Layout';
 import DataTable from '@/components/common/DataTable';
-import { toast, Bounce } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchColors } from '@/redux/slice/colors/colorThunks';
 import { deleteColor } from '@/redux/slice/colors/colorThunks';
@@ -26,7 +26,7 @@ const ColorsPage = () => {
   const columns = [
     {
       header: 'Color Name',
-      accessor: 'colors', // Adjust this based on your color object structure
+      accessor: 'colors',
     },
     {
       header: 'Actions',

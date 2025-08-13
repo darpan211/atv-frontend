@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { LogOut, Menu } from 'lucide-react';
-// import { Icon } from './icons';
 import { useNavigate } from 'react-router-dom';
 import NavItem from './NavItem';
 import { useDispatch } from 'react-redux';
 import { logout } from '@/redux/slice/auth/authSlice';
 import { Icon } from './icons/index';
 import LogOutConfirmationModal from './LogOutConfirmationModal';
+
 const AdminHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLogOut, setIslogOut] = useState(false);

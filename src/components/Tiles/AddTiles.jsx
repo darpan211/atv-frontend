@@ -9,27 +9,14 @@ import DropdownWithAdd from '../common/DropdownWithAdd';
 import { Icon } from '../common/icons';
 import TilesPreview from './TilesPreview';
 import TileUploadModal from './TileUploadModal';
-import { MultiSelectDropdown } from '../common/MultiSelectDropdown';
-import { Input } from '../ui/input';
 
-import { clearTilesState, clearSelectedTile } from '@/redux/slice/tiles/tileSlice';
 import { fetchSuitablePlaces } from '@/redux/slice/suitablePlace/suitablePlaceThunks';
-import { fetchSizes, addSize } from '@/redux/slice/sizes/sizeThunks';
-import { fetchSeries, addSeries } from '@/redux/slice/series/seriesThunks';
-import { fetchCategories, addCategory } from '@/redux/slice/categories/categoryThunks';
-import { fetchMaterials, addMaterial } from '@/redux/slice/material/materialThunks';
-import { fetchFinishes, addFinish } from '@/redux/slice/finish/finishThunks';
-import { addSuitablePlace } from '@/redux/slice/suitablePlace/suitablePlaceThunks';
-import { addColor } from '@/redux/slice/colors/colorThunks';
-import { data } from 'react-router-dom';
-import AddSizePage from '../Attributes/addAttribute/AddSizePage';
-import AddSeriesPage from '../Attributes/addAttribute/AddSeriesPage';
-import AddMaterialPage from '../Attributes/addAttribute/AddMaterialPage';
-import AddPlacePage from '../Attributes/addAttribute/AddPlacePage';
-import AddCategoryPage from '../Attributes/addAttribute/AddCategoryPage';
-import AddColorPage from '../Attributes/addAttribute/AddColorPage';
-import AddFinishPage from '../Attributes/addAttribute/AddFinishPage';
-import { fetchTiles, addTile, updateTile } from '@/redux/slice/tiles/tileThunks';
+import { fetchSizes } from '@/redux/slice/sizes/sizeThunks';
+import { fetchSeries } from '@/redux/slice/series/seriesThunks';
+import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
+import { fetchMaterials } from '@/redux/slice/material/materialThunks';
+import { fetchFinishes } from '@/redux/slice/finish/finishThunks';
+import { fetchTiles, addTile } from '@/redux/slice/tiles/tileThunks';
 
 const validationSchema = Yup.object().shape({
   size: Yup.array().min(1, 'Please select at least one size').required('Size is required'),
@@ -49,17 +36,13 @@ const AddTiles = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  // Get category from URL query param
   const searchParams = new URLSearchParams(location.search);
   const categoryFromUrl = searchParams.get('category') || 'wall';
 
-  const { categories, series, sizes, suitablePlace, finish, materials, tiles } = useSelector(
-    state => state
-  );
+  const { series, sizes, suitablePlace, finish, materials } = useSelector(state => state);
 
-  const [showPreview, setShowPreview] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [tileImages, setTileImages] = useState([]); // [{ file, thickness, name, favorite }]
+  const [tileImages, setTileImages] = useState([]);
 
   useEffect(() => {
     dispatch(fetchSuitablePlaces());
@@ -88,12 +71,10 @@ const AddTiles = () => {
     validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        // Validate that we have images
         if (tileImages.length === 0) {
           toast.error('At least one tile image is required');
           return;
         }
-        // Validate that names and thicknesses are present for each image
         const missingName = tileImages.some(img => !img.name || img.name.trim() === '');
         const missingThickness = tileImages.some(
           img => !img.thickness || String(img.thickness).trim() === ''
@@ -102,23 +83,19 @@ const AddTiles = () => {
           toast.error('Each image must have a name and thickness.');
           return;
         }
-        // Validate that size is selected
         if (!values.size || values.size.length === 0) {
           toast.error('Please select at least one size');
           return;
         }
-        // Create FormData object for multipart/form-data
         const formData = new FormData();
         formData.append('description', values.description || '');
         formData.append('status', values.status);
         formData.append('category', categoryFromUrl);
-        // Add arrays as comma-separated strings (only value, not label)
         formData.append('size', values.size.map(item => item.value).join(', '));
         formData.append('suitable_place', values.suitablePlace.map(item => item.value).join(', '));
         formData.append('series', values.series.map(item => item.value).join(', '));
         formData.append('material', values.material.map(item => item.value).join(', '));
         formData.append('finish', values.finish.map(item => item.value).join(', '));
-        // Add tile names, thicknesses, colors, and favorites as comma-separated strings
         const tileNames = tileImages.map(img => img.name).join(',');
         const tileThicknesses = tileImages.map(img => img.thickness).join(',');
         const tileColors = tileImages.map(img => img.color).join(',');
@@ -127,7 +104,6 @@ const AddTiles = () => {
         formData.append('thickness', tileThicknesses);
         formData.append('tiles_color', tileColors);
         formData.append('favorite', tileFavorites);
-        // Add all tile images as files only (not as string or name)
         tileImages.forEach(image => {
           formData.append('tiles_image', image.file);
         });
@@ -135,11 +111,8 @@ const AddTiles = () => {
         if (resultAction.error) {
           toast.error(resultAction.error.message || 'Failed to add tile');
         } else {
-          setShowPreview(true);
-          // Reset form and images
           formik.resetForm();
           setTileImages([]);
-          // Navigate to tiles list with toast message in state
           navigate('/tiles/list', {
             state: { toastMessage: 'Tile added successfully!' },
           });
@@ -152,7 +125,6 @@ const AddTiles = () => {
     },
   });
 
-  // Map redux data to dropdown options (using .list.data)
   const sizeOptions =
     sizes?.list?.data?.map(size => ({
       label: size.sizes,
@@ -171,7 +143,6 @@ const AddTiles = () => {
       value: cat.material,
     })) || [];
 
-  // Update finishOptions to use Redux data
   const finishOptions =
     finish?.list?.data?.map(f => ({
       label: f.finish,
@@ -185,7 +156,6 @@ const AddTiles = () => {
     })) || [];
 
   const handleUploadComplete = newImages => {
-    // Add favorite: false by default
     const imagesWithFavorite = newImages.map(img => ({ ...img, favorite: false }));
     setTileImages(prevImages => [...prevImages, ...imagesWithFavorite]);
     formik.setFieldValue('tileImages', [...tileImages, ...imagesWithFavorite]);
@@ -363,7 +333,6 @@ const AddTiles = () => {
           </div>
         </>
       )}
-      {/* {renderPopup()} */}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-export const UserIcon  = ({ height, width, size, className }) => {
+export const UserIcon  = () => {
      return (
           <svg
                className="mr-2 w-4 h-4"

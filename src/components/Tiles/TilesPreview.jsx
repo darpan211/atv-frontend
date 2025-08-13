@@ -1,9 +1,6 @@
 import React, { useRef, useCallback } from 'react';
-import { FaHeart } from 'react-icons/fa';
 import { Icon } from '../common/icons';
-import img from '../../assets/img1.png';
 import { PencilIcon } from '../common/icons/svgs/PencilIcon';
-import { HeartIcon } from '../common/icons/svgs/HeartIcon';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 
@@ -24,8 +21,6 @@ const TilesPreview = ({
   setTileImageName,
   onDelete,
   setTileImageThickness,
-  setTileImageFavorite,
-  errors = {},
 }) => {
   const nameRefs = useRef([]);
   const thicknessRefs = useRef([]);

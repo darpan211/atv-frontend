@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Layout from '@/components/common/Layout';
 import DataTable from '@/components/common/DataTable';
-import { toast, Bounce, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 import { fetchSeries, deleteSeries } from '@/redux/slice/series/seriesThunks';
 import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
@@ -16,7 +16,7 @@ const Series = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { list: seriesData, loading, error } = useSelector(state => state.series);
+  const { list: seriesData, loading } = useSelector(state => state.series);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedSeries, setSelectedSeries] = useState(null);

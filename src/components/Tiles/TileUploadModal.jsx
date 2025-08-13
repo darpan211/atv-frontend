@@ -44,12 +44,9 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
         formData.append('tiles_image', file);
       });
 
-      // Call the color detection API using Redux thunk
       const resultAction = await dispatch(getTileColors(formData));
-      // console.log(resultAction, 'resultAction====>>>');
       
       if (resultAction.error) {
-        // toast.error(resultAction.error.message || 'Failed to process images');
         toast.error(colorError || 'Failed to process images');
         return;
       }
@@ -200,9 +197,6 @@ const TileUploadModal = ({ isOpen, onClose, onUploadComplete }) => {
                   {colorLoading ? 'Processing...' : 'Upload'}
                 </button>
               </div>
-              {/* {colorError && (
-                <p className="text-red-600 text-sm mt-2 text-center">{colorError}</p>
-              )} */}
             </Form>
           )}
         </Formik>

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { toast, Bounce } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { useEffect, useMemo, useState } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -22,7 +22,7 @@ const SuitablePlacePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const {list: places, loading, error} = useSelector(state => state.suitablePlace);
+  const {list: places, loading} = useSelector(state => state.suitablePlace);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
@@ -68,13 +68,6 @@ const SuitablePlacePage = () => {
       dispatch(clearSuitablePlacesState());
     };
   }, [dispatch]);
-
-  // // Show error toast if loading failed
-  // useEffect(() => {
-  //   if (error) {
-  //     toast.error('Failed to load suitable places.');
-  //   }
-  // }, [error]);
 
   const handleDeleteClick = id => {
     setSelectedPlace(id);

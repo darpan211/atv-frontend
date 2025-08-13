@@ -53,7 +53,6 @@ const FeaturedImage = ({ onDataChange }) => {
   }, [dashboardData]);
 
   const saveTiles = async tiles => {
-    console.log('Saving Feature Images:', tiles);
     return new Promise(resolve => setTimeout(() => resolve({ status: 200 }), 300));
   };
 

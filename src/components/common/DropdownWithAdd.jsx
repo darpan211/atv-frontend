@@ -9,8 +9,8 @@ import { addSize, fetchSizes } from '@/redux/slice/sizes/sizeThunks';
 import { addSeries, fetchSeries } from '@/redux/slice/series/seriesThunks';
 import { addMaterial, fetchMaterials } from '@/redux/slice/material/materialThunks';
 import { addFinish, fetchFinishes } from '@/redux/slice/finish/finishThunks';
-import { addColor, fetchColors } from '@/redux/slice/colors/colorThunks';
-import { addCategory, fetchCategories } from '@/redux/slice/categories/categoryThunks';
+import { fetchColors } from '@/redux/slice/colors/colorThunks';
+import { fetchCategories } from '@/redux/slice/categories/categoryThunks';
 import {
   addSuitablePlace,
   fetchSuitablePlaces,

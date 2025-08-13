@@ -103,7 +103,6 @@ const SliderConfig = ({ onDataChange }) => {
     setCurrentSlide(prev => (prev === length - 1 ? 0 : prev + 1));
   };
   const saveImages = async images => {
-    console.log('Saving images:', images);
     return new Promise(resolve => {
       setTimeout(() => resolve({ status: 200 }), 1000);
     });

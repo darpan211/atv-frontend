@@ -1,4 +1,4 @@
-export const Logo = ({ height, width, size, className }) => {
+export const Logo = ({ height, width }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

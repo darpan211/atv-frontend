@@ -23,7 +23,6 @@ const Rooms = () => {
 
   const {
     list: rooms,
-    currentPage: storePage,
     totalPages,
     totalItems,
   } = useSelector(state => state.rooms);
